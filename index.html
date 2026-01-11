@@ -979,6 +979,278 @@ body.dark-mode .theme-toggle:hover {
 body.dark-mode .dashboard-card.saldo-liquido {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
 }
+
+/* ==================== NOVOS MÓDULOS ==================== */
+
+/* Comparação de Períodos */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.comparison-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-left: 4px solid #667eea;
+}
+
+.comparison-card h4 {
+  color: #667eea;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.comparison-values {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.comparison-positive {
+  color: #28a745;
+  font-weight: 700;
+}
+
+.comparison-negative {
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+body.dark-mode .comparison-card {
+  background: #1a1a2e;
+}
+
+body.dark-mode .comparison-values {
+  background: #0f3460;
+}
+
+/* Gestão de Categorias */
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border-left: 4px solid #667eea;
+}
+
+.category-item .category-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.category-actions {
+  display: flex;
+  gap: 5px;
+}
+
+body.dark-mode .category-item {
+  background: #0f3460;
+}
+
+/* Metas Financeiras */
+.goal-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  border-left: 4px solid #667eea;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.goal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.goal-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.goal-status.active {
+  background: #28a745;
+  color: white;
+}
+
+.goal-status.completed {
+  background: #667eea;
+  color: white;
+}
+
+.goal-progress-bar {
+  width: 100%;
+  height: 30px;
+  background: #e9ecef;
+  border-radius: 15px;
+  overflow: hidden;
+  margin: 15px 0;
+  position: relative;
+}
+
+.goal-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.goal-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+}
+
+body.dark-mode .goal-card {
+  background: #1a1a2e;
+}
+
+body.dark-mode .goal-title {
+  color: #e0e0e0;
+}
+
+body.dark-mode .goal-progress-bar {
+  background: #0f3460;
+}
+
+body.dark-mode .goal-info {
+  color: #b0b0b0;
+}
+
+/* Orçamento por Categoria */
+.budget-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.budget-category {
+  font-weight: 700;
+  font-size: 16px;
+  color: #333;
+}
+
+.budget-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.budget-status.ok {
+  background: #d4edda;
+  color: #155724;
+}
+
+.budget-status.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.budget-status.danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.budget-bar {
+  width: 100%;
+  height: 20px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.budget-fill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.budget-fill.ok {
+  background: #28a745;
+}
+
+.budget-fill.warning {
+  background: #ffc107;
+}
+
+.budget-fill.danger {
+  background: #e74c3c;
+}
+
+.budget-values {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #666;
+}
+
+body.dark-mode .budget-card {
+  background: #1a1a2e;
+}
+
+body.dark-mode .budget-category {
+  color: #e0e0e0;
+}
+
+body.dark-mode .budget-bar {
+  background: #0f3460;
+}
+
+body.dark-mode .budget-values {
+  color: #b0b0b0;
+}
+
+/* Badge de notificação */
+.notification-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
 </style>
 </head>
 
@@ -1068,6 +1340,30 @@ body.dark-mode .dashboard-card.saldo-liquido {
       <h3>Configurações</h3>
       <p>Configurar sincronização</p>
     </div>
+    <!-- NOVOS CARDS -->
+<div class="main-card" onclick="openModule('comparacao')">
+  <div class="icon">📊</div>
+  <h3>Comparação de Períodos</h3>
+  <p>Compare receitas e despesas</p>
+</div>
+
+<div class="main-card" onclick="openModule('categorias')">
+  <div class="icon">🏷️</div>
+  <h3>Gerenciar Categorias</h3>
+  <p>Crie suas próprias categorias</p>
+</div>
+
+<div class="main-card" onclick="openModule('metas')">
+  <div class="icon">🎯</div>
+  <h3>Metas Financeiras</h3>
+  <p>Defina e acompanhe metas</p>
+</div>
+
+<div class="main-card" onclick="openModule('orcamento')">
+  <div class="icon">💰</div>
+  <h3>Orçamento por Categoria</h3>
+  <p>Controle seus limites de gastos</p>
+</div>
   </div>
 </div>
 
@@ -1930,6 +2226,247 @@ body.dark-mode .dashboard-card.saldo-liquido {
   <div class="spinner" id="syncSpinner"></div>
   <span id="syncMessage"></span>
 </div>
+<!-- ==================== MÓDULO COMPARAÇÃO DE PERÍODOS ==================== -->
+<div class="module-container" id="moduleComparacao">
+  <div class="module-content">
+    <div class="module-header">
+      <h2>📊 Comparação de Períodos</h2>
+      <button class="btn-close" onclick="closeModule('comparacao')">&times;</button>
+    </div>
+    <div class="module-body">
+      
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <span>Compare suas receitas e despesas entre diferentes períodos</span>
+      </div>
+      
+      <!-- SELEÇÃO DE PERÍODOS -->
+      <div class="form-card">
+        <h3>Selecione os Períodos</h3>
+        <div class="form-grid">
+          <div class="form-group-inline">
+            <label for="comp_periodo1">Período 1 *</label>
+            <input type="month" id="comp_periodo1" required>
+          </div>
+          <div class="form-group-inline">
+            <label for="comp_periodo2">Período 2 *</label>
+            <input type="month" id="comp_periodo2" required>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="compararPeriodos()">Comparar Períodos</button>
+      </div>
+      
+      <!-- RESULTADOS DA COMPARAÇÃO -->
+      <div id="comparisonResults" style="display: none;">
+        <h3 style="margin: 30px 0 20px 0;">Resultado da Comparação</h3>
+        <div class="comparison-grid">
+          <div class="comparison-card">
+            <h4>📥 Receitas</h4>
+            <div class="comparison-values">
+              <span id="comp_rec_p1">R$ 0,00</span>
+              <span id="comp_rec_p2">R$ 0,00</span>
+            </div>
+            <div class="comparison-values">
+              <span>Diferença:</span>
+              <span id="comp_rec_diff">R$ 0,00</span>
+            </div>
+          </div>
+          
+          <div class="comparison-card">
+            <h4>📤 Despesas</h4>
+            <div class="comparison-values">
+              <span id="comp_desp_p1">R$ 0,00</span>
+              <span id="comp_desp_p2">R$ 0,00</span>
+            </div>
+            <div class="comparison-values">
+              <span>Diferença:</span>
+              <span id="comp_desp_diff">R$ 0,00</span>
+            </div>
+          </div>
+          
+          <div class="comparison-card">
+            <h4>💰 Saldo</h4>
+            <div class="comparison-values">
+              <span id="comp_saldo_p1">R$ 0,00</span>
+              <span id="comp_saldo_p2">R$ 0,00</span>
+            </div>
+            <div class="comparison-values">
+              <span>Diferença:</span>
+              <span id="comp_saldo_diff">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- GRÁFICO DE COMPARAÇÃO -->
+        <div class="chart-container" style="margin-top: 30px;">
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MÓDULO GERENCIAR CATEGORIAS ==================== -->
+<div class="module-container" id="moduleCategorias">
+  <div class="module-content">
+    <div class="module-header">
+      <h2>🏷️ Gerenciar Categorias</h2>
+      <button class="btn-close" onclick="closeModule('categorias')">&times;</button>
+    </div>
+    <div class="module-body">
+      
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <span>Crie, edite ou exclua suas categorias personalizadas</span>
+      </div>
+      
+      <!-- FORMULÁRIO NOVA CATEGORIA -->
+      <div class="form-card">
+        <h3 id="catFormTitle">Nova Categoria</h3>
+        <input type="hidden" id="cat_id">
+        
+        <div class="form-grid">
+          <div class="form-group-inline">
+            <label for="cat_nome">Nome da Categoria *</label>
+            <input type="text" id="cat_nome" placeholder="Ex: Streaming, Pet, Viagens" required>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="btn-primary" id="btnSaveCat" onclick="saveCategoria()">Adicionar Categoria</button>
+          <button class="btn-secondary" id="btnCancelCat" onclick="resetCatForm()" style="display:none">Cancelar</button>
+        </div>
+      </div>
+      
+      <!-- LISTA DE CATEGORIAS -->
+      <div class="data-table">
+        <h3>Categorias Padrão do Sistema</h3>
+        <div id="defaultCategoriesList"></div>
+      </div>
+      
+      <div class="data-table" style="margin-top: 30px;">
+        <h3>Minhas Categorias Personalizadas</h3>
+        <div id="customCategoriesList"></div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MÓDULO METAS FINANCEIRAS ==================== -->
+<div class="module-container" id="moduleMetas">
+  <div class="module-content">
+    <div class="module-header">
+      <h2>🎯 Metas Financeiras</h2>
+      <button class="btn-close" onclick="closeModule('metas')">&times;</button>
+    </div>
+    <div class="module-body">
+      
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <span>Defina metas e acompanhe seu progresso</span>
+      </div>
+      
+      <!-- FORMULÁRIO NOVA META -->
+      <div class="form-card">
+        <h3 id="metaFormTitle">Nova Meta Financeira</h3>
+        <input type="hidden" id="meta_id">
+        
+        <div class="form-grid">
+          <div class="form-group-inline">
+            <label for="meta_titulo">Título da Meta *</label>
+            <input type="text" id="meta_titulo" placeholder="Ex: Viagem para Europa" required>
+          </div>
+          
+          <div class="form-group-inline">
+            <label for="meta_valor">Valor Objetivo (R$) *</label>
+            <input type="text" id="meta_valor" placeholder="0,00" required>
+          </div>
+          
+          <div class="form-group-inline">
+            <label for="meta_atual">Valor Atual (R$)</label>
+            <input type="text" id="meta_atual" placeholder="0,00">
+          </div>
+          
+          <div class="form-group-inline">
+            <label for="meta_prazo">Data Limite</label>
+            <input type="date" id="meta_prazo">
+          </div>
+        </div>
+        
+        <div class="form-group-inline">
+          <label for="meta_desc">Descrição</label>
+          <textarea id="meta_desc" rows="3" placeholder="Descreva sua meta..."></textarea>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="btn-primary" id="btnSaveMeta" onclick="saveMeta()">Criar Meta</button>
+          <button class="btn-secondary" id="btnCancelMeta" onclick="resetMetaForm()" style="display:none">Cancelar</button>
+        </div>
+      </div>
+      
+      <!-- LISTA DE METAS -->
+      <div class="data-table">
+        <h3>Minhas Metas</h3>
+        <div id="metasList"></div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MÓDULO ORÇAMENTO POR CATEGORIA ==================== -->
+<div class="module-container" id="moduleOrcamento">
+  <div class="module-content">
+    <div class="module-header">
+      <h2>💰 Orçamento por Categoria</h2>
+      <button class="btn-close" onclick="closeModule('orcamento')">&times;</button>
+    </div>
+    <div class="module-body">
+      
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <span>Defina limites de gastos para cada categoria e acompanhe seu uso</span>
+      </div>
+      
+      <!-- FORMULÁRIO NOVO ORÇAMENTO -->
+      <div class="form-card">
+        <h3>Definir Orçamento</h3>
+        
+        <div class="form-grid">
+          <div class="form-group-inline">
+            <label for="orc_categoria">Categoria *</label>
+            <select id="orc_categoria" required>
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          
+          <div class="form-group-inline">
+            <label for="orc_limite">Limite Mensal (R$) *</label>
+            <input type="text" id="orc_limite" placeholder="0,00" required>
+          </div>
+          
+          <div class="form-group-inline">
+            <label for="orc_mes">Mês de Referência *</label>
+            <input type="month" id="orc_mes" required>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button class="btn-primary" onclick="saveOrcamento()">Definir Orçamento</button>
+        </div>
+      </div>
+      
+      <!-- ORÇAMENTOS ATIVOS -->
+      <div class="data-table">
+        <h3>Orçamentos do Mês Atual</h3>
+        <div id="orcamentosList"></div>
+      </div>
+      
+    </div>
+  </div>
+</div>
 
 <script>
 // ==================== CONFIGURAÇÃO ====================
@@ -1978,6 +2515,14 @@ let consignacoes = JSON.parse(localStorage.getItem('consignacoes')) || [];
 let anotacoes = JSON.parse(localStorage.getItem('anotacoes')) || [];
 let vendas = JSON.parse(localStorage.getItem('vendas')) || [];
 let consignacaoChart = null;
+// NOVOS DADOS
+let categorias = JSON.parse(localStorage.getItem('categorias')) || [];
+let metas = JSON.parse(localStorage.getItem('metas')) || [];
+let orcamentos = JSON.parse(localStorage.getItem('orcamentos')) || [];
+let comparisonChart = null;
+
+// CATEGORIAS PADRÃO DO SISTEMA
+const categoriasDefault = ['Salário', 'Alimentação', 'Transporte', 'Moradia', 'Saúde', 'Educação', 'Lazer', 'Investimentos', 'Outros'];
 
 // ==================== FUNÇÕES DE SINCRONIZAÇÃO ====================
 function showSyncStatus(message, type = 'syncing') {
@@ -2213,10 +2758,10 @@ function displayCurrency(value) {
 
 // ==================== INICIALIZAÇÃO ====================
 window.onload = function() {
-  // ADICIONE ESTA LINHA:
+  // Carregar tema primeiro
   loadThemePreference();
   
-  // Configurar URL automaticamente (COLE SEU LINK AQUI)
+  // Configurar URL automaticamente
   if (!SHEETS_URL) {
     SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz87X1rzOfnWs0yD9eONGMCD4KJq-J8aVZUUMapb-T3HezGru52LPdwRUYPS8d2FnxHEw/exec';
     localStorage.setItem('sheetsUrl', SHEETS_URL);
@@ -2224,13 +2769,12 @@ window.onload = function() {
   
   if (usuario) {
     mostrarTelaPrincipal();
-    // CARREGAR TODOS OS DADOS AUTOMATICAMENTE AO INICIAR
     autoLoadAllData();
   }
   
   atualizarStatusUrl();
   
-  // Adicionar formatação de moeda aos campos
+  // Adicionar formatação de moeda aos campos ORIGINAIS
   const currencyInputs = ['f_valor', 'i_valor', 'i_prov', 'c_valor', 'v_custo', 'v_valor'];
   currencyInputs.forEach(id => {
     const input = document.getElementById(id);
@@ -2240,6 +2784,20 @@ window.onload = function() {
       });
     }
   });
+  
+  // NOVO: Adicionar formatação aos campos dos novos módulos
+  const newCurrencyInputs = ['meta_valor', 'meta_atual', 'orc_limite'];
+  newCurrencyInputs.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('input', function() {
+        formatCurrency(this);
+      });
+    }
+  });
+  
+  // NOVO: Inicializar categorias personalizadas
+  updateCategorySelects();
   
   // Fecha módulos com ESC
   document.addEventListener('keydown', function(e) {
@@ -2266,7 +2824,11 @@ function closeModule(module) {
     'consignacao': 'moduleConsignacao',
     'anotacoes': 'moduleAnotacoes',
     'vendas': 'moduleVendas',
-    'dashboard': 'moduleDashboard'
+    'dashboard': 'moduleDashboard',
+    'comparacao': 'moduleComparacao',
+    'categorias': 'moduleCategorias',
+    'metas': 'moduleMetas',
+    'orcamento': 'moduleOrcamento'
   };
   
   // Obter o ID correto do módulo
@@ -2292,7 +2854,6 @@ function closeModule(module) {
     console.error('❌ Módulo não reconhecido:', moduleName);
   }
 }
-
 
 // ==================== CARREGAMENTO AUTOMÁTICO ====================
 async function autoLoadAllData() {
@@ -2501,6 +3062,28 @@ function openModule(module) {
   }
   if (module === 'configuracao') {
     atualizarStatusUrl();
+  }
+  
+  // NOVOS MÓDULOS
+  if (module === 'comparacao') {
+    const hoje = new Date();
+    const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    const mesAnterior = `${hoje.getFullYear()}-${String(hoje.getMonth()).padStart(2, '0')}`;
+    document.getElementById('comp_periodo1').value = mesAnterior;
+    document.getElementById('comp_periodo2').value = mesAtual;
+  }
+  if (module === 'categorias') {
+    renderCategorias();
+  }
+  if (module === 'metas') {
+    renderMetas();
+  }
+  if (module === 'orcamento') {
+    updateCategorySelects();
+    renderOrcamentos();
+    const hoje = new Date();
+    const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    document.getElementById('orc_mes').value = mesAtual;
   }
 }
 
@@ -3901,7 +4484,487 @@ function limparFiltrosVendas() {
   document.getElementById('filterVendasDataFim').value = '';
   renderVendas();
 }
+// ==================== COMPARAÇÃO DE PERÍODOS ====================
+function compararPeriodos() {
+  const periodo1 = document.getElementById('comp_periodo1').value;
+  const periodo2 = document.getElementById('comp_periodo2').value;
+  
+  if (!periodo1 || !periodo2) {
+    alert('Selecione ambos os períodos!');
+    return;
+  }
+  
+  // Calcular valores período 1
+  const [ano1, mes1] = periodo1.split('-');
+  const dados1 = calcularPeriodo(parseInt(ano1), parseInt(mes1));
+  
+  // Calcular valores período 2
+  const [ano2, mes2] = periodo2.split('-');
+  const dados2 = calcularPeriodo(parseInt(ano2), parseInt(mes2));
+  
+  // Exibir resultados
+  document.getElementById('comp_rec_p1').textContent = `P1: R$ ${displayCurrency(dados1.receitas)}`;
+  document.getElementById('comp_rec_p2').textContent = `P2: R$ ${displayCurrency(dados2.receitas)}`;
+  
+  const diffRec = dados2.receitas - dados1.receitas;
+  const diffRecEl = document.getElementById('comp_rec_diff');
+  diffRecEl.textContent = `${diffRec >= 0 ? '+' : ''}R$ ${displayCurrency(Math.abs(diffRec))}`;
+  diffRecEl.className = diffRec >= 0 ? 'comparison-positive' : 'comparison-negative';
+  
+  document.getElementById('comp_desp_p1').textContent = `P1: R$ ${displayCurrency(dados1.despesas)}`;
+  document.getElementById('comp_desp_p2').textContent = `P2: R$ ${displayCurrency(dados2.despesas)}`;
+  
+  const diffDesp = dados2.despesas - dados1.despesas;
+  const diffDespEl = document.getElementById('comp_desp_diff');
+  diffDespEl.textContent = `${diffDesp >= 0 ? '+' : ''}R$ ${displayCurrency(Math.abs(diffDesp))}`;
+  diffDespEl.className = diffDesp >= 0 ? 'comparison-negative' : 'comparison-positive';
+  
+  const saldo1 = dados1.receitas - dados1.despesas;
+  const saldo2 = dados2.receitas - dados2.despesas;
+  
+  document.getElementById('comp_saldo_p1').textContent = `P1: R$ ${displayCurrency(saldo1)}`;
+  document.getElementById('comp_saldo_p2').textContent = `P2: R$ ${displayCurrency(saldo2)}`;
+  
+  const diffSaldo = saldo2 - saldo1;
+  const diffSaldoEl = document.getElementById('comp_saldo_diff');
+  diffSaldoEl.textContent = `${diffSaldo >= 0 ? '+' : ''}R$ ${displayCurrency(Math.abs(diffSaldo))}`;
+  diffSaldoEl.className = diffSaldo >= 0 ? 'comparison-positive' : 'comparison-negative';
+  
+  // Mostrar resultados e gráfico
+  document.getElementById('comparisonResults').style.display = 'block';
+  renderComparisonChart(dados1, dados2, periodo1, periodo2);
+}
 
+function calcularPeriodo(ano, mes) {
+  let receitas = 0;
+  let despesas = 0;
+  
+  financeiro.forEach(item => {
+    const itemDate = new Date(item.data);
+    if (itemDate.getFullYear() === ano && itemDate.getMonth() + 1 === mes) {
+      if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
+        receitas += item.valor;
+      } else {
+        despesas += item.valor;
+      }
+    }
+  });
+  
+  return { receitas, despesas };
+}
+
+function renderComparisonChart(dados1, dados2, periodo1, periodo2) {
+  const ctx = document.getElementById('comparisonChart');
+  
+  if (comparisonChart) {
+    comparisonChart.destroy();
+  }
+  
+  comparisonChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Receitas', 'Despesas', 'Saldo'],
+      datasets: [
+        {
+          label: periodo1,
+          data: [dados1.receitas, dados1.despesas, dados1.receitas - dados1.despesas],
+          backgroundColor: 'rgba(102, 126, 234, 0.8)',
+        },
+        {
+          label: periodo2,
+          data: [dados2.receitas, dados2.despesas, dados2.receitas - dados2.despesas],
+          backgroundColor: 'rgba(118, 75, 162, 0.8)',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Comparação de Períodos'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': R$ ' + displayCurrency(context.parsed.y);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ==================== GERENCIAR CATEGORIAS ====================
+function saveCategoria() {
+  const id = document.getElementById('cat_id').value;
+  const nome = document.getElementById('cat_nome').value.trim();
+  
+  if (!nome) {
+    alert('Preencha o nome da categoria!');
+    return;
+  }
+  
+  // Verificar se já existe
+  const jaExiste = categorias.some(c => c.nome.toLowerCase() === nome.toLowerCase());
+  const existePadrao = categoriasDefault.some(c => c.toLowerCase() === nome.toLowerCase());
+  
+  if (jaExiste || existePadrao) {
+    alert('Esta categoria já existe!');
+    return;
+  }
+  
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    nome: nome
+  };
+  
+  if (id) {
+    const index = categorias.findIndex(c => c.id === item.id);
+    categorias[index] = item;
+  } else {
+    categorias.push(item);
+  }
+  
+  localStorage.setItem('categorias', JSON.stringify(categorias));
+  resetCatForm();
+  renderCategorias();
+  updateCategorySelects();
+}
+
+function renderCategorias() {
+  // Categorias padrão
+  const defaultList = document.getElementById('defaultCategoriesList');
+  defaultList.innerHTML = '';
+  
+  categoriasDefault.forEach(cat => {
+    const item = document.createElement('div');
+    item.className = 'category-item';
+    item.innerHTML = `
+      <span class="category-name">🏷️ ${cat}</span>
+      <span style="color: #999; font-size: 12px;">Categoria padrão do sistema</span>
+    `;
+    defaultList.appendChild(item);
+  });
+  
+  // Categorias personalizadas
+  const customList = document.getElementById('customCategoriesList');
+  customList.innerHTML = '';
+  
+  if (categorias.length === 0) {
+    customList.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhuma categoria personalizada ainda</p>';
+    return;
+  }
+  
+  categorias.forEach(cat => {
+    const item = document.createElement('div');
+    item.className = 'category-item';
+    item.innerHTML = `
+      <span class="category-name">🏷️ ${cat.nome}</span>
+      <div class="category-actions">
+        <button class="btn-edit" onclick="editCategoria(${cat.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteCategoria(${cat.id})">Excluir</button>
+      </div>
+    `;
+    customList.appendChild(item);
+  });
+}
+
+function editCategoria(id) {
+  const cat = categorias.find(c => c.id === id);
+  document.getElementById('cat_id').value = cat.id;
+  document.getElementById('cat_nome').value = cat.nome;
+  
+  document.getElementById('catFormTitle').textContent = 'Editar Categoria';
+  document.getElementById('btnSaveCat').textContent = 'Salvar Alterações';
+  document.getElementById('btnCancelCat').style.display = 'inline-block';
+}
+
+function deleteCategoria(id) {
+  if (confirm('Deseja realmente excluir esta categoria?')) {
+    categorias = categorias.filter(c => c.id !== id);
+    localStorage.setItem('categorias', JSON.stringify(categorias));
+    renderCategorias();
+    updateCategorySelects();
+  }
+}
+
+function resetCatForm() {
+  document.getElementById('cat_id').value = '';
+  document.getElementById('cat_nome').value = '';
+  document.getElementById('catFormTitle').textContent = 'Nova Categoria';
+  document.getElementById('btnSaveCat').textContent = 'Adicionar Categoria';
+  document.getElementById('btnCancelCat').style.display = 'none';
+}
+
+function updateCategorySelects() {
+  // Atualizar select de categorias no financeiro
+  const selectFin = document.getElementById('f_cat');
+  selectFin.innerHTML = '';
+  
+  [...categoriasDefault, ...categorias.map(c => c.nome)].forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    option.textContent = cat;
+    selectFin.appendChild(option);
+  });
+  
+  // Atualizar select de orçamento
+  const selectOrc = document.getElementById('orc_categoria');
+  selectOrc.innerHTML = '<option value="">Selecione...</option>';
+  
+  [...categoriasDefault, ...categorias.map(c => c.nome)].forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    option.textContent = cat;
+    selectOrc.appendChild(option);
+  });
+}
+
+// ==================== METAS FINANCEIRAS ====================
+function saveMeta() {
+  const id = document.getElementById('meta_id').value;
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    titulo: document.getElementById('meta_titulo').value,
+    valorObjetivo: parseCurrency(document.getElementById('meta_valor').value),
+    valorAtual: parseCurrency(document.getElementById('meta_atual').value),
+    prazo: document.getElementById('meta_prazo').value,
+    descricao: document.getElementById('meta_desc').value,
+    criacao: id ? metas.find(m => m.id === parseInt(id)).criacao : new Date().toISOString()
+  };
+  
+  if (!item.titulo || item.valorObjetivo === 0) {
+    alert('Preencha os campos obrigatórios!');
+    return;
+  }
+  
+  if (id) {
+    const index = metas.findIndex(m => m.id === item.id);
+    metas[index] = item;
+  } else {
+    metas.push(item);
+  }
+  
+  localStorage.setItem('metas', JSON.stringify(metas));
+  resetMetaForm();
+  renderMetas();
+}
+
+function renderMetas() {
+  const container = document.getElementById('metasList');
+  container.innerHTML = '';
+  
+  if (metas.length === 0) {
+    container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhuma meta definida ainda</p>';
+    return;
+  }
+  
+  metas.forEach(meta => {
+    const progresso = (meta.valorAtual / meta.valorObjetivo) * 100;
+    const isCompleta = progresso >= 100;
+    
+    const card = document.createElement('div');
+    card.className = 'goal-card';
+    
+    let prazoInfo = '';
+    if (meta.prazo) {
+      const prazoDate = new Date(meta.prazo);
+      const hoje = new Date();
+      const diasRestantes = Math.ceil((prazoDate - hoje) / (1000 * 60 * 60 * 24));
+      prazoInfo = diasRestantes > 0 ? `${diasRestantes} dias restantes` : 'Prazo vencido';
+    }
+    
+    card.innerHTML = `
+      <div class="goal-header">
+        <h4 class="goal-title">${meta.titulo}</h4>
+        <span class="goal-status ${isCompleta ? 'completed' : 'active'}">
+          ${isCompleta ? '✓ Concluída' : 'Em Andamento'}
+        </span>
+      </div>
+      
+      ${meta.descricao ? `<p style="color: #666; margin-bottom: 15px;">${meta.descricao}</p>` : ''}
+      
+      <div class="goal-progress-bar">
+        <div class="goal-progress-fill" style="width: ${Math.min(progresso, 100)}%">
+          ${progresso.toFixed(0)}%
+        </div>
+      </div>
+      
+      <div class="goal-info">
+        <span>R$ ${displayCurrency(meta.valorAtual)} / R$ ${displayCurrency(meta.valorObjetivo)}</span>
+        <span>${prazoInfo}</span>
+      </div>
+      
+      <div class="action-buttons" style="margin-top: 15px;">
+        <button class="btn-success" onclick="atualizarMeta(${meta.id})">Adicionar Valor</button>
+        <button class="btn-edit" onclick="editMeta(${meta.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteMeta(${meta.id})">Excluir</button>
+      </div>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+function atualizarMeta(id) {
+  const valor = prompt('Quanto deseja adicionar à meta? (em R$)');
+  if (!valor) return;
+  
+  const valorNum = parseCurrency(valor);
+  if (valorNum <= 0) {
+    alert('Valor inválido!');
+    return;
+  }
+  
+  const meta = metas.find(m => m.id === id);
+  meta.valorAtual += valorNum;
+  
+  localStorage.setItem('metas', JSON.stringify(metas));
+  renderMetas();
+  
+  if (meta.valorAtual >= meta.valorObjetivo) {
+    alert('🎉 Parabéns! Você atingiu sua meta!');
+  }
+}
+
+function editMeta(id) {
+  const meta = metas.find(m => m.id === id);
+  document.getElementById('meta_id').value = meta.id;
+  document.getElementById('meta_titulo').value = meta.titulo;
+  document.getElementById('meta_valor').value = displayCurrency(meta.valorObjetivo);
+  document.getElementById('meta_atual').value = displayCurrency(meta.valorAtual);
+  document.getElementById('meta_prazo').value = meta.prazo || '';
+  document.getElementById('meta_desc').value = meta.descricao || '';
+  
+  document.getElementById('metaFormTitle').textContent = 'Editar Meta';
+  document.getElementById('btnSaveMeta').textContent = 'Salvar Alterações';
+  document.getElementById('btnCancelMeta').style.display = 'inline-block';
+  
+  document.getElementById('formMeta').scrollIntoView({behavior: 'smooth'});
+}
+
+function deleteMeta(id) {
+  if (confirm('Deseja realmente excluir esta meta?')) {
+    metas = metas.filter(m => m.id !== id);
+    localStorage.setItem('metas', JSON.stringify(metas));
+    renderMetas();
+  }
+}
+
+function resetMetaForm() {
+  document.getElementById('meta_id').value = '';
+  document.getElementById('meta_titulo').value = '';
+  document.getElementById('meta_valor').value = '';
+  document.getElementById('meta_atual').value = '';
+  document.getElementById('meta_prazo').value = '';
+  document.getElementById('meta_desc').value = '';
+  document.getElementById('metaFormTitle').textContent = 'Nova Meta Financeira';
+  document.getElementById('btnSaveMeta').textContent = 'Criar Meta';
+  document.getElementById('btnCancelMeta').style.display = 'none';
+}
+
+// ==================== ORÇAMENTO POR CATEGORIA ====================
+function saveOrcamento() {
+  const categoria = document.getElementById('orc_categoria').value;
+  const limite = parseCurrency(document.getElementById('orc_limite').value);
+  const mes = document.getElementById('orc_mes').value;
+  
+  if (!categoria || limite === 0 || !mes) {
+    alert('Preencha todos os campos!');
+    return;
+  }
+  
+  const item = {
+    id: Date.now(),
+    categoria: categoria,
+    limite: limite,
+    mes: mes
+  };
+  
+  orcamentos.push(item);
+  localStorage.setItem('orcamentos', JSON.stringify(orcamentos));
+  
+  document.getElementById('orc_categoria').value = '';
+  document.getElementById('orc_limite').value = '';
+  
+  renderOrcamentos();
+  alert('Orçamento definido com sucesso!');
+}
+
+function renderOrcamentos() {
+  const container = document.getElementById('orcamentosList');
+  container.innerHTML = '';
+  
+  // Pegar mês atual
+  const hoje = new Date();
+  const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+  
+  const orcsMesAtual = orcamentos.filter(o => o.mes === mesAtual);
+  
+  if (orcsMesAtual.length === 0) {
+    container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhum orçamento definido para este mês</p>';
+    return;
+  }
+  
+  orcsMesAtual.forEach(orc => {
+    // Calcular gastos da categoria no mês
+    const [ano, mes] = orc.mes.split('-');
+    const gastos = financeiro.filter(item => {
+      const itemDate = new Date(item.data);
+      return item.categoria === orc.categoria &&
+             itemDate.getFullYear() === parseInt(ano) &&
+             itemDate.getMonth() + 1 === parseInt(mes) &&
+             (item.tipo === 'Pago' || item.tipo === 'Pagar');
+    }).reduce((sum, item) => sum + item.valor, 0);
+    
+    const percentual = (gastos / orc.limite) * 100;
+    let status = 'ok';
+    let statusText = 'OK';
+    
+    if (percentual >= 100) {
+      status = 'danger';
+      statusText = 'Limite Excedido!';
+    } else if (percentual >= 80) {
+      status = 'warning';
+      statusText = 'Atenção!';
+    }
+    
+    const card = document.createElement('div');
+    card.className = 'budget-card';
+    card.innerHTML = `
+      <div class="budget-header">
+        <span class="budget-category">${orc.categoria}</span>
+        <span class="budget-status ${status}">${statusText}</span>
+      </div>
+      
+      <div class="budget-bar">
+        <div class="budget-fill ${status}" style="width: ${Math.min(percentual, 100)}%"></div>
+      </div>
+      
+      <div class="budget-values">
+        <span>Gasto: R$ ${displayCurrency(gastos)}</span>
+        <span>Limite: R$ ${displayCurrency(orc.limite)}</span>
+      </div>
+      
+      <div class="action-buttons" style="margin-top: 10px;">
+        <button class="btn-delete" onclick="deleteOrcamento(${orc.id})">Remover Orçamento</button>
+      </div>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+function deleteOrcamento(id) {
+  if (confirm('Deseja remover este orçamento?')) {
+    orcamentos = orcamentos.filter(o => o.id !== id);
+    localStorage.setItem('orcamentos', JSON.stringify(orcamentos));
+    renderOrcamentos();
+  }
+}
 </script>
 <!-- BOTÃO DE ALTERNÂNCIA DE TEMA -->
 <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Alternar tema">
