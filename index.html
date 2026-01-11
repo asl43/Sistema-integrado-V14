@@ -818,6 +818,167 @@ table tbody tr:hover {
 .btn-load:hover {
   background: #218838;
 }
+/* ==================== MODO ESCURO ==================== */
+body.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+body.dark-mode .main-container {
+  background: #0f3460;
+}
+
+body.dark-mode .login-container,
+body.dark-mode .main-card,
+body.dark-mode .module-content,
+body.dark-mode .form-card,
+body.dark-mode .dashboard-card,
+body.dark-mode table {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .main-card h3,
+body.dark-mode .form-card h3,
+body.dark-mode .dashboard-card h3,
+body.dark-mode label,
+body.dark-mode .summary-section h3,
+body.dark-mode .filter-section h3 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .main-card p {
+  color: #b0b0b0;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background: #0f3460;
+  color: #e0e0e0;
+  border-color: #533483;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus,
+body.dark-mode textarea:focus {
+  border-color: #667eea;
+}
+
+body.dark-mode table th {
+  background: #16213e;
+  color: #e0e0e0;
+}
+
+body.dark-mode table th:hover {
+  background: #1f2d4d;
+}
+
+body.dark-mode table tbody tr:hover {
+  background: #16213e;
+}
+
+body.dark-mode .filter-section {
+  background: #1a1a2e;
+  border-color: #533483;
+}
+
+body.dark-mode .form-card.editing {
+  background: #1f2d4d;
+  border-color: #667eea;
+}
+
+body.dark-mode .sync-status {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .config-section {
+  background: #2c2c1e;
+  border-color: #ffc107;
+}
+
+body.dark-mode .config-section h3 {
+  color: #ffc107;
+}
+
+body.dark-mode .alert-info {
+  background: #1c3a47;
+  color: #8dd4f0;
+  border-left-color: #17a2b8;
+}
+
+body.dark-mode .alert-warning {
+  background: #3d3420;
+  color: #f0d48d;
+  border-left-color: #ffc107;
+}
+
+body.dark-mode .alert-success {
+  background: #1e3d2c;
+  color: #8df0b0;
+  border-left-color: #28a745;
+}
+
+/* Botão de alternância de tema */
+.theme-toggle {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 9998;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  background: #5568d3;
+}
+
+body.dark-mode .theme-toggle {
+  background: #ffc107;
+  color: #1a1a2e;
+}
+
+body.dark-mode .theme-toggle:hover {
+  background: #e0a800;
+}
+
+/* Cards adicionais do Dashboard */
+.dashboard-card.receita-recebida {
+  border-left-color: #28a745;
+}
+
+.dashboard-card.receita-receber {
+  border-left-color: #20c997;
+}
+
+.dashboard-card.despesa-paga {
+  border-left-color: #e74c3c;
+}
+
+.dashboard-card.despesa-pagar {
+  border-left-color: #f39c12;
+}
+
+.dashboard-card.saldo-liquido {
+  border-left-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+body.dark-mode .dashboard-card.saldo-liquido {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
 </style>
 </head>
 
@@ -1664,36 +1825,68 @@ table tbody tr:hover {
       </div>
       
       <div class="dashboard-grid">
-        <div class="dashboard-card">
-          <h3>Saldo Total</h3>
-          <p id="dashSaldo">R$ 0,00</p>
-          <small>Receitas - Despesas</small>
-        </div>
-        
-        <div class="dashboard-card">
-          <h3>Total Investido</h3>
-          <p id="dashInvest">R$ 0,00</p>
-          <small>Carteira de investimentos</small>
-        </div>
-        
-        <div class="dashboard-card">
-          <h3>Proventos Acumulados</h3>
-          <p id="dashProv">R$ 0,00</p>
-          <small>Renda passiva com recorrências</small>
-        </div>
-        
-        <div class="dashboard-card">
-          <h3>Empréstimos Ativos</h3>
-          <p id="dashEmprestimos">R$ 0,00</p>
-          <small>Valores em aberto</small>
-        </div>
-        
-        <div class="dashboard-card">
-          <h3>Patrimônio Total</h3>
-          <p id="dashPatrimonio">R$ 0,00</p>
-          <small>Saldo + Investimentos + Empréstimos</small>
-        </div>
-      </div>
+  <!-- NOVOS CARDS DETALHADOS -->
+  <div class="dashboard-card receita-recebida">
+    <h3>💰 Receitas Recebidas</h3>
+    <p id="dashReceitasRecebidas">R$ 0,00</p>
+    <small>Valores já recebidos</small>
+  </div>
+  
+  <div class="dashboard-card receita-receber">
+    <h3>📥 Receitas a Receber</h3>
+    <p id="dashReceitasAReceber">R$ 0,00</p>
+    <small>Valores pendentes</small>
+  </div>
+  
+  <div class="dashboard-card despesa-paga">
+    <h3>💸 Despesas Pagas</h3>
+    <p id="dashDespesasPagas">R$ 0,00</p>
+    <small>Valores já pagos</small>
+  </div>
+  
+  <div class="dashboard-card despesa-pagar">
+    <h3>📤 Despesas a Pagar</h3>
+    <p id="dashDespesasAPagar">R$ 0,00</p>
+    <small>Valores pendentes</small>
+  </div>
+  
+  <div class="dashboard-card saldo-liquido">
+    <h3>💵 Saldo Líquido Real</h3>
+    <p id="dashSaldoLiquido" style="font-size: 32px;">R$ 0,00</p>
+    <small>Total Receitas - Total Despesas</small>
+  </div>
+  
+  <!-- CARDS ORIGINAIS -->
+  <div class="dashboard-card">
+    <h3>Saldo Total</h3>
+    <p id="dashSaldo">R$ 0,00</p>
+    <small>Receitas - Despesas</small>
+  </div>
+  
+  <div class="dashboard-card">
+    <h3>Total Investido</h3>
+    <p id="dashInvest">R$ 0,00</p>
+    <small>Carteira de investimentos</small>
+  </div>
+  
+  <div class="dashboard-card">
+    <h3>Proventos Acumulados</h3>
+    <p id="dashProv">R$ 0,00</p>
+    <small>Renda passiva com recorrências</small>
+  </div>
+  
+  <div class="dashboard-card">
+    <h3>Empréstimos Ativos</h3>
+    <p id="dashEmprestimos">R$ 0,00</p>
+    <small>Valores em aberto</small>
+  </div>
+  
+  <div class="dashboard-card">
+    <h3>Patrimônio Total</h3>
+    <p id="dashPatrimonio">R$ 0,00</p>
+    <small>Saldo + Investimentos + Empréstimos</small>
+  </div>
+</div>
       
       <div class="data-table" style="margin-top: 30px;">
         <h3>Estatísticas Gerais</h3>
@@ -2020,6 +2213,9 @@ function displayCurrency(value) {
 
 // ==================== INICIALIZAÇÃO ====================
 window.onload = function() {
+  // ADICIONE ESTA LINHA:
+  loadThemePreference();
+  
   // Configurar URL automaticamente (COLE SEU LINK AQUI)
   if (!SHEETS_URL) {
     SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz87X1rzOfnWs0yD9eONGMCD4KJq-J8aVZUUMapb-T3HezGru52LPdwRUYPS8d2FnxHEw/exec';
@@ -3143,23 +3339,44 @@ function limparFormVendas() {
   document.getElementById('v_descricao').value = '';
 }
 
-// ==================== DASHBOARD ====================
+// ==================== DASHBOARD MELHORADO ====================
 function renderDashboard() {
+  // Calcular valores DETALHADOS por tipo
+  let receitasRecebidas = 0;
+  let receitasAReceber = 0;
+  let despesasPagas = 0;
+  let despesasAPagar = 0;
+  
   let totalRec = 0;
   let totalDesp = 0;
   
   financeiro.forEach(item => {
     const valorRecorrente = calculateRecurringValue(item.valor, item.data, item.recorrente);
     
-    if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
+    // RECEITAS
+    if (item.tipo === 'Recebido') {
+      receitasRecebidas += valorRecorrente;
       totalRec += valorRecorrente;
-    } else {
+    } else if (item.tipo === 'A Receber') {
+      receitasAReceber += valorRecorrente;
+      totalRec += valorRecorrente;
+    }
+    
+    // DESPESAS
+    else if (item.tipo === 'Pago') {
+      despesasPagas += valorRecorrente;
+      totalDesp += valorRecorrente;
+    } else if (item.tipo === 'Pagar') {
+      despesasAPagar += valorRecorrente;
       totalDesp += valorRecorrente;
     }
   });
   
+  // SALDO LÍQUIDO = Total Receitas - Total Despesas
+  const saldoLiquido = totalRec - totalDesp;
   const saldo = totalRec - totalDesp;
   
+  // Investimentos
   let totalInvest = 0;
   let totalProv = 0;
   
@@ -3169,6 +3386,7 @@ function renderDashboard() {
     totalProv += proventoRecorrente;
   });
   
+  // Empréstimos
   let totalEmprestimos = 0;
   consignacoes.forEach(item => {
     totalEmprestimos += (item.total - item.pago);
@@ -3176,6 +3394,23 @@ function renderDashboard() {
   
   const patrimonio = saldo + totalInvest + totalEmprestimos;
   
+  // ATUALIZAR NOVOS CARDS
+  document.getElementById('dashReceitasRecebidas').textContent = 'R$ ' + displayCurrency(receitasRecebidas);
+  document.getElementById('dashReceitasAReceber').textContent = 'R$ ' + displayCurrency(receitasAReceber);
+  document.getElementById('dashDespesasPagas').textContent = 'R$ ' + displayCurrency(despesasPagas);
+  document.getElementById('dashDespesasAPagar').textContent = 'R$ ' + displayCurrency(despesasAPagar);
+  
+  // Colorir o saldo líquido
+  const saldoLiquidoEl = document.getElementById('dashSaldoLiquido');
+  saldoLiquidoEl.textContent = 'R$ ' + displayCurrency(Math.abs(saldoLiquido));
+  if (saldoLiquido >= 0) {
+    saldoLiquidoEl.style.color = '#28a745';
+  } else {
+    saldoLiquidoEl.style.color = '#e74c3c';
+    saldoLiquidoEl.textContent = '- R$ ' + displayCurrency(Math.abs(saldoLiquido));
+  }
+  
+  // ATUALIZAR CARDS ORIGINAIS
   document.getElementById('dashSaldo').textContent = 'R$ ' + displayCurrency(saldo);
   document.getElementById('dashInvest').textContent = 'R$ ' + displayCurrency(totalInvest);
   document.getElementById('dashProv').textContent = 'R$ ' + displayCurrency(totalProv);
@@ -3189,6 +3424,41 @@ function renderDashboard() {
   document.getElementById('numEmprestimos').textContent = consignacoes.length;
   document.getElementById('numAnotacoes').textContent = anotacoes.length;
 }
+// ==================== MODO ESCURO/CLARO ====================
+function toggleTheme() {
+  const body = document.body;
+  const button = document.getElementById('themeToggle');
+  
+  body.classList.toggle('dark-mode');
+  
+  // Atualizar ícone do botão
+  if (body.classList.contains('dark-mode')) {
+    button.textContent = '☀️';
+    button.title = 'Modo Claro';
+    localStorage.setItem('darkMode', 'enabled');
+  } else {
+    button.textContent = '🌙';
+    button.title = 'Modo Escuro';
+    localStorage.setItem('darkMode', 'disabled');
+  }
+}
+
+// Carregar preferência de tema ao iniciar
+function loadThemePreference() {
+  const darkMode = localStorage.getItem('darkMode');
+  const button = document.getElementById('themeToggle');
+  
+  if (darkMode === 'enabled') {
+    document.body.classList.add('dark-mode');
+    if (button) {
+      button.textContent = '☀️';
+      button.title = 'Modo Claro';
+    }
+  }
+}
+
+// Chamar ao carregar a página
+document.addEventListener('DOMContentLoaded', loadThemePreference);
 // ==================== ORDENAÇÃO DE TABELAS ====================
 function sortTable(tableId, columnIndex) {
   const table = document.getElementById(tableId);
@@ -3633,6 +3903,9 @@ function limparFiltrosVendas() {
 }
 
 </script>
-
+<!-- BOTÃO DE ALTERNÂNCIA DE TEMA -->
+<button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Alternar tema">
+  🌙
+</button>
 </body>
 </html>
