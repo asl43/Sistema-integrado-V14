@@ -2294,7 +2294,547 @@ function renderInvestimentoModalitySummary() {
 
 // (Continue com as demais funções: Consignação, Anotações, Vendas, Dashboard, etc.)
 // Por brevidade, não vou repetir todo o código, mas você deve incluir todas as funções originais aqui
+// ==================== CONSIGNAÇÃO ====================
+function saveConsignacao() {
+  const juros = parseFloat(document.getElementById('c_juros').value);
+  
+  if (juros > 100) {
+    alert('Juros máximo permitido por lei: 100% ao mês');
+    return;
+  }
+  
+  const id = document.getElementById('c_id').value;
+  const valor = parseCurrency(document.getElementById('c_valor').value);
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    nome: document.getElementById('c_nome').value,
+    valor: valor,
+    juros: juros,
+    parcelas: parseInt(document.getElementById('c_parcelas').value),
+    vencimento: document.getElementById('c_vencimento').value,
+    contato: document.getElementById('c_contato').value || '',
+    pago: 0,
+    total: valor * (1 + juros / 100)
+  };
+  
+  if (!item.nome || item.valor === 0 || !item.vencimento) {
+    alert('Preencha todos os campos obrigatórios!');
+    return;
+  }
+  
+  if (id) {
+    const index = consignacoes.findIndex(c => c.id === item.id);
+    consignacoes[index] = item;
+  } else {
+    consignacoes.push(item);
+  }
+  
+  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+  resetConsForm();
+  renderConsignacoes();
+  renderConsignacaoSummary();
+  renderConsignacaoChart();
+}
 
+function renderConsignacoes() {
+  const table = document.getElementById('consignacaoTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  const sortedData = [...consignacoes].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    
+    let status = 'Em Aberto';
+    let statusClass = 'status-aberto';
+    
+    if (item.pago >= item.total) {
+      status = 'Pago';
+      statusClass = 'status-pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+      statusClass = 'status-atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    const valorParcela = item.total / item.parcelas;
+    
+    row.innerHTML = `
+      <td><strong>${item.nome}</strong>${item.contato ? '<br><small>' + item.contato + '</small>' : ''}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td>${item.juros.toFixed(2)}%</td>
+      <td>R$ ${displayCurrency(item.total)}</td>
+      <td>R$ ${displayCurrency(item.pago)}<br><small>Restam: R$ ${displayCurrency(restante)}</small></td>
+      <td>${new Date(item.vencimento).toLocaleDateString('pt-BR')}<br><small>${item.parcelas}x de R$ ${displayCurrency(valorParcela)}</small></td>
+      <td><span class="${statusClass}">${status}</span></td>
+      <td>
+        <button class="btn-success" onclick="pagarParcela(${item.id})" ${item.pago >= item.total ? 'disabled' : ''}>Pagar Parcela</button><br>
+        <button class="btn-edit" onclick="editConsignacao(${item.id})" style="margin-top:5px">Editar</button>
+        <button class="btn-delete" onclick="deleteConsignacao(${item.id})" style="margin-top:5px">Excluir</button>
+      </td>
+    `;
+  });
+}
+
+function pagarParcela(id) {
+  const item = consignacoes.find(c => c.id === id);
+  const valorParcela = item.total / item.parcelas;
+  
+  item.pago += valorParcela;
+  if (item.pago > item.total) {
+    item.pago = item.total;
+  }
+  
+  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+  renderConsignacoes();
+  renderConsignacaoSummary();
+  renderConsignacaoChart();
+}
+
+function editConsignacao(id) {
+  const item = consignacoes.find(c => c.id === id);
+  document.getElementById('c_id').value = item.id;
+  document.getElementById('c_nome').value = item.nome;
+  document.getElementById('c_valor').value = displayCurrency(item.valor);
+  document.getElementById('c_juros').value = item.juros.toFixed(2);
+  document.getElementById('c_parcelas').value = item.parcelas;
+  document.getElementById('c_vencimento').value = item.vencimento;
+  document.getElementById('c_contato').value = item.contato || '';
+  
+  document.getElementById('consigFormTitle').textContent = "Editando Empréstimo";
+  document.getElementById('btnSaveCons').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelCons').style.display = "inline-block";
+  document.getElementById('formConsignacao').classList.add('editing');
+  
+  document.getElementById('formConsignacao').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function resetConsForm() {
+  document.getElementById('c_id').value = "";
+  document.getElementById('c_nome').value = "";
+  document.getElementById('c_valor').value = "";
+  document.getElementById('c_juros').value = "";
+  document.getElementById('c_parcelas').value = "";
+  document.getElementById('c_vencimento').value = "";
+  document.getElementById('c_contato').value = "";
+  document.getElementById('consigFormTitle').textContent = "Novo Empréstimo";
+  document.getElementById('btnSaveCons').textContent = "Adicionar Empréstimo";
+  document.getElementById('btnCancelCons').style.display = "none";
+  document.getElementById('formConsignacao').classList.remove('editing');
+}
+
+function deleteConsignacao(id) {
+  if (confirm('Deseja realmente excluir este empréstimo?')) {
+    consignacoes = consignacoes.filter(item => item.id !== id);
+    localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+    renderConsignacoes();
+    renderConsignacaoSummary();
+    renderConsignacaoChart();
+  }
+}
+
+function renderConsignacaoSummary() {
+  let totalEmp = 0;
+  let totalRec = 0;
+  let totalAtraso = 0;
+  
+  consignacoes.forEach(item => {
+    totalEmp += item.total;
+    totalRec += item.pago;
+    
+    if (item.pago < item.total && new Date(item.vencimento) < new Date()) {
+      totalAtraso++;
+    }
+  });
+  
+  document.getElementById('totalEmprestado').textContent = 'R$ ' + displayCurrency(totalEmp);
+  document.getElementById('totalRecebido').textContent = 'R$ ' + displayCurrency(totalRec);
+  document.getElementById('totalAberto').textContent = 'R$ ' + displayCurrency(totalEmp - totalRec);
+  document.getElementById('totalAtrasado').textContent = totalAtraso;
+}
+
+function renderConsignacaoChart() {
+  let totalEmp = 0;
+  let totalRec = 0;
+  
+  consignacoes.forEach(item => {
+    totalEmp += item.total;
+    totalRec += item.pago;
+  });
+  
+  const ctx = document.getElementById('consignacaoChart');
+  
+  if (consignacaoChart) {
+    consignacaoChart.destroy();
+  }
+  
+  consignacaoChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Emprestado (Total)', 'Recebido (Pago)'],
+      datasets: [{
+        label: 'Valores em R$',
+        data: [totalEmp, totalRec],
+        backgroundColor: [
+          'rgba(102, 126, 234, 0.8)',
+          'rgba(40, 167, 69, 0.8)'
+        ],
+        borderColor: [
+          'rgba(102, 126, 234, 1)',
+          'rgba(40, 167, 69, 1)'
+        ],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return 'R$ ' + displayCurrency(context.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return 'R$ ' + displayCurrency(value);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function exportConsignacaoCSV() {
+  if (consignacoes.length === 0) {
+    alert('Não há dados para exportar!');
+    return;
+  }
+  
+  let csv = 'Nome,Valor Inicial,Juros (%),Total com Juros,Pago,Restante,Vencimento,Status\n';
+  
+  consignacoes.forEach(item => {
+    let status = 'Em Aberto';
+    if (item.pago >= item.total) {
+      status = 'Pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    
+    csv += `${item.nome},${item.valor.toFixed(2)},${item.juros.toFixed(2)},${item.total.toFixed(2)},${item.pago.toFixed(2)},${restante.toFixed(2)},${item.vencimento},${status}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'consignacoes.csv');
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  alert('Arquivo consignacoes.csv exportado com sucesso!');
+}
+
+function exportConsignacaoPDF() {
+  if (consignacoes.length === 0) {
+    alert('Não há dados para exportar!');
+    return;
+  }
+  
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  pdf.setFontSize(16);
+  pdf.text('Relatório de Empréstimos', 10, 10);
+  
+  pdf.setFontSize(10);
+  let y = 25;
+  
+  consignacoes.forEach((item, index) => {
+    if (y > 270) {
+      pdf.addPage();
+      y = 10;
+    }
+    
+    let status = 'Em Aberto';
+    if (item.pago >= item.total) {
+      status = 'Pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    
+    pdf.text(`${index + 1}. ${item.nome}`, 10, y);
+    y += 6;
+    pdf.text(`   Valor: R$ ${displayCurrency(item.valor)} | Juros: ${item.juros.toFixed(2)}% | Total: R$ ${displayCurrency(item.total)}`, 10, y);
+    y += 6;
+    pdf.text(`   Pago: R$ ${displayCurrency(item.pago)} | Restante: R$ ${displayCurrency(restante)} | Status: ${status}`, 10, y);
+    y += 6;
+    pdf.text(`   Vencimento: ${new Date(item.vencimento).toLocaleDateString('pt-BR')} | Parcelas: ${item.parcelas}`, 10, y);
+    y += 10;
+  });
+  
+  pdf.save('consignacoes.pdf');
+  alert('Arquivo consignacoes.pdf exportado com sucesso!');
+}
+
+// ==================== ANOTAÇÕES ====================
+function saveAnotacao() {
+  const id = document.getElementById('a_id').value;
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    titulo: document.getElementById('a_titulo').value,
+    notas: document.getElementById('a_notas').value,
+    prioridade: document.getElementById('a_prioridade').value
+  };
+  
+  if (!item.titulo) {
+    alert('Preencha o título!');
+    return;
+  }
+  
+  if (id) {
+    const index = anotacoes.findIndex(a => a.id === item.id);
+    anotacoes[index] = item;
+  } else {
+    anotacoes.push(item);
+  }
+  
+  localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+  resetAnotForm();
+  renderAnotacoes();
+  renderAnotacoesPrioritySummary();
+}
+
+function renderAnotacoes(filtered = null) {
+  const data = filtered || anotacoes;
+  const table = document.getElementById('anotacoesTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  const sortedData = [...data].reverse();
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    const prioColor = item.prioridade === 'Alta' ? '#e74c3c' : item.prioridade === 'Média' ? '#f39c12' : '#95a5a6';
+    
+    row.innerHTML = `
+      <td><strong>${item.titulo}</strong></td>
+      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${prioColor}; color: white;">${item.prioridade}</span></td>
+      <td>${item.notas || '-'}</td>
+      <td>
+        <button class="btn-edit" onclick="editAnotacao(${item.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteAnotacao(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+}
+
+function editAnotacao(id) {
+  const item = anotacoes.find(a => a.id === id);
+  document.getElementById('a_id').value = item.id;
+  document.getElementById('a_titulo').value = item.titulo;
+  document.getElementById('a_notas').value = item.notas || '';
+  document.getElementById('a_prioridade').value = item.prioridade;
+  
+  document.getElementById('anotFormTitle').textContent = "Editando Anotação";
+  document.getElementById('btnSaveAnot').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelAnot').style.display = "inline-block";
+  document.getElementById('formAnot').classList.add('editing');
+  
+  document.getElementById('formAnot').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function resetAnotForm() {
+  document.getElementById('a_id').value = "";
+  document.getElementById('a_titulo').value = "";
+  document.getElementById('a_notas').value = "";
+  document.getElementById('a_prioridade').selectedIndex = 0;
+  document.getElementById('anotFormTitle').textContent = "Nova Anotação";
+  document.getElementById('btnSaveAnot').textContent = "Adicionar Anotação";
+  document.getElementById('btnCancelAnot').style.display = "none";
+  document.getElementById('formAnot').classList.remove('editing');
+}
+
+function deleteAnotacao(id) {
+  if (confirm('Deseja realmente excluir esta anotação?')) {
+    anotacoes = anotacoes.filter(item => item.id !== id);
+    localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+    renderAnotacoes();
+    renderAnotacoesPrioritySummary();
+  }
+}
+
+function renderAnotacoesPrioritySummary() {
+  const summary = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+  
+  anotacoes.forEach(item => {
+    summary[item.prioridade]++;
+  });
+  
+  const container = document.getElementById('anotacoesPrioritySummary');
+  container.innerHTML = '';
+  
+  Object.keys(summary).forEach(prioridade => {
+    const card = document.createElement('div');
+    card.className = 'summary-card';
+    
+    if (prioridade === 'Alta') {
+      card.classList.add('danger');
+    } else if (prioridade === 'Média') {
+      card.classList.add('warning');
+    }
+    
+    card.innerHTML = `
+      <h4>Prioridade ${prioridade}</h4>
+      <p>${summary[prioridade]}</p>
+      <small style="opacity: 0.8; font-size: 12px;">anotações</small>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// ==================== VENDAS ====================
+function saveVenda() {
+  const item = {
+    id: Date.now(),
+    cliente: document.getElementById('v_cliente').value,
+    tipo: document.getElementById('v_tipo').value,
+    custo: parseCurrency(document.getElementById('v_custo').value),
+    valor: parseCurrency(document.getElementById('v_valor').value),
+    descricao: document.getElementById('v_descricao').value,
+    data: new Date().toISOString(),
+    oculto: false
+  };
+
+  if (!item.cliente || item.valor === 0) {
+    alert('Preencha os dados básicos da venda (Cliente e Valor).');
+    return;
+  }
+
+  vendas.push(item);
+  localStorage.setItem('vendas', JSON.stringify(vendas));
+  renderVendas();
+  limparFormVendas();
+}
+
+function renderVendas() {
+  const tbody = document.querySelector('#vendasTable tbody');
+  tbody.innerHTML = '';
+  
+  let bruto = 0;
+  let lucroTotal = 0;
+
+  vendas.forEach(item => {
+    if (item.oculto) return;
+
+    const lucro = item.valor - item.custo;
+    bruto += item.valor;
+    lucroTotal += lucro;
+
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+      <td>${item.cliente}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td style="color: ${lucro >= 0 ? 'green' : 'red'}">R$ ${displayCurrency(lucro)}</td>
+      <td>
+        <button class="btn-secondary" onclick="toggleOcultarVenda(${item.id})">Ocultar</button>
+        <button class="btn-delete" onclick="deleteVenda(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+
+  document.getElementById('totalVendasBruto').textContent = 'R$ ' + displayCurrency(bruto);
+  document.getElementById('totalLucroVendas').textContent = 'R$ ' + displayCurrency(lucroTotal);
+}
+
+function toggleOcultarVenda(id) {
+  const index = vendas.findIndex(v => v.id === id);
+  vendas[index].oculto = true;
+  localStorage.setItem('vendas', JSON.stringify(vendas));
+  renderVendas();
+}
+
+function deleteVenda(id) {
+  if(confirm("Excluir permanentemente esta venda?")) {
+    vendas = vendas.filter(v => v.id !== id);
+    localStorage.setItem('vendas', JSON.stringify(vendas));
+    renderVendas();
+  }
+}
+
+function limparFormVendas() {
+  document.getElementById('v_cliente').value = '';
+  document.getElementById('v_tipo').selectedIndex = 0;
+  document.getElementById('v_custo').value = '';
+  document.getElementById('v_valor').value = '';
+  document.getElementById('v_descricao').value = '';
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  let totalRec = 0;
+  let totalDesp = 0;
+  
+  financeiro.forEach(item => {
+    const valorRecorrente = calculateRecurringValue(item.valor, item.data, item.recorrente);
+    
+    if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
+      totalRec += valorRecorrente;
+    } else {
+      totalDesp += valorRecorrente;
+    }
+  });
+  
+  const saldo = totalRec - totalDesp;
+  
+  let totalInvest = 0;
+  let totalProv = 0;
+  
+  investimentos.forEach(item => {
+    totalInvest += item.valor;
+    const proventoRecorrente = calculateRecurringValue(item.provento, item.data, item.recorrente);
+    totalProv += proventoRecorrente;
+  });
+  
+  let totalEmprestimos = 0;
+  consignacoes.forEach(item => {
+    totalEmprestimos += (item.total - item.pago);
+  });
+  
+  const patrimonio = saldo + totalInvest + totalEmprestimos;
+  
+  document.getElementById('dashSaldo').textContent = 'R$ ' + displayCurrency(saldo);
+  document.getElementById('dashInvest').textContent = 'R$ ' + displayCurrency(totalInvest);
+  document.getElementById('dashProv').textContent = 'R$ ' + displayCurrency(totalProv);
+  document.getElementById('dashEmprestimos').textContent = 'R$ ' + displayCurrency(totalEmprestimos);
+  document.getElementById('dashPatrimonio').textContent = 'R$ ' + displayCurrency(patrimonio);
+  
+  document.getElementById('totalReceitas').textContent = 'R$ ' + displayCurrency(totalRec);
+  document.getElementById('totalDespesas').textContent = 'R$ ' + displayCurrency(totalDesp);
+  document.getElementById('numTransacoes').textContent = financeiro.length;
+  document.getElementById('numInvestimentos').textContent = investimentos.length;
+  document.getElementById('numEmprestimos').textContent = consignacoes.length;
+  document.getElementById('numAnotacoes').textContent = anotacoes.length;
+}
 // ==================== ORDENAÇÃO DE TABELAS ====================
 function sortTable(tableId, columnIndex) {
   const table = document.getElementById(tableId);
