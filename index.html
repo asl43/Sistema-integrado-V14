@@ -854,6 +854,17 @@ table tbody tr:hover {
     </div>
   </div>
   
+  <!-- BOTÃO DE SINCRONIZAÇÃO GERAL -->
+<div style="max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;">
+  <button onclick="syncAllToSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
+    🔄 Sincronizar TODOS os Dados com Google Sheets
+  </button>
+  
+  <button onclick="loadAllFromSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); margin-top: 10px;">
+    📥 Carregar TODOS os Dados do Google Sheets
+  </button>
+</div>
+  
   <div class="cards-container">
     <div class="main-card" onclick="openModule('financeiro')">
       <div class="icon">💸</div>
@@ -1028,50 +1039,70 @@ table tbody tr:hover {
         </div>
       </div>
       
-      <!-- FILTROS -->
-      <div class="filter-section">
-        <h3>🔍 Filtros</h3>
-        <div class="filter-grid">
-          <div class="form-group-inline">
-            <label for="filterFinDataInicio">Data Início</label>
-            <input type="date" id="filterFinDataInicio">
-          </div>
-          <div class="form-group-inline">
-            <label for="filterFinDataFim">Data Fim</label>
-            <input type="date" id="filterFinDataFim">
-          </div>
-          <div class="form-group-inline">
-            <label for="filterFinTipo">Tipo</label>
-            <select id="filterFinTipo">
-              <option value="">Todos</option>
-              <option value="Recebido">Recebido</option>
-              <option value="Pago">Pago</option>
-              <option value="Pagar">A Pagar</option>
-              <option value="A Receber">A Receber</option>
-            </select>
-          </div>
-          <div class="form-group-inline">
-            <label for="filterFinCategoria">Categoria</label>
-            <select id="filterFinCategoria">
-              <option value="">Todas</option>
-              <option value="Salário">Salário</option>
-              <option value="Alimentação">Alimentação</option>
-              <option value="Transporte">Transporte</option>
-              <option value="Moradia">Moradia</option>
-              <option value="Saúde">Saúde</option>
-              <option value="Educação">Educação</option>
-              <option value="Lazer">Lazer</option>
-              <option value="Investimentos">Investimentos</option>
-              <option value="Outros">Outros</option>
-            </select>
-          </div>
-        </div>
-        <div class="filter-actions">
-          <button class="btn-primary" onclick="applyFinanceiroFilters()">Aplicar Filtros</button>
-          <button class="btn-secondary" onclick="clearFinanceiroFilters()">Limpar</button>
-        </div>
-      </div>
-      
+     <!-- FILTROS MELHORADOS -->
+<div class="filter-section">
+  <h3>🔍 Filtros Avançados</h3>
+  
+  <!-- FILTROS RÁPIDOS -->
+  <div style="margin-bottom: 15px;">
+    <label style="font-weight: 600; color: #333; margin-bottom: 8px; display: block;">Filtros Rápidos:</label>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn-primary" onclick="filtrarHoje('financeiro')" style="padding: 8px 16px;">📅 Hoje</button>
+      <button class="btn-primary" onclick="filtrarSemana('financeiro')" style="padding: 8px 16px;">📆 Esta Semana</button>
+      <button class="btn-primary" onclick="filtrarMes('financeiro')" style="padding: 8px 16px;">📊 Este Mês</button>
+      <button class="btn-secondary" onclick="mostrarTodos('financeiro')" style="padding: 8px 16px;">👁️ Mostrar Todos</button>
+    </div>
+  </div>
+  
+  <!-- BUSCA POR TEXTO -->
+  <div style="margin-bottom: 15px;">
+    <label style="font-weight: 600; color: #333; margin-bottom: 8px; display: block;">🔍 Buscar:</label>
+    <input type="text" id="searchFinanceiro" placeholder="Digite para buscar (descrição, categoria, valor...)" 
+           style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 6px;" 
+           oninput="buscarFinanceiro()">
+  </div>
+  
+  <!-- FILTROS PERSONALIZADOS -->
+  <div class="filter-grid">
+    <div class="form-group-inline">
+      <label for="filterFinDataInicio">Data Início</label>
+      <input type="date" id="filterFinDataInicio">
+    </div>
+    <div class="form-group-inline">
+      <label for="filterFinDataFim">Data Fim</label>
+      <input type="date" id="filterFinDataFim">
+    </div>
+    <div class="form-group-inline">
+      <label for="filterFinTipo">Tipo</label>
+      <select id="filterFinTipo">
+        <option value="">Todos</option>
+        <option value="Recebido">Recebido</option>
+        <option value="Pago">Pago</option>
+        <option value="Pagar">A Pagar</option>
+        <option value="A Receber">A Receber</option>
+      </select>
+    </div>
+    <div class="form-group-inline">
+      <label for="filterFinCategoria">Categoria</label>
+      <select id="filterFinCategoria">
+        <option value="">Todas</option>
+        <option value="Salário">Salário</option>
+        <option value="Alimentação">Alimentação</option>
+        <option value="Transporte">Transporte</option>
+        <option value="Moradia">Moradia</option>
+        <option value="Saúde">Saúde</option>
+        <option value="Educação">Educação</option>
+        <option value="Lazer">Lazer</option>
+        <option value="Investimentos">Investimentos</option>
+        <option value="Outros">Outros</option>
+      </select>
+    </div>
+  </div>
+  <div class="filter-actions">
+    <button class="btn-primary" onclick="applyFinanceiroFilters()">Aplicar Filtros</button>
+    <button class="btn-secondary" onclick="clearFinanceiroFilters()">Limpar Tudo</button>
+  </div>
+</div>
       <!-- TABELA -->
       <div class="data-table">
         <h3>Histórico de Transações</h3>
@@ -1114,6 +1145,39 @@ table tbody tr:hover {
       <div class="form-card" id="formInvest">
         <h3 id="invFormTitle">Novo Investimento</h3>
         <input type="hidden" id="i_id">
+        
+<!-- FILTROS INVESTIMENTOS -->
+<div class="filter-section">
+  <h3>🔍 Filtros e Busca</h3>
+  
+  <!-- BUSCA -->
+  <div style="margin-bottom: 15px;">
+    <label style="font-weight: 600; color: #333; margin-bottom: 8px; display: block;">🔍 Buscar:</label>
+    <input type="text" id="searchInvestimentos" placeholder="Digite para buscar (ativo, modalidade...)" 
+           style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 6px;" 
+           oninput="buscarInvestimentos()">
+  </div>
+  
+  <!-- FILTROS -->
+  <div class="filter-grid">
+    <div class="form-group-inline">
+      <label for="filterInvModalidade">Modalidade</label>
+      <select id="filterInvModalidade" onchange="filtrarInvestimentos()">
+        <option value="">Todas</option>
+        <option value="Ações">Ações</option>
+        <option value="FIIs">FIIs</option>
+        <option value="Renda Fixa">Renda Fixa</option>
+        <option value="CDB">CDB</option>
+        <option value="Tesouro Direto">Tesouro Direto</option>
+        <option value="Criptomoedas">Criptomoedas</option>
+        <option value="Fundos">Fundos</option>
+        <option value="Outros">Outros</option>
+      </select>
+    </div>
+  </div>
+  
+  <button class="btn-secondary" onclick="limparFiltrosInvestimentos()" style="margin-top: 10px;">Limpar Filtros</button>
+</div>
         
         <div class="form-grid">
           <div class="form-group-inline">
@@ -1247,6 +1311,45 @@ table tbody tr:hover {
         <h3 id="consigFormTitle">Novo Empréstimo</h3>
         <input type="hidden" id="c_id">
         
+        <!-- FILTROS CONSIGNAÇÃO -->
+<div class="filter-section">
+  <h3>🔍 Filtros e Busca</h3>
+  
+  <!-- BUSCA -->
+  <div style="margin-bottom: 15px;">
+    <label style="font-weight: 600; color: #333; margin-bottom: 8px; display: block;">🔍 Buscar:</label>
+    <input type="text" id="searchConsignacao" placeholder="Digite para buscar (nome, contato...)" 
+           style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 6px;" 
+           oninput="buscarConsignacao()">
+  </div>
+  
+  <!-- FILTROS -->
+  <div class="filter-grid">
+    <div class="form-group-inline">
+      <label for="filterConsStatus">Status</label>
+      <select id="filterConsStatus" onchange="filtrarConsignacao()">
+        <option value="">Todos</option>
+        <option value="pago">Pago</option>
+        <option value="aberto">Em Aberto</option>
+        <option value="atrasado">Atrasado</option>
+      </select>
+    </div>
+    <div class="form-group-inline">
+      <label for="filterConsDataInicio">Vencimento de:</label>
+      <input type="date" id="filterConsDataInicio">
+    </div>
+    <div class="form-group-inline">
+      <label for="filterConsDataFim">Vencimento até:</label>
+      <input type="date" id="filterConsDataFim">
+    </div>
+  </div>
+  
+  <div style="margin-top: 10px; display: flex; gap: 10px;">
+    <button class="btn-primary" onclick="filtrarConsignacao()">Aplicar Filtros</button>
+    <button class="btn-secondary" onclick="limparFiltrosConsignacao()">Limpar</button>
+  </div>
+</div>
+        
         <div class="form-grid">
           <div class="form-group-inline">
             <label for="c_nome">Nome do Tomador *</label>
@@ -1343,6 +1446,34 @@ table tbody tr:hover {
       <div class="form-card" id="formAnot">
         <h3 id="anotFormTitle">Nova Anotação</h3>
         <input type="hidden" id="a_id">
+        
+        <!-- FILTROS ANOTAÇÕES -->
+<div class="filter-section">
+  <h3>🔍 Filtros e Busca</h3>
+  
+  <!-- BUSCA -->
+  <div style="margin-bottom: 15px;">
+    <label style="font-weight: 600; color: #333; margin-bottom: 8px; display: block;">🔍 Buscar:</label>
+    <input type="text" id="searchAnotacoes" placeholder="Digite para buscar (título, notas...)" 
+           style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 6px;" 
+           oninput="buscarAnotacoes()">
+  </div>
+  
+  <!-- FILTROS -->
+  <div class="filter-grid">
+    <div class="form-group-inline">
+      <label for="filterAnotPrioridade">Prioridade</label>
+      <select id="filterAnotPrioridade" onchange="filtrarAnotacoes()">
+        <option value="">Todas</option>
+        <option value="Alta">Alta</option>
+        <option value="Média">Média</option>
+        <option value="Baixa">Baixa</option>
+      </select>
+    </div>
+  </div>
+  
+  <button class="btn-secondary" onclick="limparFiltrosAnotacoes()" style="margin-top: 10px;">Limpar Filtros</button>
+</div>
         
         <div class="form-grid">
           <div class="form-group-inline">
@@ -1447,6 +1578,44 @@ table tbody tr:hover {
             <input type="text" id="v_descricao" placeholder="Descrição da venda">
           </div>
         </div>
+        
+        <!-- FILTROS VENDAS -->
+<div class="filter-section">
+  <h3>🔍 Filtros e Busca</h3>
+  
+  <!-- BUSCA -->
+  <div style="margin-bottom: 15px;">
+    <label style="font-weight: 600; color: #333; margin-bottom: 8px; display: block;">🔍 Buscar:</label>
+    <input type="text" id="searchVendas" placeholder="Digite para buscar (cliente, descrição...)" 
+           style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 6px;" 
+           oninput="buscarVendas()">
+  </div>
+  
+  <!-- FILTROS -->
+  <div class="filter-grid">
+    <div class="form-group-inline">
+      <label for="filterVendasTipo">Tipo</label>
+      <select id="filterVendasTipo" onchange="filtrarVendas()">
+        <option value="">Todos</option>
+        <option value="Produto">Produto</option>
+        <option value="Serviço">Serviço</option>
+      </select>
+    </div>
+    <div class="form-group-inline">
+      <label for="filterVendasDataInicio">Data Início</label>
+      <input type="date" id="filterVendasDataInicio">
+    </div>
+    <div class="form-group-inline">
+      <label for="filterVendasDataFim">Data Fim</label>
+      <input type="date" id="filterVendasDataFim">
+    </div>
+  </div>
+  
+  <div style="margin-top: 10px; display: flex; gap: 10px;">
+    <button class="btn-primary" onclick="filtrarVendas()">Aplicar Filtros</button>
+    <button class="btn-secondary" onclick="limparFiltrosVendas()">Limpar</button>
+  </div>
+</div>
         <div class="action-buttons">
           <button class="btn-primary" onclick="saveVenda()">Registrar Venda</button>
           <button class="btn-sync" onclick="syncToSheets('vendas')">
@@ -1851,8 +2020,16 @@ function displayCurrency(value) {
 
 // ==================== INICIALIZAÇÃO ====================
 window.onload = function() {
+  // Configurar URL automaticamente (COLE SEU LINK AQUI)
+  if (!SHEETS_URL) {
+    SHEETS_URL = 'https://script.google.com/macros/s/AKfycbz87X1rzOfnWs0yD9eONGMCD4KJq-J8aVZUUMapb-T3HezGru52LPdwRUYPS8d2FnxHEw/exec';
+    localStorage.setItem('sheetsUrl', SHEETS_URL);
+  }
+  
   if (usuario) {
     mostrarTelaPrincipal();
+    // CARREGAR TODOS OS DADOS AUTOMATICAMENTE AO INICIAR
+    autoLoadAllData();
   }
   
   atualizarStatusUrl();
@@ -1879,6 +2056,151 @@ window.onload = function() {
     }
   });
 };
+// ==================== CARREGAMENTO AUTOMÁTICO ====================
+async function autoLoadAllData() {
+  if (!SHEETS_URL) return;
+  
+  console.log('🔄 Carregando dados do Google Sheets...');
+  
+  try {
+    // Carregar Financeiro
+    const finResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Financeiro`);
+    const finResult = await finResponse.json();
+    if (finResult.status === 'success' && finResult.data && finResult.data.length > 0) {
+      financeiro = finResult.data;
+      localStorage.setItem('financeiro', JSON.stringify(financeiro));
+      console.log('✅ Financeiro carregado:', financeiro.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Financeiro:', e.message);
+  }
+  
+  try {
+    // Carregar Investimentos
+    const invResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Investimentos`);
+    const invResult = await invResponse.json();
+    if (invResult.status === 'success' && invResult.data && invResult.data.length > 0) {
+      investimentos = invResult.data;
+      localStorage.setItem('investimentos', JSON.stringify(investimentos));
+      console.log('✅ Investimentos carregado:', investimentos.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Investimentos:', e.message);
+  }
+  
+  try {
+    // Carregar Consignação
+    const consResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Consignacao`);
+    const consResult = await consResponse.json();
+    if (consResult.status === 'success' && consResult.data && consResult.data.length > 0) {
+      consignacoes = consResult.data;
+      localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+      console.log('✅ Consignação carregado:', consignacoes.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Consignação:', e.message);
+  }
+  
+  try {
+    // Carregar Anotações
+    const anotResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Anotacoes`);
+    const anotResult = await anotResponse.json();
+    if (anotResult.status === 'success' && anotResult.data && anotResult.data.length > 0) {
+      anotacoes = anotResult.data;
+      localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+      console.log('✅ Anotações carregado:', anotacoes.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Anotações:', e.message);
+  }
+  
+  try {
+    // Carregar Vendas
+    const vendasResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Vendas`);
+    const vendasResult = await vendasResponse.json();
+    if (vendasResult.status === 'success' && vendasResult.data && vendasResult.data.length > 0) {
+      vendas = vendasResult.data;
+      localStorage.setItem('vendas', JSON.stringify(vendas));
+      console.log('✅ Vendas carregado:', vendas.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Vendas:', e.message);
+  }
+  
+  console.log('✅ Carregamento automático concluído!');
+}
+// ==================== SINCRONIZAÇÃO EM MASSA ====================
+async function syncAllToSheets() {
+  if (!SHEETS_URL) {
+    alert('⚠️ Configure a URL do Google Sheets primeiro!');
+    return;
+  }
+  
+  if (!confirm('Deseja enviar TODOS os dados para o Google Sheets?')) {
+    return;
+  }
+  
+  showSyncStatus('Enviando todos os dados...', 'syncing');
+  
+  let sucessos = 0;
+  let erros = 0;
+  
+  // Sincronizar cada módulo
+  const modulos = [
+    { tipo: 'financeiro', data: financeiro, nome: 'Financeiro' },
+    { tipo: 'investimentos', data: investimentos, nome: 'Investimentos' },
+    { tipo: 'consignacoes', data: consignacoes, nome: 'Consignacao' },
+    { tipo: 'anotacoes', data: anotacoes, nome: 'Anotacoes' },
+    { tipo: 'vendas', data: vendas, nome: 'Vendas' }
+  ];
+  
+  for (const mod of modulos) {
+    try {
+      const response = await fetch(SHEETS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ sheet: mod.nome, data: mod.data })
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        sucessos++;
+        console.log(`✅ ${mod.tipo} sincronizado`);
+      } else {
+        erros++;
+        console.error(`❌ Erro em ${mod.tipo}:`, result.message);
+      }
+    } catch (error) {
+      erros++;
+      console.error(`❌ Erro em ${mod.tipo}:`, error);
+    }
+  }
+  
+  if (erros === 0) {
+    showSyncStatus(`✅ Todos os dados foram sincronizados! (${sucessos} módulos)`, 'success');
+  } else {
+    showSyncStatus(`⚠️ Sincronização parcial: ${sucessos} OK, ${erros} com erro`, 'error');
+  }
+}
+
+async function loadAllFromSheets() {
+  if (!SHEETS_URL) {
+    alert('⚠️ Configure a URL do Google Sheets primeiro!');
+    return;
+  }
+  
+  if (!confirm('Deseja carregar TODOS os dados do Google Sheets? Isso substituirá os dados locais.')) {
+    return;
+  }
+  
+  showSyncStatus('Carregando todos os dados...', 'syncing');
+  
+  await autoLoadAllData();
+  
+  showSyncStatus('✅ Todos os dados foram carregados!', 'success');
+  alert('✅ Dados carregados com sucesso! Abra qualquer módulo para ver.');
+}
 
 // ==================== LOGIN ====================
 function fazerLogin(event) {
@@ -1942,16 +2264,6 @@ function openModule(module) {
   if (module === 'configuracao') {
     atualizarStatusUrl();
   }
-}
-
-function closeModule(module) {
-  document.getElementById('module' + module.charAt(0).toUpperCase() + module.slice(1)).classList.remove('active');
-  
-  if (module === 'financeiro') resetFinForm();
-  if (module === 'investimento') resetInvForm();
-  if (module === 'consignacao') resetConsForm();
-  if (module === 'anotacoes') resetAnotForm();
-  if (module === 'vendas') limparFormVendas();
 }
 
 // (Aqui você deve incluir todo o resto do JavaScript original do sistema)
@@ -2922,7 +3234,361 @@ function exportToCSV(tipo) {
 
 // Adicione aqui o resto das funções do sistema original...
 // (renderDashboard, renderConsignacoes, renderAnotacoes, renderVendas, etc.)
+// ==================== FILTROS AVANÇADOS - FINANCEIRO ====================
+function filtrarHoje(tipo) {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const amanha = new Date(hoje);
+  amanha.setDate(amanha.getDate() + 1);
+  
+  const filtered = financeiro.filter(item => {
+    const itemDate = new Date(item.data);
+    return itemDate >= hoje && itemDate < amanha;
+  });
+  
+  renderFinanceiro(filtered);
+  alert(`Mostrando ${filtered.length} transação(ões) de hoje`);
+}
 
+function filtrarSemana(tipo) {
+  const hoje = new Date();
+  const primeiroDia = new Date(hoje);
+  primeiroDia.setDate(hoje.getDate() - hoje.getDay());
+  primeiroDia.setHours(0, 0, 0, 0);
+  
+  const filtered = financeiro.filter(item => {
+    const itemDate = new Date(item.data);
+    return itemDate >= primeiroDia;
+  });
+  
+  renderFinanceiro(filtered);
+  alert(`Mostrando ${filtered.length} transação(ões) desta semana`);
+}
+
+function filtrarMes(tipo) {
+  const hoje = new Date();
+  const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  
+  const filtered = financeiro.filter(item => {
+    const itemDate = new Date(item.data);
+    return itemDate >= primeiroDia;
+  });
+  
+  renderFinanceiro(filtered);
+  alert(`Mostrando ${filtered.length} transação(ões) deste mês`);
+}
+
+function mostrarTodos(tipo) {
+  renderFinanceiro();
+  document.getElementById('searchFinanceiro').value = '';
+  alert('Mostrando todas as transações');
+}
+
+function buscarFinanceiro() {
+  const termo = document.getElementById('searchFinanceiro').value.toLowerCase();
+  
+  if (!termo) {
+    renderFinanceiro();
+    return;
+  }
+  
+  const filtered = financeiro.filter(item => {
+    return item.descricao.toLowerCase().includes(termo) ||
+           item.categoria.toLowerCase().includes(termo) ||
+           item.tipo.toLowerCase().includes(termo) ||
+           item.valor.toString().includes(termo);
+  });
+  
+  renderFinanceiro(filtered);
+}
+
+// ==================== FILTROS - INVESTIMENTOS ====================
+let investimentosFiltrados = null;
+
+function buscarInvestimentos() {
+  const termo = document.getElementById('searchInvestimentos').value.toLowerCase();
+  
+  if (!termo) {
+    renderInvestimentos(investimentosFiltrados);
+    return;
+  }
+  
+  const base = investimentosFiltrados || investimentos;
+  const filtered = base.filter(item => {
+    return item.ativo.toLowerCase().includes(termo) ||
+           item.modalidade.toLowerCase().includes(termo);
+  });
+  
+  renderInvestimentos(filtered);
+}
+
+function filtrarInvestimentos() {
+  const modalidade = document.getElementById('filterInvModalidade').value;
+  
+  if (!modalidade) {
+    investimentosFiltrados = null;
+    renderInvestimentos();
+    return;
+  }
+  
+  investimentosFiltrados = investimentos.filter(item => item.modalidade === modalidade);
+  renderInvestimentos(investimentosFiltrados);
+}
+
+function limparFiltrosInvestimentos() {
+  document.getElementById('searchInvestimentos').value = '';
+  document.getElementById('filterInvModalidade').value = '';
+  investimentosFiltrados = null;
+  renderInvestimentos();
+}
+
+// ==================== FILTROS - CONSIGNAÇÃO ====================
+let consignacoesFiltradas = null;
+
+function buscarConsignacao() {
+  const termo = document.getElementById('searchConsignacao').value.toLowerCase();
+  
+  if (!termo) {
+    renderConsignacoes();
+    return;
+  }
+  
+  const filtered = consignacoes.filter(item => {
+    return item.nome.toLowerCase().includes(termo) ||
+           (item.contato && item.contato.toLowerCase().includes(termo));
+  });
+  
+  consignacoesFiltradas = filtered;
+  renderConsignacoes();
+}
+
+function filtrarConsignacao() {
+  const status = document.getElementById('filterConsStatus').value;
+  const dataInicio = document.getElementById('filterConsDataInicio').value;
+  const dataFim = document.getElementById('filterConsDataFim').value;
+  
+  let filtered = [...consignacoes];
+  
+  // Filtrar por status
+  if (status) {
+    filtered = filtered.filter(item => {
+      if (status === 'pago') {
+        return item.pago >= item.total;
+      } else if (status === 'atrasado') {
+        return item.pago < item.total && new Date(item.vencimento) < new Date();
+      } else if (status === 'aberto') {
+        return item.pago < item.total && new Date(item.vencimento) >= new Date();
+      }
+      return true;
+    });
+  }
+  
+  // Filtrar por data
+  if (dataInicio) {
+    filtered = filtered.filter(item => new Date(item.vencimento) >= new Date(dataInicio));
+  }
+  if (dataFim) {
+    filtered = filtered.filter(item => new Date(item.vencimento) <= new Date(dataFim + 'T23:59:59'));
+  }
+  
+  consignacoesFiltradas = filtered;
+  
+  // Renderizar apenas a tabela
+  const table = document.getElementById('consignacaoTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  const sortedData = [...filtered].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    
+    let status = 'Em Aberto';
+    let statusClass = 'status-aberto';
+    
+    if (item.pago >= item.total) {
+      status = 'Pago';
+      statusClass = 'status-pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+      statusClass = 'status-atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    const valorParcela = item.total / item.parcelas;
+    
+    row.innerHTML = `
+      <td><strong>${item.nome}</strong>${item.contato ? '<br><small>' + item.contato + '</small>' : ''}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td>${item.juros.toFixed(2)}%</td>
+      <td>R$ ${displayCurrency(item.total)}</td>
+      <td>R$ ${displayCurrency(item.pago)}<br><small>Restam: R$ ${displayCurrency(restante)}</small></td>
+      <td>${new Date(item.vencimento).toLocaleDateString('pt-BR')}<br><small>${item.parcelas}x de R$ ${displayCurrency(valorParcela)}</small></td>
+      <td><span class="${statusClass}">${status}</span></td>
+      <td>
+        <button class="btn-success" onclick="pagarParcela(${item.id})" ${item.pago >= item.total ? 'disabled' : ''}>Pagar Parcela</button><br>
+        <button class="btn-edit" onclick="editConsignacao(${item.id})" style="margin-top:5px">Editar</button>
+        <button class="btn-delete" onclick="deleteConsignacao(${item.id})" style="margin-top:5px">Excluir</button>
+      </td>
+    `;
+  });
+  
+  alert(`Mostrando ${filtered.length} empréstimo(s)`);
+}
+
+function limparFiltrosConsignacao() {
+  document.getElementById('searchConsignacao').value = '';
+  document.getElementById('filterConsStatus').value = '';
+  document.getElementById('filterConsDataInicio').value = '';
+  document.getElementById('filterConsDataFim').value = '';
+  consignacoesFiltradas = null;
+  renderConsignacoes();
+}
+
+// ==================== FILTROS - ANOTAÇÕES ====================
+let anotacoesFiltradas = null;
+
+function buscarAnotacoes() {
+  const termo = document.getElementById('searchAnotacoes').value.toLowerCase();
+  
+  if (!termo) {
+    renderAnotacoes(anotacoesFiltradas);
+    return;
+  }
+  
+  const base = anotacoesFiltradas || anotacoes;
+  const filtered = base.filter(item => {
+    return item.titulo.toLowerCase().includes(termo) ||
+           (item.notas && item.notas.toLowerCase().includes(termo));
+  });
+  
+  renderAnotacoes(filtered);
+}
+
+function filtrarAnotacoes() {
+  const prioridade = document.getElementById('filterAnotPrioridade').value;
+  
+  if (!prioridade) {
+    anotacoesFiltradas = null;
+    renderAnotacoes();
+    return;
+  }
+  
+  anotacoesFiltradas = anotacoes.filter(item => item.prioridade === prioridade);
+  renderAnotacoes(anotacoesFiltradas);
+}
+
+function limparFiltrosAnotacoes() {
+  document.getElementById('searchAnotacoes').value = '';
+  document.getElementById('filterAnotPrioridade').value = '';
+  anotacoesFiltradas = null;
+  renderAnotacoes();
+}
+
+// ==================== FILTROS - VENDAS ====================
+let vendasFiltradas = null;
+
+function buscarVendas() {
+  const termo = document.getElementById('searchVendas').value.toLowerCase();
+  
+  if (!termo) {
+    renderVendas();
+    return;
+  }
+  
+  const filtered = vendas.filter(item => {
+    return !item.oculto && (
+      item.cliente.toLowerCase().includes(termo) ||
+      (item.descricao && item.descricao.toLowerCase().includes(termo))
+    );
+  });
+  
+  // Renderizar filtrado
+  const tbody = document.querySelector('#vendasTable tbody');
+  tbody.innerHTML = '';
+  
+  let bruto = 0;
+  let lucroTotal = 0;
+
+  filtered.forEach(item => {
+    const lucro = item.valor - item.custo;
+    bruto += item.valor;
+    lucroTotal += lucro;
+
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+      <td>${item.cliente}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td style="color: ${lucro >= 0 ? 'green' : 'red'}">R$ ${displayCurrency(lucro)}</td>
+      <td>
+        <button class="btn-secondary" onclick="toggleOcultarVenda(${item.id})">Ocultar</button>
+        <button class="btn-delete" onclick="deleteVenda(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+
+  document.getElementById('totalVendasBruto').textContent = 'R$ ' + displayCurrency(bruto);
+  document.getElementById('totalLucroVendas').textContent = 'R$ ' + displayCurrency(lucroTotal);
+}
+
+function filtrarVendas() {
+  const tipo = document.getElementById('filterVendasTipo').value;
+  const dataInicio = document.getElementById('filterVendasDataInicio').value;
+  const dataFim = document.getElementById('filterVendasDataFim').value;
+  
+  let filtered = vendas.filter(item => !item.oculto);
+  
+  if (tipo) {
+    filtered = filtered.filter(item => item.tipo === tipo);
+  }
+  
+  if (dataInicio) {
+    filtered = filtered.filter(item => new Date(item.data) >= new Date(dataInicio));
+  }
+  
+  if (dataFim) {
+    filtered = filtered.filter(item => new Date(item.data) <= new Date(dataFim + 'T23:59:59'));
+  }
+  
+  // Renderizar filtrado
+  const tbody = document.querySelector('#vendasTable tbody');
+  tbody.innerHTML = '';
+  
+  let bruto = 0;
+  let lucroTotal = 0;
+
+  filtered.forEach(item => {
+    const lucro = item.valor - item.custo;
+    bruto += item.valor;
+    lucroTotal += lucro;
+
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+      <td>${item.cliente}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td style="color: ${lucro >= 0 ? 'green' : 'red'}">R$ ${displayCurrency(lucro)}</td>
+      <td>
+        <button class="btn-secondary" onclick="toggleOcultarVenda(${item.id})">Ocultar</button>
+        <button class="btn-delete" onclick="deleteVenda(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+
+  document.getElementById('totalVendasBruto').textContent = 'R$ ' + displayCurrency(bruto);
+  document.getElementById('totalLucroVendas').textContent = 'R$ ' + displayCurrency(lucroTotal);
+  
+  alert(`Mostrando ${filtered.length} venda(s)`);
+}
+
+function limparFiltrosVendas() {
+  document.getElementById('searchVendas').value = '';
+  document.getElementById('filterVendasTipo').value = '';
+  document.getElementById('filterVendasDataInicio').value = '';
+  document.getElementById('filterVendasDataFim').value = '';
+  renderVendas();
+}
 </script>
 
 </body>
