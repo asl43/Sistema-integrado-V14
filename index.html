@@ -2056,6 +2056,48 @@ window.onload = function() {
     }
   });
 };
+
+// ==================== FECHAR MÓDULOS (CORRIGIDO) ====================
+function closeModule(module) {
+  // Normalizar o nome do módulo
+  const moduleName = module.toLowerCase().replace(/[^a-z]/g, '');
+  
+  // Lista de IDs de módulos válidos
+  const moduleIds = {
+    'configuracao': 'moduleConfiguracao',
+    'financeiro': 'moduleFinanceiro',
+    'investimento': 'moduleInvestimento',
+    'consignacao': 'moduleConsignacao',
+    'anotacoes': 'moduleAnotacoes',
+    'vendas': 'moduleVendas',
+    'dashboard': 'moduleDashboard'
+  };
+  
+  // Obter o ID correto do módulo
+  const moduleId = moduleIds[moduleName];
+  
+  if (moduleId) {
+    const moduleElement = document.getElementById(moduleId);
+    if (moduleElement) {
+      moduleElement.classList.remove('active');
+      
+      // Resetar formulários específicos
+      if (moduleName === 'financeiro') resetFinForm();
+      if (moduleName === 'investimento') resetInvForm();
+      if (moduleName === 'consignacao') resetConsForm();
+      if (moduleName === 'anotacoes') resetAnotForm();
+      if (moduleName === 'vendas') limparFormVendas();
+      
+      console.log('✅ Módulo fechado:', moduleName);
+    } else {
+      console.error('❌ Elemento do módulo não encontrado:', moduleId);
+    }
+  } else {
+    console.error('❌ Módulo não reconhecido:', moduleName);
+  }
+}
+
+
 // ==================== CARREGAMENTO AUTOMÁTICO ====================
 async function autoLoadAllData() {
   if (!SHEETS_URL) return;
@@ -3589,6 +3631,105 @@ function limparFiltrosVendas() {
   document.getElementById('filterVendasDataFim').value = '';
   renderVendas();
 }
+// Adicionar indicador de conexão com Google Sheets
+function adicionarIndicadorConexao() {
+  const header = document.querySelector('.header-content');
+  const indicator = document.createElement('div');
+  indicator.id = 'connection-indicator';
+  indicator.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 15px;
+  `;
+  indicator.innerHTML = `
+    <span id="connection-dot" style="width: 8px; height: 8px; border-radius: 50%; background: ${SHEETS_URL ? '#4CAF50' : '#f44336'};"></span>
+    <span id="connection-text">${SHEETS_URL ? 'Conectado' : 'Desconectado'}</span>
+  `;
+  header.appendChild(indicator);
+}
+
+function verificarAlertasImportantes() {
+  const alertas = [];
+  
+  // Verificar empréstimos vencendo em 7 dias
+  const proximaSemana = new Date();
+  proximaSemana.setDate(proximaSemana.getDate() + 7);
+  
+  consignacoes.forEach(item => {
+    if (item.pago < item.total) {
+      const vencimento = new Date(item.vencimento);
+      if (vencimento <= proximaSemana && vencimento >= new Date()) {
+        alertas.push(`⚠️ Empréstimo de ${item.nome} vence em ${Math.ceil((vencimento - new Date()) / (1000 * 60 * 60 * 24))} dia(s)`);
+      }
+    }
+  });
+  
+  // Verificar despesas recorrentes do mês
+  const hoje = new Date();
+  const mesAtual = hoje.getMonth();
+  const despesasMes = financeiro.filter(item => {
+    const itemDate = new Date(item.data);
+    return itemDate.getMonth() === mesAtual && 
+           (item.tipo === 'Pagar' || item.tipo === 'Pago');
+  });
+  
+  if (despesasMes.length > 0) {
+    const totalDespesas = despesasMes.reduce((sum, item) => 
+      sum + calculateRecurringValue(item.valor, item.data, item.recorrente), 0
+    );
+    alertas.push(`💰 Despesas do mês atual: R$ ${displayCurrency(totalDespesas)}`);
+  }
+  
+  return alertas;
+}
+
+// Mostrar alertas ao abrir o dashboard
+function renderDashboard() {
+  // ... código existente ...
+  
+  const alertas = verificarAlertasImportantes();
+  if (alertas.length > 0) {
+    const alertContainer = document.createElement('div');
+    alertContainer.className = 'alert alert-warning';
+    alertContainer.style.marginBottom = '20px';
+    alertContainer.innerHTML = `
+      <strong>📢 Notificações Importantes:</strong><br>
+      ${alertas.map(a => `• ${a}`).join('<br>')}
+    `;
+    document.querySelector('#moduleDashboard .module-body').prepend(alertContainer);
+  }
+}
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+}
+
+// Adicionar CSS para modo escuro
+const darkModeStyles = `
+  .dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  .dark-mode .main-container {
+    background: #0f3460;
+  }
+  .dark-mode .main-card,
+  .dark-mode .module-content,
+  .dark-mode .form-card {
+    background: #1a1a2e;
+    color: #e0e0e0;
+  }
+  .dark-mode input,
+  .dark-mode select,
+  .dark-mode textarea {
+    background: #0f3460;
+    color: #e0e0e0;
+    border-color: #533483;
+  }
+`;
 </script>
 
 </body>
