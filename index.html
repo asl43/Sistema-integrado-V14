@@ -1288,15 +1288,6 @@ body.dark-mode .budget-values {
   </div>
   
   <!-- BOTÃO DE SINCRONIZAÇÃO GERAL -->
-<div style="max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;">
-  <button onclick="syncAllToSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
-    🔄 Sincronizar TODOS os Dados com Google Sheets
-  </button>
-  
-  <button onclick="loadAllFromSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); margin-top: 10px;">
-    📥 Carregar TODOS os Dados do Google Sheets
-  </button>
-</div>
   
   <div class="cards-container">
     <div class="main-card" onclick="openModule('financeiro')">
@@ -2758,7 +2749,6 @@ function displayCurrency(value) {
 
 // ==================== INICIALIZAÇÃO ====================
 window.onload = function() {
-  // Carregar tema primeiro
   loadThemePreference();
   
   // Configurar URL automaticamente
@@ -2769,13 +2759,16 @@ window.onload = function() {
   
   if (usuario) {
     mostrarTelaPrincipal();
-    autoLoadAllData();
+    // 🔥 CARREGAR DADOS AUTOMATICAMENTE
+    setTimeout(() => {
+      autoLoadAllData();
+    }, 1000);
   }
   
   atualizarStatusUrl();
   
-  // Adicionar formatação de moeda aos campos ORIGINAIS
-  const currencyInputs = ['f_valor', 'i_valor', 'i_prov', 'c_valor', 'v_custo', 'v_valor'];
+  // Formatação de moeda
+  const currencyInputs = ['f_valor', 'i_valor', 'i_prov', 'c_valor', 'v_custo', 'v_valor', 'meta_valor', 'meta_atual', 'orc_limite'];
   currencyInputs.forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -2785,21 +2778,8 @@ window.onload = function() {
     }
   });
   
-  // NOVO: Adicionar formatação aos campos dos novos módulos
-  const newCurrencyInputs = ['meta_valor', 'meta_atual', 'orc_limite'];
-  newCurrencyInputs.forEach(id => {
-    const input = document.getElementById(id);
-    if (input) {
-      input.addEventListener('input', function() {
-        formatCurrency(this);
-      });
-    }
-  });
-  
-  // NOVO: Inicializar categorias personalizadas
   updateCategorySelects();
   
-  // Fecha módulos com ESC
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       const activeModule = document.querySelector('.module-container.active');
@@ -2855,79 +2835,270 @@ function closeModule(module) {
   }
 }
 
-// ==================== CARREGAMENTO AUTOMÁTICO ====================
+// ==================== CARREGAMENTO AUTOMÁTICO APRIMORADO ====================
 async function autoLoadAllData() {
-  if (!SHEETS_URL) return;
+  if (!SHEETS_URL) {
+    console.log('⚠️ URL do Sheets não configurada');
+    return;
+  }
   
   console.log('🔄 Carregando dados do Google Sheets...');
+  showSyncStatus('Carregando dados...', 'syncing');
   
-  try {
-    // Carregar Financeiro
-    const finResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Financeiro`);
-    const finResult = await finResponse.json();
-    if (finResult.status === 'success' && finResult.data && finResult.data.length > 0) {
-      financeiro = finResult.data;
-      localStorage.setItem('financeiro', JSON.stringify(financeiro));
-      console.log('✅ Financeiro carregado:', financeiro.length, 'registros');
+  const modulos = [
+    { nome: 'Financeiro', variavel: 'financeiro', render: renderFinanceiro },
+    { nome: 'Investimentos', variavel: 'investimentos', render: renderInvestimentos },
+    { nome: 'Consignacao', variavel: 'consignacoes', render: renderConsignacoes },
+    { nome: 'Anotacoes', variavel: 'anotacoes', render: renderAnotacoes },
+    { nome: 'Vendas', variavel: 'vendas', render: renderVendas }
+  ];
+  
+  let sucessos = 0;
+  
+  for (const mod of modulos) {
+    try {
+      const response = await fetch(`${SHEETS_URL}?action=read&sheet=${mod.nome}`);
+      const result = await response.json();
+      
+      if (result.status === 'success' && result.data) {
+        window[mod.variavel] = result.data;
+        localStorage.setItem(mod.variavel, JSON.stringify(result.data));
+        console.log(`✅ ${mod.nome}: ${result.data.length} registros`);
+        sucessos++;
+      }
+    } catch (e) {
+      console.error(`❌ Erro em ${mod.nome}:`, e.message);
     }
-  } catch (e) {
-    console.log('⚠️ Erro ao carregar Financeiro:', e.message);
   }
   
-  try {
-    // Carregar Investimentos
-    const invResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Investimentos`);
-    const invResult = await invResponse.json();
-    if (invResult.status === 'success' && invResult.data && invResult.data.length > 0) {
-      investimentos = invResult.data;
-      localStorage.setItem('investimentos', JSON.stringify(investimentos));
-      console.log('✅ Investimentos carregado:', investimentos.length, 'registros');
-    }
-  } catch (e) {
-    console.log('⚠️ Erro ao carregar Investimentos:', e.message);
-  }
-  
-  try {
-    // Carregar Consignação
-    const consResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Consignacao`);
-    const consResult = await consResponse.json();
-    if (consResult.status === 'success' && consResult.data && consResult.data.length > 0) {
-      consignacoes = consResult.data;
-      localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
-      console.log('✅ Consignação carregado:', consignacoes.length, 'registros');
-    }
-  } catch (e) {
-    console.log('⚠️ Erro ao carregar Consignação:', e.message);
-  }
-  
-  try {
-    // Carregar Anotações
-    const anotResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Anotacoes`);
-    const anotResult = await anotResponse.json();
-    if (anotResult.status === 'success' && anotResult.data && anotResult.data.length > 0) {
-      anotacoes = anotResult.data;
-      localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
-      console.log('✅ Anotações carregado:', anotacoes.length, 'registros');
-    }
-  } catch (e) {
-    console.log('⚠️ Erro ao carregar Anotações:', e.message);
-  }
-  
-  try {
-    // Carregar Vendas
-    const vendasResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Vendas`);
-    const vendasResult = await vendasResponse.json();
-    if (vendasResult.status === 'success' && vendasResult.data && vendasResult.data.length > 0) {
-      vendas = vendasResult.data;
-      localStorage.setItem('vendas', JSON.stringify(vendas));
-      console.log('✅ Vendas carregado:', vendas.length, 'registros');
-    }
-  } catch (e) {
-    console.log('⚠️ Erro ao carregar Vendas:', e.message);
-  }
-  
-  console.log('✅ Carregamento automático concluído!');
+  showSyncStatus(`✅ ${sucessos} módulos carregados!`, 'success');
+  console.log('✅ Carregamento concluído!');
 }
+
+// ==================== SALVAR COM SINCRONIZAÇÃO AUTOMÁTICA ====================
+async function saveFinanceiro() {
+  const id = document.getElementById('f_id').value;
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    data: document.getElementById('f_data').value,
+    tipo: document.getElementById('f_tipo').value,
+    valor: parseCurrency(document.getElementById('f_valor').value),
+    descricao: document.getElementById('f_desc').value,
+    categoria: document.getElementById('f_cat').value,
+    recorrente: document.getElementById('f_rec').value
+  };
+  
+  if (!item.data || !item.descricao || item.valor === 0) {
+    alert('Preencha todos os campos obrigatórios!');
+    return;
+  }
+  
+  if (id) {
+    const index = financeiro.findIndex(f => f.id === item.id);
+    financeiro[index] = item;
+  } else {
+    financeiro.push(item);
+  }
+  
+  localStorage.setItem('financeiro', JSON.stringify(financeiro));
+  resetFinForm();
+  renderFinanceiro();
+  renderFinanceiroCategorySummary();
+  
+  // 🔥 SINCRONIZAR AUTOMATICAMENTE
+  await syncToSheets('financeiro');
+}
+
+async function deleteFinanceiro(id) {
+  if (!confirm('Deseja realmente excluir esta transação?')) return;
+  
+  financeiro = financeiro.filter(item => item.id !== id);
+  localStorage.setItem('financeiro', JSON.stringify(financeiro));
+  renderFinanceiro();
+  renderFinanceiroCategorySummary();
+  
+  // 🔥 SINCRONIZAR AUTOMATICAMENTE
+  await syncToSheets('financeiro');
+}
+
+// ==================== MESMAS FUNÇÕES PARA INVESTIMENTOS ====================
+async function saveInvestimento() {
+  const id = document.getElementById('i_id').value;
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    ativo: document.getElementById('i_ativo').value,
+    modalidade: document.getElementById('i_mod').value,
+    data: document.getElementById('i_data').value,
+    valor: parseCurrency(document.getElementById('i_valor').value),
+    quantidade: parseFloat(document.getElementById('i_qtd').value) || 0,
+    provento: parseCurrency(document.getElementById('i_prov').value),
+    recorrente: document.getElementById('i_rec').value
+  };
+  
+  if (!item.ativo || item.valor === 0) {
+    alert('Preencha os campos obrigatórios!');
+    return;
+  }
+  
+  if (id) {
+    const index = investimentos.findIndex(i => i.id === item.id);
+    investimentos[index] = item;
+  } else {
+    investimentos.push(item);
+  }
+  
+  localStorage.setItem('investimentos', JSON.stringify(investimentos));
+  resetInvForm();
+  renderInvestimentos();
+  renderInvestimentoModalitySummary();
+  
+  await syncToSheets('investimentos');
+}
+
+async function deleteInvestimento(id) {
+  if (!confirm('Deseja realmente excluir este investimento?')) return;
+  
+  investimentos = investimentos.filter(item => item.id !== id);
+  localStorage.setItem('investimentos', JSON.stringify(investimentos));
+  renderInvestimentos();
+  renderInvestimentoModalitySummary();
+  
+  await syncToSheets('investimentos');
+}
+
+// ==================== CONSIGNAÇÃO ====================
+async function saveConsignacao() {
+  const juros = parseFloat(document.getElementById('c_juros').value);
+  
+  if (juros > 100) {
+    alert('Juros máximo permitido: 100%');
+    return;
+  }
+  
+  const id = document.getElementById('c_id').value;
+  const valor = parseCurrency(document.getElementById('c_valor').value);
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    nome: document.getElementById('c_nome').value,
+    valor: valor,
+    juros: juros,
+    parcelas: parseInt(document.getElementById('c_parcelas').value),
+    vencimento: document.getElementById('c_vencimento').value,
+    contato: document.getElementById('c_contato').value || '',
+    pago: id ? consignacoes.find(c => c.id === parseInt(id)).pago : 0,
+    total: valor * (1 + juros / 100)
+  };
+  
+  if (!item.nome || item.valor === 0 || !item.vencimento) {
+    alert('Preencha todos os campos obrigatórios!');
+    return;
+  }
+  
+  if (id) {
+    const index = consignacoes.findIndex(c => c.id === item.id);
+    consignacoes[index] = item;
+  } else {
+    consignacoes.push(item);
+  }
+  
+  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+  resetConsForm();
+  renderConsignacoes();
+  renderConsignacaoSummary();
+  renderConsignacaoChart();
+  
+  await syncToSheets('consignacoes');
+}
+
+async function deleteConsignacao(id) {
+  if (!confirm('Deseja realmente excluir este empréstimo?')) return;
+  
+  consignacoes = consignacoes.filter(item => item.id !== id);
+  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+  renderConsignacoes();
+  renderConsignacaoSummary();
+  renderConsignacaoChart();
+  
+  await syncToSheets('consignacoes');
+}
+
+// ==================== ANOTAÇÕES ====================
+async function saveAnotacao() {
+  const id = document.getElementById('a_id').value;
+  const item = {
+    id: id ? parseInt(id) : Date.now(),
+    titulo: document.getElementById('a_titulo').value,
+    notas: document.getElementById('a_notas').value,
+    prioridade: document.getElementById('a_prioridade').value
+  };
+  
+  if (!item.titulo) {
+    alert('Preencha o título!');
+    return;
+  }
+  
+  if (id) {
+    const index = anotacoes.findIndex(a => a.id === item.id);
+    anotacoes[index] = item;
+  } else {
+    anotacoes.push(item);
+  }
+  
+  localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+  resetAnotForm();
+  renderAnotacoes();
+  renderAnotacoesPrioritySummary();
+  
+  await syncToSheets('anotacoes');
+}
+
+async function deleteAnotacao(id) {
+  if (!confirm('Deseja realmente excluir esta anotação?')) return;
+  
+  anotacoes = anotacoes.filter(item => item.id !== id);
+  localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+  renderAnotacoes();
+  renderAnotacoesPrioritySummary();
+  
+  await syncToSheets('anotacoes');
+}
+
+// ==================== VENDAS ====================
+async function saveVenda() {
+  const item = {
+    id: Date.now(),
+    cliente: document.getElementById('v_cliente').value,
+    tipo: document.getElementById('v_tipo').value,
+    custo: parseCurrency(document.getElementById('v_custo').value),
+    valor: parseCurrency(document.getElementById('v_valor').value),
+    descricao: document.getElementById('v_descricao').value,
+    data: new Date().toISOString(),
+    oculto: false
+  };
+
+  if (!item.cliente || item.valor === 0) {
+    alert('Preencha Cliente e Valor!');
+    return;
+  }
+
+  vendas.push(item);
+  localStorage.setItem('vendas', JSON.stringify(vendas));
+  renderVendas();
+  limparFormVendas();
+  
+  await syncToSheets('vendas');
+}
+
+async function deleteVenda(id) {
+  if(!confirm("Excluir esta venda?")) return;
+  
+  vendas = vendas.filter(v => v.id !== id);
+  localStorage.setItem('vendas', JSON.stringify(vendas));
+  renderVendas();
+  
+  await syncToSheets('vendas');
+}
+
 // ==================== SINCRONIZAÇÃO EM MASSA ====================
 async function syncAllToSheets() {
   if (!SHEETS_URL) {
@@ -3092,7 +3263,7 @@ function openModule(module) {
 // Por brevidade, não vou repetir todo o código, mas todas as funções originais devem estar aqui
 
 // ==================== FINANCEIRO ====================
-function saveFinanceiro() {
+async function saveFinanceiro() {
   const id = document.getElementById('f_id').value;
   const item = {
     id: id ? parseInt(id) : Date.now(),
@@ -3120,6 +3291,9 @@ function saveFinanceiro() {
   resetFinForm();
   renderFinanceiro();
   renderFinanceiroCategorySummary();
+  
+  // 🔥 SINCRONIZAR AUTOMATICAMENTE
+  await syncToSheets('financeiro');
 }
 
 function renderFinanceiro(filtered = null) {
@@ -3199,13 +3373,16 @@ function resetFinForm() {
   document.getElementById('formFinanceiro').classList.remove('editing');
 }
 
-function deleteFinanceiro(id) {
-  if (confirm('Deseja realmente excluir esta transação?')) {
-    financeiro = financeiro.filter(item => item.id !== id);
-    localStorage.setItem('financeiro', JSON.stringify(financeiro));
-    renderFinanceiro();
-    renderFinanceiroCategorySummary();
-  }
+async function deleteFinanceiro(id) {
+  if (!confirm('Deseja realmente excluir esta transação?')) return;
+  
+  financeiro = financeiro.filter(item => item.id !== id);
+  localStorage.setItem('financeiro', JSON.stringify(financeiro));
+  renderFinanceiro();
+  renderFinanceiroCategorySummary();
+  
+  // 🔥 SINCRONIZAR AUTOMATICAMENTE
+  await syncToSheets('financeiro');
 }
 
 function renderFinanceiroCategorySummary() {
@@ -3283,7 +3460,7 @@ function clearFinanceiroFilters() {
 }
 
 // ==================== INVESTIMENTOS ====================
-function saveInvestimento() {
+async function saveInvestimento() {
   const id = document.getElementById('i_id').value;
   const item = {
     id: id ? parseInt(id) : Date.now(),
@@ -3312,6 +3489,8 @@ function saveInvestimento() {
   resetInvForm();
   renderInvestimentos();
   renderInvestimentoModalitySummary();
+  
+  await syncToSheets('investimentos');
 }
 
 function renderInvestimentos(filtered = null) {
@@ -3381,13 +3560,15 @@ function resetInvForm() {
   document.getElementById('formInvest').classList.remove('editing');
 }
 
-function deleteInvestimento(id) {
-  if (confirm('Deseja realmente excluir este investimento?')) {
-    investimentos = investimentos.filter(item => item.id !== id);
-    localStorage.setItem('investimentos', JSON.stringify(investimentos));
-    renderInvestimentos();
-    renderInvestimentoModalitySummary();
-  }
+async function deleteInvestimento(id) {
+  if (!confirm('Deseja realmente excluir este investimento?')) return;
+  
+  investimentos = investimentos.filter(item => item.id !== id);
+  localStorage.setItem('investimentos', JSON.stringify(investimentos));
+  renderInvestimentos();
+  renderInvestimentoModalitySummary();
+  
+  await syncToSheets('investimentos');
 }
 
 function renderInvestimentoModalitySummary() {
@@ -3425,14 +3606,12 @@ function renderInvestimentoModalitySummary() {
   });
 }
 
-// (Continue com as demais funções: Consignação, Anotações, Vendas, Dashboard, etc.)
-// Por brevidade, não vou repetir todo o código, mas você deve incluir todas as funções originais aqui
 // ==================== CONSIGNAÇÃO ====================
-function saveConsignacao() {
+async function saveConsignacao() {
   const juros = parseFloat(document.getElementById('c_juros').value);
   
   if (juros > 100) {
-    alert('Juros máximo permitido por lei: 100% ao mês');
+    alert('Juros máximo permitido: 100%');
     return;
   }
   
@@ -3446,7 +3625,7 @@ function saveConsignacao() {
     parcelas: parseInt(document.getElementById('c_parcelas').value),
     vencimento: document.getElementById('c_vencimento').value,
     contato: document.getElementById('c_contato').value || '',
-    pago: 0,
+    pago: id ? consignacoes.find(c => c.id === parseInt(id)).pago : 0,
     total: valor * (1 + juros / 100)
   };
   
@@ -3467,269 +3646,24 @@ function saveConsignacao() {
   renderConsignacoes();
   renderConsignacaoSummary();
   renderConsignacaoChart();
+  
+  await syncToSheets('consignacoes');
 }
 
-function renderConsignacoes() {
-  const table = document.getElementById('consignacaoTable');
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
+async function deleteConsignacao(id) {
+  if (!confirm('Deseja realmente excluir este empréstimo?')) return;
   
-  const sortedData = [...consignacoes].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
-  
-  sortedData.forEach(item => {
-    const row = tbody.insertRow(-1);
-    
-    let status = 'Em Aberto';
-    let statusClass = 'status-aberto';
-    
-    if (item.pago >= item.total) {
-      status = 'Pago';
-      statusClass = 'status-pago';
-    } else if (new Date(item.vencimento) < new Date()) {
-      status = 'Atrasado';
-      statusClass = 'status-atrasado';
-    }
-    
-    const restante = item.total - item.pago;
-    const valorParcela = item.total / item.parcelas;
-    
-    row.innerHTML = `
-      <td><strong>${item.nome}</strong>${item.contato ? '<br><small>' + item.contato + '</small>' : ''}</td>
-      <td>R$ ${displayCurrency(item.valor)}</td>
-      <td>${item.juros.toFixed(2)}%</td>
-      <td>R$ ${displayCurrency(item.total)}</td>
-      <td>R$ ${displayCurrency(item.pago)}<br><small>Restam: R$ ${displayCurrency(restante)}</small></td>
-      <td>${new Date(item.vencimento).toLocaleDateString('pt-BR')}<br><small>${item.parcelas}x de R$ ${displayCurrency(valorParcela)}</small></td>
-      <td><span class="${statusClass}">${status}</span></td>
-      <td>
-        <button class="btn-success" onclick="pagarParcela(${item.id})" ${item.pago >= item.total ? 'disabled' : ''}>Pagar Parcela</button><br>
-        <button class="btn-edit" onclick="editConsignacao(${item.id})" style="margin-top:5px">Editar</button>
-        <button class="btn-delete" onclick="deleteConsignacao(${item.id})" style="margin-top:5px">Excluir</button>
-      </td>
-    `;
-  });
-}
-
-function pagarParcela(id) {
-  const item = consignacoes.find(c => c.id === id);
-  const valorParcela = item.total / item.parcelas;
-  
-  item.pago += valorParcela;
-  if (item.pago > item.total) {
-    item.pago = item.total;
-  }
-  
+  consignacoes = consignacoes.filter(item => item.id !== id);
   localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
   renderConsignacoes();
   renderConsignacaoSummary();
   renderConsignacaoChart();
-}
-
-function editConsignacao(id) {
-  const item = consignacoes.find(c => c.id === id);
-  document.getElementById('c_id').value = item.id;
-  document.getElementById('c_nome').value = item.nome;
-  document.getElementById('c_valor').value = displayCurrency(item.valor);
-  document.getElementById('c_juros').value = item.juros.toFixed(2);
-  document.getElementById('c_parcelas').value = item.parcelas;
-  document.getElementById('c_vencimento').value = item.vencimento;
-  document.getElementById('c_contato').value = item.contato || '';
   
-  document.getElementById('consigFormTitle').textContent = "Editando Empréstimo";
-  document.getElementById('btnSaveCons').textContent = "Salvar Alterações";
-  document.getElementById('btnCancelCons').style.display = "inline-block";
-  document.getElementById('formConsignacao').classList.add('editing');
-  
-  document.getElementById('formConsignacao').scrollIntoView({behavior: 'smooth', block: 'start'});
-}
-
-function resetConsForm() {
-  document.getElementById('c_id').value = "";
-  document.getElementById('c_nome').value = "";
-  document.getElementById('c_valor').value = "";
-  document.getElementById('c_juros').value = "";
-  document.getElementById('c_parcelas').value = "";
-  document.getElementById('c_vencimento').value = "";
-  document.getElementById('c_contato').value = "";
-  document.getElementById('consigFormTitle').textContent = "Novo Empréstimo";
-  document.getElementById('btnSaveCons').textContent = "Adicionar Empréstimo";
-  document.getElementById('btnCancelCons').style.display = "none";
-  document.getElementById('formConsignacao').classList.remove('editing');
-}
-
-function deleteConsignacao(id) {
-  if (confirm('Deseja realmente excluir este empréstimo?')) {
-    consignacoes = consignacoes.filter(item => item.id !== id);
-    localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
-    renderConsignacoes();
-    renderConsignacaoSummary();
-    renderConsignacaoChart();
-  }
-}
-
-function renderConsignacaoSummary() {
-  let totalEmp = 0;
-  let totalRec = 0;
-  let totalAtraso = 0;
-  
-  consignacoes.forEach(item => {
-    totalEmp += item.total;
-    totalRec += item.pago;
-    
-    if (item.pago < item.total && new Date(item.vencimento) < new Date()) {
-      totalAtraso++;
-    }
-  });
-  
-  document.getElementById('totalEmprestado').textContent = 'R$ ' + displayCurrency(totalEmp);
-  document.getElementById('totalRecebido').textContent = 'R$ ' + displayCurrency(totalRec);
-  document.getElementById('totalAberto').textContent = 'R$ ' + displayCurrency(totalEmp - totalRec);
-  document.getElementById('totalAtrasado').textContent = totalAtraso;
-}
-
-function renderConsignacaoChart() {
-  let totalEmp = 0;
-  let totalRec = 0;
-  
-  consignacoes.forEach(item => {
-    totalEmp += item.total;
-    totalRec += item.pago;
-  });
-  
-  const ctx = document.getElementById('consignacaoChart');
-  
-  if (consignacaoChart) {
-    consignacaoChart.destroy();
-  }
-  
-  consignacaoChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Emprestado (Total)', 'Recebido (Pago)'],
-      datasets: [{
-        label: 'Valores em R$',
-        data: [totalEmp, totalRec],
-        backgroundColor: [
-          'rgba(102, 126, 234, 0.8)',
-          'rgba(40, 167, 69, 0.8)'
-        ],
-        borderColor: [
-          'rgba(102, 126, 234, 1)',
-          'rgba(40, 167, 69, 1)'
-        ],
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return 'R$ ' + displayCurrency(context.parsed.y);
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return 'R$ ' + displayCurrency(value);
-            }
-          }
-        }
-      }
-    }
-  });
-}
-
-function exportConsignacaoCSV() {
-  if (consignacoes.length === 0) {
-    alert('Não há dados para exportar!');
-    return;
-  }
-  
-  let csv = 'Nome,Valor Inicial,Juros (%),Total com Juros,Pago,Restante,Vencimento,Status\n';
-  
-  consignacoes.forEach(item => {
-    let status = 'Em Aberto';
-    if (item.pago >= item.total) {
-      status = 'Pago';
-    } else if (new Date(item.vencimento) < new Date()) {
-      status = 'Atrasado';
-    }
-    
-    const restante = item.total - item.pago;
-    
-    csv += `${item.nome},${item.valor.toFixed(2)},${item.juros.toFixed(2)},${item.total.toFixed(2)},${item.pago.toFixed(2)},${restante.toFixed(2)},${item.vencimento},${status}\n`;
-  });
-  
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'consignacoes.csv');
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  alert('Arquivo consignacoes.csv exportado com sucesso!');
-}
-
-function exportConsignacaoPDF() {
-  if (consignacoes.length === 0) {
-    alert('Não há dados para exportar!');
-    return;
-  }
-  
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-  
-  pdf.setFontSize(16);
-  pdf.text('Relatório de Empréstimos', 10, 10);
-  
-  pdf.setFontSize(10);
-  let y = 25;
-  
-  consignacoes.forEach((item, index) => {
-    if (y > 270) {
-      pdf.addPage();
-      y = 10;
-    }
-    
-    let status = 'Em Aberto';
-    if (item.pago >= item.total) {
-      status = 'Pago';
-    } else if (new Date(item.vencimento) < new Date()) {
-      status = 'Atrasado';
-    }
-    
-    const restante = item.total - item.pago;
-    
-    pdf.text(`${index + 1}. ${item.nome}`, 10, y);
-    y += 6;
-    pdf.text(`   Valor: R$ ${displayCurrency(item.valor)} | Juros: ${item.juros.toFixed(2)}% | Total: R$ ${displayCurrency(item.total)}`, 10, y);
-    y += 6;
-    pdf.text(`   Pago: R$ ${displayCurrency(item.pago)} | Restante: R$ ${displayCurrency(restante)} | Status: ${status}`, 10, y);
-    y += 6;
-    pdf.text(`   Vencimento: ${new Date(item.vencimento).toLocaleDateString('pt-BR')} | Parcelas: ${item.parcelas}`, 10, y);
-    y += 10;
-  });
-  
-  pdf.save('consignacoes.pdf');
-  alert('Arquivo consignacoes.pdf exportado com sucesso!');
+  await syncToSheets('consignacoes');
 }
 
 // ==================== ANOTAÇÕES ====================
-function saveAnotacao() {
+async function saveAnotacao() {
   const id = document.getElementById('a_id').value;
   const item = {
     id: id ? parseInt(id) : Date.now(),
@@ -3754,98 +3688,23 @@ function saveAnotacao() {
   resetAnotForm();
   renderAnotacoes();
   renderAnotacoesPrioritySummary();
+  
+  await syncToSheets('anotacoes');
 }
 
-function renderAnotacoes(filtered = null) {
-  const data = filtered || anotacoes;
-  const table = document.getElementById('anotacoesTable');
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
+async function deleteAnotacao(id) {
+  if (!confirm('Deseja realmente excluir esta anotação?')) return;
   
-  const sortedData = [...data].reverse();
+  anotacoes = anotacoes.filter(item => item.id !== id);
+  localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+  renderAnotacoes();
+  renderAnotacoesPrioritySummary();
   
-  sortedData.forEach(item => {
-    const row = tbody.insertRow(-1);
-    const prioColor = item.prioridade === 'Alta' ? '#e74c3c' : item.prioridade === 'Média' ? '#f39c12' : '#95a5a6';
-    
-    row.innerHTML = `
-      <td><strong>${item.titulo}</strong></td>
-      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${prioColor}; color: white;">${item.prioridade}</span></td>
-      <td>${item.notas || '-'}</td>
-      <td>
-        <button class="btn-edit" onclick="editAnotacao(${item.id})">Editar</button>
-        <button class="btn-delete" onclick="deleteAnotacao(${item.id})">Excluir</button>
-      </td>
-    `;
-  });
-}
-
-function editAnotacao(id) {
-  const item = anotacoes.find(a => a.id === id);
-  document.getElementById('a_id').value = item.id;
-  document.getElementById('a_titulo').value = item.titulo;
-  document.getElementById('a_notas').value = item.notas || '';
-  document.getElementById('a_prioridade').value = item.prioridade;
-  
-  document.getElementById('anotFormTitle').textContent = "Editando Anotação";
-  document.getElementById('btnSaveAnot').textContent = "Salvar Alterações";
-  document.getElementById('btnCancelAnot').style.display = "inline-block";
-  document.getElementById('formAnot').classList.add('editing');
-  
-  document.getElementById('formAnot').scrollIntoView({behavior: 'smooth', block: 'start'});
-}
-
-function resetAnotForm() {
-  document.getElementById('a_id').value = "";
-  document.getElementById('a_titulo').value = "";
-  document.getElementById('a_notas').value = "";
-  document.getElementById('a_prioridade').selectedIndex = 0;
-  document.getElementById('anotFormTitle').textContent = "Nova Anotação";
-  document.getElementById('btnSaveAnot').textContent = "Adicionar Anotação";
-  document.getElementById('btnCancelAnot').style.display = "none";
-  document.getElementById('formAnot').classList.remove('editing');
-}
-
-function deleteAnotacao(id) {
-  if (confirm('Deseja realmente excluir esta anotação?')) {
-    anotacoes = anotacoes.filter(item => item.id !== id);
-    localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
-    renderAnotacoes();
-    renderAnotacoesPrioritySummary();
-  }
-}
-
-function renderAnotacoesPrioritySummary() {
-  const summary = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
-  
-  anotacoes.forEach(item => {
-    summary[item.prioridade]++;
-  });
-  
-  const container = document.getElementById('anotacoesPrioritySummary');
-  container.innerHTML = '';
-  
-  Object.keys(summary).forEach(prioridade => {
-    const card = document.createElement('div');
-    card.className = 'summary-card';
-    
-    if (prioridade === 'Alta') {
-      card.classList.add('danger');
-    } else if (prioridade === 'Média') {
-      card.classList.add('warning');
-    }
-    
-    card.innerHTML = `
-      <h4>Prioridade ${prioridade}</h4>
-      <p>${summary[prioridade]}</p>
-      <small style="opacity: 0.8; font-size: 12px;">anotações</small>
-    `;
-    container.appendChild(card);
-  });
+  await syncToSheets('anotacoes');
 }
 
 // ==================== VENDAS ====================
-function saveVenda() {
+async function saveVenda() {
   const item = {
     id: Date.now(),
     cliente: document.getElementById('v_cliente').value,
@@ -3858,7 +3717,7 @@ function saveVenda() {
   };
 
   if (!item.cliente || item.valor === 0) {
-    alert('Preencha os dados básicos da venda (Cliente e Valor).');
+    alert('Preencha Cliente e Valor!');
     return;
   }
 
@@ -3866,60 +3725,18 @@ function saveVenda() {
   localStorage.setItem('vendas', JSON.stringify(vendas));
   renderVendas();
   limparFormVendas();
-}
-
-function renderVendas() {
-  const tbody = document.querySelector('#vendasTable tbody');
-  tbody.innerHTML = '';
   
-  let bruto = 0;
-  let lucroTotal = 0;
-
-  vendas.forEach(item => {
-    if (item.oculto) return;
-
-    const lucro = item.valor - item.custo;
-    bruto += item.valor;
-    lucroTotal += lucro;
-
-    const row = tbody.insertRow();
-    row.innerHTML = `
-      <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
-      <td>${item.cliente}</td>
-      <td>R$ ${displayCurrency(item.valor)}</td>
-      <td style="color: ${lucro >= 0 ? 'green' : 'red'}">R$ ${displayCurrency(lucro)}</td>
-      <td>
-        <button class="btn-secondary" onclick="toggleOcultarVenda(${item.id})">Ocultar</button>
-        <button class="btn-delete" onclick="deleteVenda(${item.id})">Excluir</button>
-      </td>
-    `;
-  });
-
-  document.getElementById('totalVendasBruto').textContent = 'R$ ' + displayCurrency(bruto);
-  document.getElementById('totalLucroVendas').textContent = 'R$ ' + displayCurrency(lucroTotal);
+  await syncToSheets('vendas');
 }
 
-function toggleOcultarVenda(id) {
-  const index = vendas.findIndex(v => v.id === id);
-  vendas[index].oculto = true;
+async function deleteVenda(id) {
+  if(!confirm("Excluir esta venda?")) return;
+  
+  vendas = vendas.filter(v => v.id !== id);
   localStorage.setItem('vendas', JSON.stringify(vendas));
   renderVendas();
-}
-
-function deleteVenda(id) {
-  if(confirm("Excluir permanentemente esta venda?")) {
-    vendas = vendas.filter(v => v.id !== id);
-    localStorage.setItem('vendas', JSON.stringify(vendas));
-    renderVendas();
-  }
-}
-
-function limparFormVendas() {
-  document.getElementById('v_cliente').value = '';
-  document.getElementById('v_tipo').selectedIndex = 0;
-  document.getElementById('v_custo').value = '';
-  document.getElementById('v_valor').value = '';
-  document.getElementById('v_descricao').value = '';
+  
+  await syncToSheets('vendas');
 }
 
 // ==================== DASHBOARD MELHORADO ====================
