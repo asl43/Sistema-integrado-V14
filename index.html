@@ -1251,6 +1251,125 @@ body.dark-mode .budget-values {
   font-size: 12px;
   font-weight: 700;
 }
+
+/* ==================== PROJEÇÃO DE INVESTIMENTOS ==================== */
+.projection-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  border-left: 4px solid #667eea;
+}
+
+.projection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.projection-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+}
+
+.projection-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.projection-result {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.projection-result h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.projection-result .value {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.projection-result .details {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-top: 10px;
+}
+
+.projection-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.breakdown-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.breakdown-item h4 {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.breakdown-item .amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+body.dark-mode .projection-card {
+  background: #1a1a2e;
+}
+
+body.dark-mode .projection-title {
+  color: #e0e0e0;
+}
+
+body.dark-mode .breakdown-item {
+  background: #0f3460;
+}
+
+body.dark-mode .breakdown-item h4 {
+  color: #b0b0b0;
+}
+
+body.dark-mode .breakdown-item .amount {
+  color: #e0e0e0;
+}
+
+.projection-chart-container {
+  position: relative;
+  height: 400px;
+  margin-top: 20px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .projection-chart-container {
+  background: #1a1a2e;
+}
 </style>
 </head>
 
@@ -1593,6 +1712,7 @@ body.dark-mode .budget-values {
       <div class="form-card" id="formInvest">
         <h3 id="invFormTitle">Novo Investimento</h3>
         <input type="hidden" id="i_id">
+     
         
 <!-- FILTROS INVESTIMENTOS -->
 <div class="filter-section">
@@ -1625,6 +1745,152 @@ body.dark-mode .budget-values {
   </div>
   
   <button class="btn-secondary" onclick="limparFiltrosInvestimentos()" style="margin-top: 10px;">Limpar Filtros</button>
+</div>
+<!-- ==================== PROJEÇÃO DE INVESTIMENTOS ==================== -->
+<div class="projection-card">
+  <div class="projection-header">
+    <h3 class="projection-title">📊 Projeção de Investimentos</h3>
+  </div>
+  
+  <div class="alert alert-info">
+    <span>ℹ️</span>
+    <span>Calcule quanto seus investimentos podem render ao longo do tempo com base nos proventos atuais</span>
+  </div>
+  
+  <div class="projection-controls">
+    <div class="form-group-inline">
+      <label for="proj_modalidade">Modalidade *</label>
+      <select id="proj_modalidade">
+        <option value="">Todas</option>
+        <option value="Ações">Ações</option>
+        <option value="FIIs">FIIs</option>
+        <option value="Renda Fixa">Renda Fixa</option>
+        <option value="CDB">CDB</option>
+        <option value="Tesouro Direto">Tesouro Direto</option>
+        <option value="Criptomoedas">Criptomoedas</option>
+        <option value="Fundos">Fundos</option>
+        <option value="Outros">Outros</option>
+      </select>
+    </div>
+    
+    <div class="form-group-inline">
+      <label for="proj_periodo">Período de Proventos *</label>
+      <select id="proj_periodo">
+        <option value="Mensal">Mensal</option>
+        <option value="Bimestral">Bimestral</option>
+        <option value="Trimestral">Trimestral</option>
+        <option value="Semestral">Semestral</option>
+        <option value="Anual">Anual</option>
+      </select>
+    </div>
+    
+    <div class="form-group-inline">
+      <label for="proj_anos">Projetar até (anos) *</label>
+      <input type="number" id="proj_anos" min="2" max="30" value="5" placeholder="2 a 30 anos">
+    </div>
+    
+    <div class="form-group-inline">
+      <label for="proj_reinvestir">Reinvestir Proventos?</label>
+      <select id="proj_reinvestir">
+        <option value="sim">Sim (Juros Compostos)</option>
+        <option value="nao">Não (Juros Simples)</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="action-buttons">
+    <button class="btn-primary" onclick="calcularProjecao()">📈 Calcular Projeção</button>
+    <button class="btn-secondary" onclick="limparProjecao()">🗑️ Limpar</button>
+  </div>
+  
+  <!-- RESULTADOS -->
+  <div id="projectionResults" style="display: none;">
+    <div class="projection-result">
+      <h3>Projeção em <span id="proj_anos_result"></span> anos</h3>
+      <div class="value" id="proj_total_final">R$ 0,00</div>
+      <div class="details">
+        <div>Investimento Inicial: <strong id="proj_investimento_inicial">R$ 0,00</strong></div>
+        <div>Total em Proventos: <strong id="proj_total_proventos">R$ 0,00</strong></div>
+        <div>Rentabilidade: <strong id="proj_rentabilidade">0%</strong></div>
+      </div>
+    </div>
+    
+    <div class="projection-breakdown">
+      <div class="breakdown-item">
+        <h4>💰 Capital Inicial</h4>
+        <div class="amount" id="breakdown_capital">R$ 0,00</div>
+      </div>
+      
+      <div class="breakdown-item">
+        <h4>📊 Proventos Acumulados</h4>
+        <div class="amount" id="breakdown_proventos">R$ 0,00</div>
+      </div>
+      
+      <div class="breakdown-item">
+        <h4>📈 Ganho Total</h4>
+        <div class="amount" id="breakdown_ganho">R$ 0,00</div>
+      </div>
+      
+      <div class="breakdown-item">
+        <h4>🎯 Valor Final</h4>
+        <div class="amount" id="breakdown_final">R$ 0,00</div>
+      </div>
+    </div>
+    
+    <!-- GRÁFICO DE PROJEÇÃO -->
+    <div class="projection-chart-container">
+      <canvas id="projectionChart"></canvas>
+    </div>
+    
+    <!-- TABELA ANUAL -->
+    <div class="data-table" style="margin-top: 30px;">
+      <h3>📅 Evolução Anual</h3>
+      <table id="projectionTable">
+        <thead>
+          <tr>
+            <th>Ano</th>
+            <th>Proventos no Período</th>
+            <th>Proventos Acumulados</th>
+            <th>Valor Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MÓDULO INVESTIMENTOS -->
+<div class="module-container" id="moduleInvestimento">
+  <div class="module-content">
+    <div class="module-header">...</div>
+    <div class="module-body">
+      
+      <!-- RESUMO POR MODALIDADE -->
+      <div class="summary-section">...</div>
+      
+      <!-- FORMULÁRIO -->
+      <div class="form-card" id="formInvest">...</div>
+      
+      <!-- FILTROS -->
+      <div class="filter-section">
+        ...
+        <button class="btn-secondary" onclick="limparFiltrosInvestimentos()">Limpar Filtros</button>
+      </div>
+      
+      <!-- 🔥 ADICIONE A PROJEÇÃO AQUI! -->
+      <div class="projection-card">
+        ...conteúdo da projeção...
+      </div>
+      
+      <!-- TABELA DE INVESTIMENTOS -->
+      <div class="data-table">
+        <h3>Meus Investimentos</h3>
+        <table id="investTable">...</table>
+      </div>
+      
+    </div>
+  </div>
 </div>
         
         <div class="form-grid">
@@ -2457,6 +2723,7 @@ body.dark-mode .budget-values {
       
     </div>
   </div>
+  
 </div>
 
 <script>
@@ -3823,6 +4090,238 @@ function renderDashboard() {
   document.getElementById('numInvestimentos').textContent = investimentos.length;
   document.getElementById('numEmprestimos').textContent = consignacoes.length;
   document.getElementById('numAnotacoes').textContent = anotacoes.length;
+}
+
+// ==================== PROJEÇÃO DE INVESTIMENTOS ====================
+let projectionChart = null;
+
+function calcularProjecao() {
+  const modalidade = document.getElementById('proj_modalidade').value;
+  const periodo = document.getElementById('proj_periodo').value;
+  const anos = parseInt(document.getElementById('proj_anos').value);
+  const reinvestir = document.getElementById('proj_reinvestir').value === 'sim';
+  
+  // Validações
+  if (anos < 2 || anos > 30) {
+    alert('Por favor, escolha um período entre 2 e 30 anos!');
+    return;
+  }
+  
+  // Filtrar investimentos
+  let investimentosFiltrados = investimentos;
+  if (modalidade) {
+    investimentosFiltrados = investimentos.filter(inv => inv.modalidade === modalidade);
+  }
+  
+  if (investimentosFiltrados.length === 0) {
+    alert('Não há investimentos cadastrados para esta modalidade!');
+    return;
+  }
+  
+  // Calcular investimento inicial
+  const capitalInicial = investimentosFiltrados.reduce((sum, inv) => sum + inv.valor, 0);
+  
+  // Calcular proventos por período
+  let proventosPorPeriodo = 0;
+  investimentosFiltrados.forEach(inv => {
+    // Converter provento para o período selecionado
+    let proventoConvertido = inv.provento;
+    
+    // Assumir que o provento cadastrado é mensal
+    switch(periodo) {
+      case 'Mensal':
+        proventoConvertido = inv.provento;
+        break;
+      case 'Bimestral':
+        proventoConvertido = inv.provento * 2;
+        break;
+      case 'Trimestral':
+        proventoConvertido = inv.provento * 3;
+        break;
+      case 'Semestral':
+        proventoConvertido = inv.provento * 6;
+        break;
+      case 'Anual':
+        proventoConvertido = inv.provento * 12;
+        break;
+    }
+    
+    proventosPorPeriodo += proventoConvertido;
+  });
+  
+  // Calcular número de períodos por ano
+  let periodosPorAno = 1;
+  switch(periodo) {
+    case 'Mensal': periodosPorAno = 12; break;
+    case 'Bimestral': periodosPorAno = 6; break;
+    case 'Trimestral': periodosPorAno = 4; break;
+    case 'Semestral': periodosPorAno = 2; break;
+    case 'Anual': periodosPorAno = 1; break;
+  }
+  
+  // Calcular projeção ano a ano
+  const evolucaoAnual = [];
+  let capitalAtual = capitalInicial;
+  let proventosAcumulados = 0;
+  
+  for (let ano = 1; ano <= anos; ano++) {
+    let proventosNoAno = 0;
+    
+    if (reinvestir) {
+      // Juros compostos - reinvestir proventos
+      for (let p = 0; p < periodosPorAno; p++) {
+        const proventoNoPeriodo = (capitalAtual / capitalInicial) * proventosPorPeriodo;
+        proventosNoAno += proventoNoPeriodo;
+        capitalAtual += proventoNoPeriodo;
+      }
+    } else {
+      // Juros simples - não reinvestir
+      proventosNoAno = proventosPorPeriodo * periodosPorAno;
+    }
+    
+    proventosAcumulados += proventosNoAno;
+    
+    evolucaoAnual.push({
+      ano: ano,
+      proventosNoAno: proventosNoAno,
+      proventosAcumulados: proventosAcumulados,
+      valorTotal: capitalInicial + proventosAcumulados
+    });
+  }
+  
+  // Calcular valores finais
+  const valorFinal = reinvestir ? capitalAtual : (capitalInicial + proventosAcumulados);
+  const ganhoTotal = valorFinal - capitalInicial;
+  const rentabilidade = ((ganhoTotal / capitalInicial) * 100).toFixed(2);
+  
+  // Exibir resultados
+  document.getElementById('proj_anos_result').textContent = anos;
+  document.getElementById('proj_total_final').textContent = 'R$ ' + displayCurrency(valorFinal);
+  document.getElementById('proj_investimento_inicial').textContent = 'R$ ' + displayCurrency(capitalInicial);
+  document.getElementById('proj_total_proventos').textContent = 'R$ ' + displayCurrency(proventosAcumulados);
+  document.getElementById('proj_rentabilidade').textContent = rentabilidade + '%';
+  
+  document.getElementById('breakdown_capital').textContent = 'R$ ' + displayCurrency(capitalInicial);
+  document.getElementById('breakdown_proventos').textContent = 'R$ ' + displayCurrency(proventosAcumulados);
+  document.getElementById('breakdown_ganho').textContent = 'R$ ' + displayCurrency(ganhoTotal);
+  document.getElementById('breakdown_final').textContent = 'R$ ' + displayCurrency(valorFinal);
+  
+  // Renderizar tabela
+  renderProjectionTable(evolucaoAnual);
+  
+  // Renderizar gráfico
+  renderProjectionChart(evolucaoAnual, capitalInicial);
+  
+  // Mostrar resultados
+  document.getElementById('projectionResults').style.display = 'block';
+  
+  // Scroll suave para resultados
+  document.getElementById('projectionResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderProjectionTable(evolucaoAnual) {
+  const tbody = document.querySelector('#projectionTable tbody');
+  tbody.innerHTML = '';
+  
+  evolucaoAnual.forEach(ano => {
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td><strong>Ano ${ano.ano}</strong></td>
+      <td>R$ ${displayCurrency(ano.proventosNoAno)}</td>
+      <td>R$ ${displayCurrency(ano.proventosAcumulados)}</td>
+      <td><strong>R$ ${displayCurrency(ano.valorTotal)}</strong></td>
+    `;
+  });
+}
+
+function renderProjectionChart(evolucaoAnual, capitalInicial) {
+  const ctx = document.getElementById('projectionChart');
+  
+  if (projectionChart) {
+    projectionChart.destroy();
+  }
+  
+  const labels = ['Início', ...evolucaoAnual.map(a => `Ano ${a.ano}`)];
+  const valores = [capitalInicial, ...evolucaoAnual.map(a => a.valorTotal)];
+  
+  projectionChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Evolução do Patrimônio',
+        data: valores,
+        borderColor: 'rgba(102, 126, 234, 1)',
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Projeção de Crescimento do Patrimônio',
+          font: {
+            size: 18,
+            weight: 'bold'
+          }
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return 'Valor: R$ ' + displayCurrency(context.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: {
+            callback: function(value) {
+              return 'R$ ' + displayCurrency(value);
+            }
+          },
+          title: {
+            display: true,
+            text: 'Valor (R$)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Período'
+          }
+        }
+      }
+    }
+  });
+}
+
+function limparProjecao() {
+  document.getElementById('proj_modalidade').value = '';
+  document.getElementById('proj_periodo').value = 'Mensal';
+  document.getElementById('proj_anos').value = '5';
+  document.getElementById('proj_reinvestir').value = 'sim';
+  document.getElementById('projectionResults').style.display = 'none';
+  
+  if (projectionChart) {
+    projectionChart.destroy();
+    projectionChart = null;
+  }
 }
 // ==================== MODO ESCURO/CLARO ====================
 function toggleTheme() {
