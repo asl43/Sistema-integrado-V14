@@ -3238,6 +3238,37 @@ async function deleteInvestimento(id) {
   await syncToSheets('investimentos');
 }
 
+function renderInvestimentos(filtered = null) {
+  const data = filtered || investimentos;
+  const table = document.getElementById('investTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">Nenhum investimento cadastrado</td></tr>';
+    return;
+  }
+  
+  const sortedData = [...data].sort((a, b) => a.ativo.localeCompare(b.ativo));
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    
+    row.innerHTML = `
+      <td><strong>${item.ativo}</strong></td>
+      <td>${item.modalidade}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td>${item.quantidade > 0 ? item.quantidade : '-'}</td>
+      <td>R$ ${displayCurrency(item.provento)}</td>
+      <td>${item.recorrente || 'Não'}</td>
+      <td>
+        <button class="btn-edit" onclick="editInvestimento(${item.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteInvestimento(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+}
+
 // ==================== CONSIGNAÇÃO ====================
 async function saveConsignacao() {
   const juros = parseFloat(document.getElementById('c_juros').value);
@@ -3294,6 +3325,53 @@ async function deleteConsignacao(id) {
   await syncToSheets('consignacoes');
 }
 
+function renderConsignacoes() {
+  const table = document.getElementById('consignacaoTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  if (consignacoes.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;">Nenhum empréstimo cadastrado</td></tr>';
+    return;
+  }
+  
+  const sortedData = [...consignacoes].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    
+    let status = 'Em Aberto';
+    let statusClass = 'status-aberto';
+    
+    if (item.pago >= item.total) {
+      status = 'Pago';
+      statusClass = 'status-pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+      statusClass = 'status-atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    const valorParcela = item.total / item.parcelas;
+    
+    row.innerHTML = `
+      <td><strong>${item.nome}</strong>${item.contato ? '<br><small>' + item.contato + '</small>' : ''}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td>${item.juros.toFixed(2)}%</td>
+      <td>R$ ${displayCurrency(item.total)}</td>
+      <td>R$ ${displayCurrency(item.pago)}<br><small>Restam: R$ ${displayCurrency(restante)}</small></td>
+      <td>${new Date(item.vencimento).toLocaleDateString('pt-BR')}<br><small>${item.parcelas}x de R$ ${displayCurrency(valorParcela)}</small></td>
+      <td><span class="${statusClass}">${status}</span></td>
+      <td>
+        <button class="btn-success" onclick="pagarParcela(${item.id})" ${item.pago >= item.total ? 'disabled' : ''}>Pagar Parcela</button><br>
+        <button class="btn-edit" onclick="editConsignacao(${item.id})" style="margin-top:5px">Editar</button>
+        <button class="btn-delete" onclick="deleteConsignacao(${item.id})" style="margin-top:5px">Excluir</button>
+      </td>
+    `;
+  });
+}
+
+
 // ==================== ANOTAÇÕES ====================
 async function saveAnotacao() {
   const id = document.getElementById('a_id').value;
@@ -3335,6 +3413,56 @@ async function deleteAnotacao(id) {
   await syncToSheets('anotacoes');
 }
 
+function renderAnotacoes(filtered = null) {
+  const data = filtered || anotacoes;
+  const table = document.getElementById('anotacoesTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Nenhuma anotação cadastrada</td></tr>';
+    return;
+  }
+  
+  const sortedData = [...data].sort((a, b) => {
+    const prioridades = {'Alta': 3, 'Média': 2, 'Baixa': 1};
+    return prioridades[b.prioridade] - prioridades[a.prioridade];
+  });
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    
+    let corPrioridade = '#ffc107';
+    if (item.prioridade === 'Alta') corPrioridade = '#e74c3c';
+    if (item.prioridade === 'Baixa') corPrioridade = '#28a745';
+    
+    row.innerHTML = `
+      <td><strong>${item.titulo}</strong></td>
+      <td><span style="background: ${corPrioridade}; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${item.prioridade}</span></td>
+      <td>${item.notas || '-'}</td>
+      <td>
+        <button class="btn-edit" onclick="editAnotacao(${item.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteAnotacao(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+}
+
+function editAnotacao(id) {
+  const item = anotacoes.find(a => a.id === id);
+  document.getElementById('a_id').value = item.id;
+  document.getElementById('a_titulo').value = item.titulo;
+  document.getElementById('a_notas').value = item.notas || '';
+  document.getElementById('a_prioridade').value = item.prioridade;
+  
+  document.getElementById('anotFormTitle').textContent = "Editando Anotação";
+  document.getElementById('btnSaveAnot').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelAnot').style.display = "inline-block";
+  document.getElementById('formAnot').classList.add('editing');
+  
+  document.getElementById('formAnot').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
 // ==================== VENDAS ====================
 async function saveVenda() {
   const item = {
@@ -3369,6 +3497,59 @@ async function deleteVenda(id) {
   renderVendas();
   
   await syncToSheets('vendas');
+}
+
+function renderVendas() {
+  const tbody = document.querySelector('#vendasTable tbody');
+  tbody.innerHTML = '';
+  
+  const vendasVisiveis = vendas.filter(v => !v.oculto);
+  
+  if (vendasVisiveis.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">Nenhuma venda cadastrada</td></tr>';
+    document.getElementById('totalVendasBruto').textContent = 'R$ 0,00';
+    document.getElementById('totalLucroVendas').textContent = 'R$ 0,00';
+    return;
+  }
+  
+  let bruto = 0;
+  let lucroTotal = 0;
+
+  vendasVisiveis.forEach(item => {
+    const lucro = item.valor - item.custo;
+    bruto += item.valor;
+    lucroTotal += lucro;
+
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+      <td>${item.cliente}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td style="color: ${lucro >= 0 ? 'green' : 'red'}">R$ ${displayCurrency(lucro)}</td>
+      <td>
+        <button class="btn-secondary" onclick="toggleOcultarVenda(${item.id})">Ocultar</button>
+        <button class="btn-delete" onclick="deleteVenda(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+
+  document.getElementById('totalVendasBruto').textContent = 'R$ ' + displayCurrency(bruto);
+  document.getElementById('totalLucroVendas').textContent = 'R$ ' + displayCurrency(lucroTotal);
+}
+
+function toggleOcultarVenda(id) {
+  const venda = vendas.find(v => v.id === id);
+  venda.oculto = !venda.oculto;
+  localStorage.setItem('vendas', JSON.stringify(vendas));
+  renderVendas();
+}
+
+function limparFormVendas() {
+  document.getElementById('v_cliente').value = '';
+  document.getElementById('v_tipo').value = 'Produto';
+  document.getElementById('v_custo').value = '';
+  document.getElementById('v_valor').value = '';
+  document.getElementById('v_descricao').value = '';
 }
 
 // ==================== SINCRONIZAÇÃO EM MASSA ====================
@@ -3922,6 +4103,59 @@ async function saveConsignacao() {
   await syncToSheets('consignacoes');
 }
 
+function editConsignacao(id) {
+  const item = consignacoes.find(c => c.id === id);
+  document.getElementById('c_id').value = item.id;
+  document.getElementById('c_nome').value = item.nome;
+  document.getElementById('c_valor').value = displayCurrency(item.valor);
+  document.getElementById('c_juros').value = item.juros;
+  document.getElementById('c_parcelas').value = item.parcelas;
+  document.getElementById('c_vencimento').value = item.vencimento;
+  document.getElementById('c_contato').value = item.contato;
+  
+  document.getElementById('consigFormTitle').textContent = "Editando Empréstimo";
+  document.getElementById('btnSaveCons').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelCons').style.display = "inline-block";
+  document.getElementById('formConsignacao').classList.add('editing');
+  
+  document.getElementById('formConsignacao').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function pagarParcela(id) {
+  const item = consignacoes.find(c => c.id === id);
+  const valorParcela = item.total / item.parcelas;
+  
+  if (item.pago >= item.total) {
+    alert('Este empréstimo já foi totalmente pago!');
+    return;
+  }
+  
+  item.pago += valorParcela;
+  if (item.pago > item.total) {
+    item.pago = item.total;
+  }
+  
+  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+  renderConsignacoes();
+  renderConsignacaoSummary();
+  renderConsignacaoChart();
+  alert('✅ Parcela paga! Use "Enviar para Sheets" para sincronizar.');
+}
+
+function resetConsForm() {
+  document.getElementById('c_id').value = "";
+  document.getElementById('c_nome').value = "";
+  document.getElementById('c_valor').value = "";
+  document.getElementById('c_juros').value = "";
+  document.getElementById('c_parcelas').value = "";
+  document.getElementById('c_vencimento').value = "";
+  document.getElementById('c_contato').value = "";
+  document.getElementById('consigFormTitle').textContent = "Novo Empréstimo";
+  document.getElementById('btnSaveCons').textContent = "Adicionar Empréstimo";
+  document.getElementById('btnCancelCons').style.display = "none";
+  document.getElementById('formConsignacao').classList.remove('editing');
+}
+
 async function deleteConsignacao(id) {
   if (!confirm('Deseja realmente excluir este empréstimo?')) return;
   
@@ -4327,6 +4561,55 @@ function limparProjecao() {
     projectionChart.destroy();
     projectionChart = null;
   }
+}
+
+function renderAnotacoesPrioritySummary() {
+  const summary = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+  
+  anotacoes.forEach(item => {
+    summary[item.prioridade]++;
+  });
+  
+  const container = document.getElementById('anotacoesPrioritySummary');
+  container.innerHTML = '';
+  
+  Object.keys(summary).forEach(prioridade => {
+    const card = document.createElement('div');
+    card.className = 'summary-card';
+    if (prioridade === 'Alta') card.classList.add('danger');
+    if (prioridade === 'Média') card.classList.add('warning');
+    if (prioridade === 'Baixa') card.classList.add('highlight');
+    
+    card.innerHTML = `
+      <h4>${prioridade}</h4>
+      <p>${summary[prioridade]}</p>
+      <small>anotações</small>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function renderConsignacaoSummary() {
+  let totalEmp = 0;
+  let totalRec = 0;
+  let totalAb = 0;
+  let totalAtr = 0;
+  
+  consignacoes.forEach(item => {
+    totalEmp += item.total;
+    totalRec += item.pago;
+    if (item.pago < item.total) {
+      totalAb += (item.total - item.pago);
+      if (new Date(item.vencimento) < new Date()) {
+        totalAtr++;
+      }
+    }
+  });
+  
+  document.getElementById('totalEmprestado').textContent = 'R$ ' + displayCurrency(totalEmp);
+  document.getElementById('totalRecebido').textContent = 'R$ ' + displayCurrency(totalRec);
+  document.getElementById('totalAberto').textContent = 'R$ ' + displayCurrency(totalAb);
+  document.getElementById('totalAtrasado').textContent = totalAtr;
 }
 // ==================== MODO ESCURO/CLARO ====================
 function toggleTheme() {
