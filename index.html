@@ -1251,125 +1251,6 @@ body.dark-mode .budget-values {
   font-size: 12px;
   font-weight: 700;
 }
-
-/* ==================== PROJEÇÃO DE INVESTIMENTOS ==================== */
-.projection-card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  margin-bottom: 20px;
-  border-left: 4px solid #667eea;
-}
-
-.projection-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.projection-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
-}
-
-.projection-controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.projection-result {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 25px;
-  border-radius: 8px;
-  text-align: center;
-  margin-top: 20px;
-}
-
-.projection-result h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-  opacity: 0.9;
-}
-
-.projection-result .value {
-  font-size: 36px;
-  font-weight: 700;
-  margin: 10px 0;
-}
-
-.projection-result .details {
-  font-size: 14px;
-  opacity: 0.85;
-  margin-top: 10px;
-}
-
-.projection-breakdown {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.breakdown-item {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 6px;
-  border-left: 3px solid #667eea;
-}
-
-.breakdown-item h4 {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.breakdown-item .amount {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
-}
-
-body.dark-mode .projection-card {
-  background: #1a1a2e;
-}
-
-body.dark-mode .projection-title {
-  color: #e0e0e0;
-}
-
-body.dark-mode .breakdown-item {
-  background: #0f3460;
-}
-
-body.dark-mode .breakdown-item h4 {
-  color: #b0b0b0;
-}
-
-body.dark-mode .breakdown-item .amount {
-  color: #e0e0e0;
-}
-
-.projection-chart-container {
-  position: relative;
-  height: 400px;
-  margin-top: 20px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-body.dark-mode .projection-chart-container {
-  background: #1a1a2e;
-}
 </style>
 </head>
 
@@ -1407,6 +1288,15 @@ body.dark-mode .projection-chart-container {
   </div>
   
   <!-- BOTÃO DE SINCRONIZAÇÃO GERAL -->
+<div style="max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;">
+  <button onclick="syncAllToSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
+    🔄 Sincronizar TODOS os Dados com Google Sheets
+  </button>
+  
+  <button onclick="loadAllFromSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); margin-top: 10px;">
+    📥 Carregar TODOS os Dados do Google Sheets
+  </button>
+</div>
   
   <div class="cards-container">
     <div class="main-card" onclick="openModule('financeiro')">
@@ -1712,7 +1602,6 @@ body.dark-mode .projection-chart-container {
       <div class="form-card" id="formInvest">
         <h3 id="invFormTitle">Novo Investimento</h3>
         <input type="hidden" id="i_id">
-     
         
 <!-- FILTROS INVESTIMENTOS -->
 <div class="filter-section">
@@ -1745,157 +1634,6 @@ body.dark-mode .projection-chart-container {
   </div>
   
   <button class="btn-secondary" onclick="limparFiltrosInvestimentos()" style="margin-top: 10px;">Limpar Filtros</button>
-</div>
-<!-- ==================== PROJEÇÃO DE INVESTIMENTOS ==================== -->
-<div class="projection-card">
-  <div class="projection-header">
-    <h3 class="projection-title">📊 Projeção de Investimentos</h3>
-  </div>
-  
-  <div class="alert alert-info">
-    <span>ℹ️</span>
-    <span>Calcule quanto seus investimentos podem render ao longo do tempo com base nos proventos atuais</span>
-  </div>
-  
-  <div class="projection-controls">
-    <div class="form-group-inline">
-      <label for="proj_modalidade">Modalidade *</label>
-      <select id="proj_modalidade">
-        <option value="">Todas</option>
-        <option value="Ações">Ações</option>
-        <option value="FIIs">FIIs</option>
-        <option value="Renda Fixa">Renda Fixa</option>
-        <option value="CDB">CDB</option>
-        <option value="Tesouro Direto">Tesouro Direto</option>
-        <option value="Criptomoedas">Criptomoedas</option>
-        <option value="Fundos">Fundos</option>
-        <option value="Outros">Outros</option>
-      </select>
-    </div>
-    
-    <div class="form-group-inline">
-      <label for="proj_periodo">Período de Proventos *</label>
-      <select id="proj_periodo">
-        <option value="Mensal">Mensal</option>
-        <option value="Bimestral">Bimestral</option>
-        <option value="Trimestral">Trimestral</option>
-        <option value="Semestral">Semestral</option>
-        <option value="Anual">Anual</option>
-      </select>
-    </div>
-    
-    <div class="form-group-inline">
-      <label for="proj_anos">Projetar até (anos) *</label>
-      <input type="number" id="proj_anos" min="2" max="30" value="5" placeholder="2 a 30 anos">
-    </div>
-    
-    <div class="form-group-inline">
-      <label for="proj_reinvestir">Reinvestir Proventos?</label>
-      <select id="proj_reinvestir">
-        <option value="sim">Sim (Juros Compostos)</option>
-        <option value="nao">Não (Juros Simples)</option>
-      </select>
-    </div>
-  </div>
-  
-  <div class="action-buttons">
-    <button class="btn-primary" onclick="calcularProjecao()">📈 Calcular Projeção</button>
-    <button class="btn-secondary" onclick="limparProjecao()">🗑️ Limpar</button>
-  </div>
-  
-  <!-- RESULTADOS -->
-  <div id="projectionResults" style="display: none;">
-    <div class="projection-result">
-      <h3>Projeção em <span id="proj_anos_result"></span> anos</h3>
-      <div class="value" id="proj_total_final">R$ 0,00</div>
-      <div class="details">
-        <div>Investimento Inicial: <strong id="proj_investimento_inicial">R$ 0,00</strong></div>
-        <div>Total em Proventos: <strong id="proj_total_proventos">R$ 0,00</strong></div>
-        <div>Rentabilidade: <strong id="proj_rentabilidade">0%</strong></div>
-      </div>
-    </div>
-    
-    <div class="projection-breakdown">
-      <div class="breakdown-item">
-        <h4>💰 Capital Inicial</h4>
-        <div class="amount" id="breakdown_capital">R$ 0,00</div>
-      </div>
-      
-      <div class="breakdown-item">
-        <h4>📊 Proventos Acumulados</h4>
-        <div class="amount" id="breakdown_proventos">R$ 0,00</div>
-      </div>
-      
-      <div class="breakdown-item">
-        <h4>📈 Ganho Total</h4>
-        <div class="amount" id="breakdown_ganho">R$ 0,00</div>
-      </div>
-      
-      <div class="breakdown-item">
-        <h4>🎯 Valor Final</h4>
-        <div class="amount" id="breakdown_final">R$ 0,00</div>
-      </div>
-    </div>
-    
-    <!-- GRÁFICO DE PROJEÇÃO -->
-    <div class="projection-chart-container">
-      <canvas id="projectionChart"></canvas>
-    </div>
-    
-    <!-- TABELA ANUAL -->
-    <div class="data-table" style="margin-top: 30px;">
-      <h3>📅 Evolução Anual</h3>
-      <table id="projectionTable">
-        <thead>
-          <tr>
-            <th>Ano</th>
-            <th>Proventos no Período</th>
-            <th>Proventos Acumulados</th>
-            <th>Valor Total</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-```
-
----
-
-## 📋 **VISUALIZAÇÃO DA ESTRUTURA CORRETA**
-```
-<!-- MÓDULO INVESTIMENTOS -->
-<div class="module-container" id="moduleInvestimento">
-  <div class="module-content">
-    <div class="module-header">...</div>
-    <div class="module-body">
-      
-      <!-- RESUMO POR MODALIDADE -->
-      <div class="summary-section">...</div>
-      
-      <!-- FORMULÁRIO -->
-      <div class="form-card" id="formInvest">...</div>
-      
-      <!-- FILTROS -->
-      <div class="filter-section">
-        ...
-        <button class="btn-secondary" onclick="limparFiltrosInvestimentos()">Limpar Filtros</button>
-      </div>
-      
-      <!-- 🔥 ADICIONE A PROJEÇÃO AQUI! -->
-      <div class="projection-card">
-        ...conteúdo da projeção...
-      </div>
-      
-      <!-- TABELA DE INVESTIMENTOS -->
-      <div class="data-table">
-        <h3>Meus Investimentos</h3>
-        <table id="investTable">...</table>
-      </div>
-      
-    </div>
-  </div>
 </div>
         
         <div class="form-grid">
@@ -2728,7 +2466,6 @@ body.dark-mode .projection-chart-container {
       
     </div>
   </div>
-  
 </div>
 
 <script>
@@ -3021,6 +2758,7 @@ function displayCurrency(value) {
 
 // ==================== INICIALIZAÇÃO ====================
 window.onload = function() {
+  // Carregar tema primeiro
   loadThemePreference();
   
   // Configurar URL automaticamente
@@ -3031,16 +2769,13 @@ window.onload = function() {
   
   if (usuario) {
     mostrarTelaPrincipal();
-    // 🔥 CARREGAR DADOS AUTOMATICAMENTE
-    setTimeout(() => {
-      autoLoadAllData();
-    }, 1000);
+    autoLoadAllData();
   }
   
   atualizarStatusUrl();
   
-  // Formatação de moeda
-  const currencyInputs = ['f_valor', 'i_valor', 'i_prov', 'c_valor', 'v_custo', 'v_valor', 'meta_valor', 'meta_atual', 'orc_limite'];
+  // Adicionar formatação de moeda aos campos ORIGINAIS
+  const currencyInputs = ['f_valor', 'i_valor', 'i_prov', 'c_valor', 'v_custo', 'v_valor'];
   currencyInputs.forEach(id => {
     const input = document.getElementById(id);
     if (input) {
@@ -3050,8 +2785,21 @@ window.onload = function() {
     }
   });
   
+  // NOVO: Adicionar formatação aos campos dos novos módulos
+  const newCurrencyInputs = ['meta_valor', 'meta_atual', 'orc_limite'];
+  newCurrencyInputs.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener('input', function() {
+        formatCurrency(this);
+      });
+    }
+  });
+  
+  // NOVO: Inicializar categorias personalizadas
   updateCategorySelects();
   
+  // Fecha módulos com ESC
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       const activeModule = document.querySelector('.module-container.active');
@@ -3107,451 +2855,79 @@ function closeModule(module) {
   }
 }
 
-// ==================== CARREGAMENTO AUTOMÁTICO APRIMORADO ====================
+// ==================== CARREGAMENTO AUTOMÁTICO ====================
 async function autoLoadAllData() {
-  if (!SHEETS_URL) {
-    console.log('⚠️ URL do Sheets não configurada');
-    return;
-  }
+  if (!SHEETS_URL) return;
   
   console.log('🔄 Carregando dados do Google Sheets...');
-  showSyncStatus('Carregando dados...', 'syncing');
   
-  const modulos = [
-    { nome: 'Financeiro', variavel: 'financeiro', render: renderFinanceiro },
-    { nome: 'Investimentos', variavel: 'investimentos', render: renderInvestimentos },
-    { nome: 'Consignacao', variavel: 'consignacoes', render: renderConsignacoes },
-    { nome: 'Anotacoes', variavel: 'anotacoes', render: renderAnotacoes },
-    { nome: 'Vendas', variavel: 'vendas', render: renderVendas }
-  ];
-  
-  let sucessos = 0;
-  
-  for (const mod of modulos) {
-    try {
-      const response = await fetch(`${SHEETS_URL}?action=read&sheet=${mod.nome}`);
-      const result = await response.json();
-      
-      if (result.status === 'success' && result.data) {
-        window[mod.variavel] = result.data;
-        localStorage.setItem(mod.variavel, JSON.stringify(result.data));
-        console.log(`✅ ${mod.nome}: ${result.data.length} registros`);
-        sucessos++;
-      }
-    } catch (e) {
-      console.error(`❌ Erro em ${mod.nome}:`, e.message);
+  try {
+    // Carregar Financeiro
+    const finResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Financeiro`);
+    const finResult = await finResponse.json();
+    if (finResult.status === 'success' && finResult.data && finResult.data.length > 0) {
+      financeiro = finResult.data;
+      localStorage.setItem('financeiro', JSON.stringify(financeiro));
+      console.log('✅ Financeiro carregado:', financeiro.length, 'registros');
     }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Financeiro:', e.message);
   }
   
-  showSyncStatus(`✅ ${sucessos} módulos carregados!`, 'success');
-  console.log('✅ Carregamento concluído!');
-}
-
-// ==================== SALVAR COM SINCRONIZAÇÃO AUTOMÁTICA ====================
-async function saveFinanceiro() {
-  const id = document.getElementById('f_id').value;
-  const item = {
-    id: id ? parseInt(id) : Date.now(),
-    data: document.getElementById('f_data').value,
-    tipo: document.getElementById('f_tipo').value,
-    valor: parseCurrency(document.getElementById('f_valor').value),
-    descricao: document.getElementById('f_desc').value,
-    categoria: document.getElementById('f_cat').value,
-    recorrente: document.getElementById('f_rec').value
-  };
-  
-  if (!item.data || !item.descricao || item.valor === 0) {
-    alert('Preencha todos os campos obrigatórios!');
-    return;
-  }
-  
-  if (id) {
-    const index = financeiro.findIndex(f => f.id === item.id);
-    financeiro[index] = item;
-  } else {
-    financeiro.push(item);
-  }
-  
-  localStorage.setItem('financeiro', JSON.stringify(financeiro));
-  resetFinForm();
-  renderFinanceiro();
-  renderFinanceiroCategorySummary();
-  
-  // 🔥 SINCRONIZAR AUTOMATICAMENTE
-  await syncToSheets('financeiro');
-}
-
-async function deleteFinanceiro(id) {
-  if (!confirm('Deseja realmente excluir esta transação?')) return;
-  
-  financeiro = financeiro.filter(item => item.id !== id);
-  localStorage.setItem('financeiro', JSON.stringify(financeiro));
-  renderFinanceiro();
-  renderFinanceiroCategorySummary();
-  
-  // 🔥 SINCRONIZAR AUTOMATICAMENTE
-  await syncToSheets('financeiro');
-}
-
-// ==================== MESMAS FUNÇÕES PARA INVESTIMENTOS ====================
-async function saveInvestimento() {
-  const id = document.getElementById('i_id').value;
-  const item = {
-    id: id ? parseInt(id) : Date.now(),
-    ativo: document.getElementById('i_ativo').value,
-    modalidade: document.getElementById('i_mod').value,
-    data: document.getElementById('i_data').value,
-    valor: parseCurrency(document.getElementById('i_valor').value),
-    quantidade: parseFloat(document.getElementById('i_qtd').value) || 0,
-    provento: parseCurrency(document.getElementById('i_prov').value),
-    recorrente: document.getElementById('i_rec').value
-  };
-  
-  if (!item.ativo || item.valor === 0) {
-    alert('Preencha os campos obrigatórios!');
-    return;
-  }
-  
-  if (id) {
-    const index = investimentos.findIndex(i => i.id === item.id);
-    investimentos[index] = item;
-  } else {
-    investimentos.push(item);
-  }
-  
-  localStorage.setItem('investimentos', JSON.stringify(investimentos));
-  resetInvForm();
-  renderInvestimentos();
-  renderInvestimentoModalitySummary();
-  
-  await syncToSheets('investimentos');
-}
-
-async function deleteInvestimento(id) {
-  if (!confirm('Deseja realmente excluir este investimento?')) return;
-  
-  investimentos = investimentos.filter(item => item.id !== id);
-  localStorage.setItem('investimentos', JSON.stringify(investimentos));
-  renderInvestimentos();
-  renderInvestimentoModalitySummary();
-  
-  await syncToSheets('investimentos');
-}
-
-function renderInvestimentos(filtered = null) {
-  const data = filtered || investimentos;
-  const table = document.getElementById('investTable');
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
-  
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;">Nenhum investimento cadastrado</td></tr>';
-    return;
-  }
-  
-  const sortedData = [...data].sort((a, b) => a.ativo.localeCompare(b.ativo));
-  
-  sortedData.forEach(item => {
-    const row = tbody.insertRow(-1);
-    
-    row.innerHTML = `
-      <td><strong>${item.ativo}</strong></td>
-      <td>${item.modalidade}</td>
-      <td>R$ ${displayCurrency(item.valor)}</td>
-      <td>${item.quantidade > 0 ? item.quantidade : '-'}</td>
-      <td>R$ ${displayCurrency(item.provento)}</td>
-      <td>${item.recorrente || 'Não'}</td>
-      <td>
-        <button class="btn-edit" onclick="editInvestimento(${item.id})">Editar</button>
-        <button class="btn-delete" onclick="deleteInvestimento(${item.id})">Excluir</button>
-      </td>
-    `;
-  });
-}
-
-// ==================== CONSIGNAÇÃO ====================
-async function saveConsignacao() {
-  const juros = parseFloat(document.getElementById('c_juros').value);
-  
-  if (juros > 100) {
-    alert('Juros máximo permitido: 100%');
-    return;
-  }
-  
-  const id = document.getElementById('c_id').value;
-  const valor = parseCurrency(document.getElementById('c_valor').value);
-  const item = {
-    id: id ? parseInt(id) : Date.now(),
-    nome: document.getElementById('c_nome').value,
-    valor: valor,
-    juros: juros,
-    parcelas: parseInt(document.getElementById('c_parcelas').value),
-    vencimento: document.getElementById('c_vencimento').value,
-    contato: document.getElementById('c_contato').value || '',
-    pago: id ? consignacoes.find(c => c.id === parseInt(id)).pago : 0,
-    total: valor * (1 + juros / 100)
-  };
-  
-  if (!item.nome || item.valor === 0 || !item.vencimento) {
-    alert('Preencha todos os campos obrigatórios!');
-    return;
-  }
-  
-  if (id) {
-    const index = consignacoes.findIndex(c => c.id === item.id);
-    consignacoes[index] = item;
-  } else {
-    consignacoes.push(item);
-  }
-  
-  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
-  resetConsForm();
-  renderConsignacoes();
-  renderConsignacaoSummary();
-  renderConsignacaoChart();
-  
-  await syncToSheets('consignacoes');
-}
-
-async function deleteConsignacao(id) {
-  if (!confirm('Deseja realmente excluir este empréstimo?')) return;
-  
-  consignacoes = consignacoes.filter(item => item.id !== id);
-  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
-  renderConsignacoes();
-  renderConsignacaoSummary();
-  renderConsignacaoChart();
-  
-  await syncToSheets('consignacoes');
-}
-
-function renderConsignacoes() {
-  const table = document.getElementById('consignacaoTable');
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
-  
-  if (consignacoes.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;">Nenhum empréstimo cadastrado</td></tr>';
-    return;
-  }
-  
-  const sortedData = [...consignacoes].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
-  
-  sortedData.forEach(item => {
-    const row = tbody.insertRow(-1);
-    
-    let status = 'Em Aberto';
-    let statusClass = 'status-aberto';
-    
-    if (item.pago >= item.total) {
-      status = 'Pago';
-      statusClass = 'status-pago';
-    } else if (new Date(item.vencimento) < new Date()) {
-      status = 'Atrasado';
-      statusClass = 'status-atrasado';
+  try {
+    // Carregar Investimentos
+    const invResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Investimentos`);
+    const invResult = await invResponse.json();
+    if (invResult.status === 'success' && invResult.data && invResult.data.length > 0) {
+      investimentos = invResult.data;
+      localStorage.setItem('investimentos', JSON.stringify(investimentos));
+      console.log('✅ Investimentos carregado:', investimentos.length, 'registros');
     }
-    
-    const restante = item.total - item.pago;
-    const valorParcela = item.total / item.parcelas;
-    
-    row.innerHTML = `
-      <td><strong>${item.nome}</strong>${item.contato ? '<br><small>' + item.contato + '</small>' : ''}</td>
-      <td>R$ ${displayCurrency(item.valor)}</td>
-      <td>${item.juros.toFixed(2)}%</td>
-      <td>R$ ${displayCurrency(item.total)}</td>
-      <td>R$ ${displayCurrency(item.pago)}<br><small>Restam: R$ ${displayCurrency(restante)}</small></td>
-      <td>${new Date(item.vencimento).toLocaleDateString('pt-BR')}<br><small>${item.parcelas}x de R$ ${displayCurrency(valorParcela)}</small></td>
-      <td><span class="${statusClass}">${status}</span></td>
-      <td>
-        <button class="btn-success" onclick="pagarParcela(${item.id})" ${item.pago >= item.total ? 'disabled' : ''}>Pagar Parcela</button><br>
-        <button class="btn-edit" onclick="editConsignacao(${item.id})" style="margin-top:5px">Editar</button>
-        <button class="btn-delete" onclick="deleteConsignacao(${item.id})" style="margin-top:5px">Excluir</button>
-      </td>
-    `;
-  });
-}
-
-
-// ==================== ANOTAÇÕES ====================
-async function saveAnotacao() {
-  const id = document.getElementById('a_id').value;
-  const item = {
-    id: id ? parseInt(id) : Date.now(),
-    titulo: document.getElementById('a_titulo').value,
-    notas: document.getElementById('a_notas').value,
-    prioridade: document.getElementById('a_prioridade').value
-  };
-  
-  if (!item.titulo) {
-    alert('Preencha o título!');
-    return;
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Investimentos:', e.message);
   }
   
-  if (id) {
-    const index = anotacoes.findIndex(a => a.id === item.id);
-    anotacoes[index] = item;
-  } else {
-    anotacoes.push(item);
+  try {
+    // Carregar Consignação
+    const consResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Consignacao`);
+    const consResult = await consResponse.json();
+    if (consResult.status === 'success' && consResult.data && consResult.data.length > 0) {
+      consignacoes = consResult.data;
+      localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+      console.log('✅ Consignação carregado:', consignacoes.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Consignação:', e.message);
   }
   
-  localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
-  resetAnotForm();
-  renderAnotacoes();
-  renderAnotacoesPrioritySummary();
-  
-  await syncToSheets('anotacoes');
-}
-
-async function deleteAnotacao(id) {
-  if (!confirm('Deseja realmente excluir esta anotação?')) return;
-  
-  anotacoes = anotacoes.filter(item => item.id !== id);
-  localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
-  renderAnotacoes();
-  renderAnotacoesPrioritySummary();
-  
-  await syncToSheets('anotacoes');
-}
-
-function renderAnotacoes(filtered = null) {
-  const data = filtered || anotacoes;
-  const table = document.getElementById('anotacoesTable');
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
-  
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;">Nenhuma anotação cadastrada</td></tr>';
-    return;
+  try {
+    // Carregar Anotações
+    const anotResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Anotacoes`);
+    const anotResult = await anotResponse.json();
+    if (anotResult.status === 'success' && anotResult.data && anotResult.data.length > 0) {
+      anotacoes = anotResult.data;
+      localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+      console.log('✅ Anotações carregado:', anotacoes.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Anotações:', e.message);
   }
   
-  const sortedData = [...data].sort((a, b) => {
-    const prioridades = {'Alta': 3, 'Média': 2, 'Baixa': 1};
-    return prioridades[b.prioridade] - prioridades[a.prioridade];
-  });
-  
-  sortedData.forEach(item => {
-    const row = tbody.insertRow(-1);
-    
-    let corPrioridade = '#ffc107';
-    if (item.prioridade === 'Alta') corPrioridade = '#e74c3c';
-    if (item.prioridade === 'Baixa') corPrioridade = '#28a745';
-    
-    row.innerHTML = `
-      <td><strong>${item.titulo}</strong></td>
-      <td><span style="background: ${corPrioridade}; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${item.prioridade}</span></td>
-      <td>${item.notas || '-'}</td>
-      <td>
-        <button class="btn-edit" onclick="editAnotacao(${item.id})">Editar</button>
-        <button class="btn-delete" onclick="deleteAnotacao(${item.id})">Excluir</button>
-      </td>
-    `;
-  });
-}
-
-function editAnotacao(id) {
-  const item = anotacoes.find(a => a.id === id);
-  document.getElementById('a_id').value = item.id;
-  document.getElementById('a_titulo').value = item.titulo;
-  document.getElementById('a_notas').value = item.notas || '';
-  document.getElementById('a_prioridade').value = item.prioridade;
-  
-  document.getElementById('anotFormTitle').textContent = "Editando Anotação";
-  document.getElementById('btnSaveAnot').textContent = "Salvar Alterações";
-  document.getElementById('btnCancelAnot').style.display = "inline-block";
-  document.getElementById('formAnot').classList.add('editing');
-  
-  document.getElementById('formAnot').scrollIntoView({behavior: 'smooth', block: 'start'});
-}
-
-// ==================== VENDAS ====================
-async function saveVenda() {
-  const item = {
-    id: Date.now(),
-    cliente: document.getElementById('v_cliente').value,
-    tipo: document.getElementById('v_tipo').value,
-    custo: parseCurrency(document.getElementById('v_custo').value),
-    valor: parseCurrency(document.getElementById('v_valor').value),
-    descricao: document.getElementById('v_descricao').value,
-    data: new Date().toISOString(),
-    oculto: false
-  };
-
-  if (!item.cliente || item.valor === 0) {
-    alert('Preencha Cliente e Valor!');
-    return;
-  }
-
-  vendas.push(item);
-  localStorage.setItem('vendas', JSON.stringify(vendas));
-  renderVendas();
-  limparFormVendas();
-  
-  await syncToSheets('vendas');
-}
-
-async function deleteVenda(id) {
-  if(!confirm("Excluir esta venda?")) return;
-  
-  vendas = vendas.filter(v => v.id !== id);
-  localStorage.setItem('vendas', JSON.stringify(vendas));
-  renderVendas();
-  
-  await syncToSheets('vendas');
-}
-
-function renderVendas() {
-  const tbody = document.querySelector('#vendasTable tbody');
-  tbody.innerHTML = '';
-  
-  const vendasVisiveis = vendas.filter(v => !v.oculto);
-  
-  if (vendasVisiveis.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">Nenhuma venda cadastrada</td></tr>';
-    document.getElementById('totalVendasBruto').textContent = 'R$ 0,00';
-    document.getElementById('totalLucroVendas').textContent = 'R$ 0,00';
-    return;
+  try {
+    // Carregar Vendas
+    const vendasResponse = await fetch(`${SHEETS_URL}?action=read&sheet=Vendas`);
+    const vendasResult = await vendasResponse.json();
+    if (vendasResult.status === 'success' && vendasResult.data && vendasResult.data.length > 0) {
+      vendas = vendasResult.data;
+      localStorage.setItem('vendas', JSON.stringify(vendas));
+      console.log('✅ Vendas carregado:', vendas.length, 'registros');
+    }
+  } catch (e) {
+    console.log('⚠️ Erro ao carregar Vendas:', e.message);
   }
   
-  let bruto = 0;
-  let lucroTotal = 0;
-
-  vendasVisiveis.forEach(item => {
-    const lucro = item.valor - item.custo;
-    bruto += item.valor;
-    lucroTotal += lucro;
-
-    const row = tbody.insertRow();
-    row.innerHTML = `
-      <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
-      <td>${item.cliente}</td>
-      <td>R$ ${displayCurrency(item.valor)}</td>
-      <td style="color: ${lucro >= 0 ? 'green' : 'red'}">R$ ${displayCurrency(lucro)}</td>
-      <td>
-        <button class="btn-secondary" onclick="toggleOcultarVenda(${item.id})">Ocultar</button>
-        <button class="btn-delete" onclick="deleteVenda(${item.id})">Excluir</button>
-      </td>
-    `;
-  });
-
-  document.getElementById('totalVendasBruto').textContent = 'R$ ' + displayCurrency(bruto);
-  document.getElementById('totalLucroVendas').textContent = 'R$ ' + displayCurrency(lucroTotal);
+  console.log('✅ Carregamento automático concluído!');
 }
-
-function toggleOcultarVenda(id) {
-  const venda = vendas.find(v => v.id === id);
-  venda.oculto = !venda.oculto;
-  localStorage.setItem('vendas', JSON.stringify(vendas));
-  renderVendas();
-}
-
-function limparFormVendas() {
-  document.getElementById('v_cliente').value = '';
-  document.getElementById('v_tipo').value = 'Produto';
-  document.getElementById('v_custo').value = '';
-  document.getElementById('v_valor').value = '';
-  document.getElementById('v_descricao').value = '';
-}
-
 // ==================== SINCRONIZAÇÃO EM MASSA ====================
 async function syncAllToSheets() {
   if (!SHEETS_URL) {
@@ -3716,7 +3092,7 @@ function openModule(module) {
 // Por brevidade, não vou repetir todo o código, mas todas as funções originais devem estar aqui
 
 // ==================== FINANCEIRO ====================
-async function saveFinanceiro() {
+function saveFinanceiro() {
   const id = document.getElementById('f_id').value;
   const item = {
     id: id ? parseInt(id) : Date.now(),
@@ -3744,9 +3120,6 @@ async function saveFinanceiro() {
   resetFinForm();
   renderFinanceiro();
   renderFinanceiroCategorySummary();
-  
-  // 🔥 SINCRONIZAR AUTOMATICAMENTE
-  await syncToSheets('financeiro');
 }
 
 function renderFinanceiro(filtered = null) {
@@ -3826,16 +3199,13 @@ function resetFinForm() {
   document.getElementById('formFinanceiro').classList.remove('editing');
 }
 
-async function deleteFinanceiro(id) {
-  if (!confirm('Deseja realmente excluir esta transação?')) return;
-  
-  financeiro = financeiro.filter(item => item.id !== id);
-  localStorage.setItem('financeiro', JSON.stringify(financeiro));
-  renderFinanceiro();
-  renderFinanceiroCategorySummary();
-  
-  // 🔥 SINCRONIZAR AUTOMATICAMENTE
-  await syncToSheets('financeiro');
+function deleteFinanceiro(id) {
+  if (confirm('Deseja realmente excluir esta transação?')) {
+    financeiro = financeiro.filter(item => item.id !== id);
+    localStorage.setItem('financeiro', JSON.stringify(financeiro));
+    renderFinanceiro();
+    renderFinanceiroCategorySummary();
+  }
 }
 
 function renderFinanceiroCategorySummary() {
@@ -3913,7 +3283,7 @@ function clearFinanceiroFilters() {
 }
 
 // ==================== INVESTIMENTOS ====================
-async function saveInvestimento() {
+function saveInvestimento() {
   const id = document.getElementById('i_id').value;
   const item = {
     id: id ? parseInt(id) : Date.now(),
@@ -3942,8 +3312,6 @@ async function saveInvestimento() {
   resetInvForm();
   renderInvestimentos();
   renderInvestimentoModalitySummary();
-  
-  await syncToSheets('investimentos');
 }
 
 function renderInvestimentos(filtered = null) {
@@ -4013,15 +3381,13 @@ function resetInvForm() {
   document.getElementById('formInvest').classList.remove('editing');
 }
 
-async function deleteInvestimento(id) {
-  if (!confirm('Deseja realmente excluir este investimento?')) return;
-  
-  investimentos = investimentos.filter(item => item.id !== id);
-  localStorage.setItem('investimentos', JSON.stringify(investimentos));
-  renderInvestimentos();
-  renderInvestimentoModalitySummary();
-  
-  await syncToSheets('investimentos');
+function deleteInvestimento(id) {
+  if (confirm('Deseja realmente excluir este investimento?')) {
+    investimentos = investimentos.filter(item => item.id !== id);
+    localStorage.setItem('investimentos', JSON.stringify(investimentos));
+    renderInvestimentos();
+    renderInvestimentoModalitySummary();
+  }
 }
 
 function renderInvestimentoModalitySummary() {
@@ -4059,12 +3425,14 @@ function renderInvestimentoModalitySummary() {
   });
 }
 
+// (Continue com as demais funções: Consignação, Anotações, Vendas, Dashboard, etc.)
+// Por brevidade, não vou repetir todo o código, mas você deve incluir todas as funções originais aqui
 // ==================== CONSIGNAÇÃO ====================
-async function saveConsignacao() {
+function saveConsignacao() {
   const juros = parseFloat(document.getElementById('c_juros').value);
   
   if (juros > 100) {
-    alert('Juros máximo permitido: 100%');
+    alert('Juros máximo permitido por lei: 100% ao mês');
     return;
   }
   
@@ -4078,7 +3446,7 @@ async function saveConsignacao() {
     parcelas: parseInt(document.getElementById('c_parcelas').value),
     vencimento: document.getElementById('c_vencimento').value,
     contato: document.getElementById('c_contato').value || '',
-    pago: id ? consignacoes.find(c => c.id === parseInt(id)).pago : 0,
+    pago: 0,
     total: valor * (1 + juros / 100)
   };
   
@@ -4099,36 +3467,52 @@ async function saveConsignacao() {
   renderConsignacoes();
   renderConsignacaoSummary();
   renderConsignacaoChart();
-  
-  await syncToSheets('consignacoes');
 }
 
-function editConsignacao(id) {
-  const item = consignacoes.find(c => c.id === id);
-  document.getElementById('c_id').value = item.id;
-  document.getElementById('c_nome').value = item.nome;
-  document.getElementById('c_valor').value = displayCurrency(item.valor);
-  document.getElementById('c_juros').value = item.juros;
-  document.getElementById('c_parcelas').value = item.parcelas;
-  document.getElementById('c_vencimento').value = item.vencimento;
-  document.getElementById('c_contato').value = item.contato;
+function renderConsignacoes() {
+  const table = document.getElementById('consignacaoTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
   
-  document.getElementById('consigFormTitle').textContent = "Editando Empréstimo";
-  document.getElementById('btnSaveCons').textContent = "Salvar Alterações";
-  document.getElementById('btnCancelCons').style.display = "inline-block";
-  document.getElementById('formConsignacao').classList.add('editing');
+  const sortedData = [...consignacoes].sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
   
-  document.getElementById('formConsignacao').scrollIntoView({behavior: 'smooth', block: 'start'});
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    
+    let status = 'Em Aberto';
+    let statusClass = 'status-aberto';
+    
+    if (item.pago >= item.total) {
+      status = 'Pago';
+      statusClass = 'status-pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+      statusClass = 'status-atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    const valorParcela = item.total / item.parcelas;
+    
+    row.innerHTML = `
+      <td><strong>${item.nome}</strong>${item.contato ? '<br><small>' + item.contato + '</small>' : ''}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td>${item.juros.toFixed(2)}%</td>
+      <td>R$ ${displayCurrency(item.total)}</td>
+      <td>R$ ${displayCurrency(item.pago)}<br><small>Restam: R$ ${displayCurrency(restante)}</small></td>
+      <td>${new Date(item.vencimento).toLocaleDateString('pt-BR')}<br><small>${item.parcelas}x de R$ ${displayCurrency(valorParcela)}</small></td>
+      <td><span class="${statusClass}">${status}</span></td>
+      <td>
+        <button class="btn-success" onclick="pagarParcela(${item.id})" ${item.pago >= item.total ? 'disabled' : ''}>Pagar Parcela</button><br>
+        <button class="btn-edit" onclick="editConsignacao(${item.id})" style="margin-top:5px">Editar</button>
+        <button class="btn-delete" onclick="deleteConsignacao(${item.id})" style="margin-top:5px">Excluir</button>
+      </td>
+    `;
+  });
 }
 
 function pagarParcela(id) {
   const item = consignacoes.find(c => c.id === id);
   const valorParcela = item.total / item.parcelas;
-  
-  if (item.pago >= item.total) {
-    alert('Este empréstimo já foi totalmente pago!');
-    return;
-  }
   
   item.pago += valorParcela;
   if (item.pago > item.total) {
@@ -4139,7 +3523,24 @@ function pagarParcela(id) {
   renderConsignacoes();
   renderConsignacaoSummary();
   renderConsignacaoChart();
-  alert('✅ Parcela paga! Use "Enviar para Sheets" para sincronizar.');
+}
+
+function editConsignacao(id) {
+  const item = consignacoes.find(c => c.id === id);
+  document.getElementById('c_id').value = item.id;
+  document.getElementById('c_nome').value = item.nome;
+  document.getElementById('c_valor').value = displayCurrency(item.valor);
+  document.getElementById('c_juros').value = item.juros.toFixed(2);
+  document.getElementById('c_parcelas').value = item.parcelas;
+  document.getElementById('c_vencimento').value = item.vencimento;
+  document.getElementById('c_contato').value = item.contato || '';
+  
+  document.getElementById('consigFormTitle').textContent = "Editando Empréstimo";
+  document.getElementById('btnSaveCons').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelCons').style.display = "inline-block";
+  document.getElementById('formConsignacao').classList.add('editing');
+  
+  document.getElementById('formConsignacao').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
 function resetConsForm() {
@@ -4156,20 +3557,179 @@ function resetConsForm() {
   document.getElementById('formConsignacao').classList.remove('editing');
 }
 
-async function deleteConsignacao(id) {
-  if (!confirm('Deseja realmente excluir este empréstimo?')) return;
+function deleteConsignacao(id) {
+  if (confirm('Deseja realmente excluir este empréstimo?')) {
+    consignacoes = consignacoes.filter(item => item.id !== id);
+    localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+    renderConsignacoes();
+    renderConsignacaoSummary();
+    renderConsignacaoChart();
+  }
+}
+
+function renderConsignacaoSummary() {
+  let totalEmp = 0;
+  let totalRec = 0;
+  let totalAtraso = 0;
   
-  consignacoes = consignacoes.filter(item => item.id !== id);
-  localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
-  renderConsignacoes();
-  renderConsignacaoSummary();
-  renderConsignacaoChart();
+  consignacoes.forEach(item => {
+    totalEmp += item.total;
+    totalRec += item.pago;
+    
+    if (item.pago < item.total && new Date(item.vencimento) < new Date()) {
+      totalAtraso++;
+    }
+  });
   
-  await syncToSheets('consignacoes');
+  document.getElementById('totalEmprestado').textContent = 'R$ ' + displayCurrency(totalEmp);
+  document.getElementById('totalRecebido').textContent = 'R$ ' + displayCurrency(totalRec);
+  document.getElementById('totalAberto').textContent = 'R$ ' + displayCurrency(totalEmp - totalRec);
+  document.getElementById('totalAtrasado').textContent = totalAtraso;
+}
+
+function renderConsignacaoChart() {
+  let totalEmp = 0;
+  let totalRec = 0;
+  
+  consignacoes.forEach(item => {
+    totalEmp += item.total;
+    totalRec += item.pago;
+  });
+  
+  const ctx = document.getElementById('consignacaoChart');
+  
+  if (consignacaoChart) {
+    consignacaoChart.destroy();
+  }
+  
+  consignacaoChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Emprestado (Total)', 'Recebido (Pago)'],
+      datasets: [{
+        label: 'Valores em R$',
+        data: [totalEmp, totalRec],
+        backgroundColor: [
+          'rgba(102, 126, 234, 0.8)',
+          'rgba(40, 167, 69, 0.8)'
+        ],
+        borderColor: [
+          'rgba(102, 126, 234, 1)',
+          'rgba(40, 167, 69, 1)'
+        ],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return 'R$ ' + displayCurrency(context.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return 'R$ ' + displayCurrency(value);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function exportConsignacaoCSV() {
+  if (consignacoes.length === 0) {
+    alert('Não há dados para exportar!');
+    return;
+  }
+  
+  let csv = 'Nome,Valor Inicial,Juros (%),Total com Juros,Pago,Restante,Vencimento,Status\n';
+  
+  consignacoes.forEach(item => {
+    let status = 'Em Aberto';
+    if (item.pago >= item.total) {
+      status = 'Pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    
+    csv += `${item.nome},${item.valor.toFixed(2)},${item.juros.toFixed(2)},${item.total.toFixed(2)},${item.pago.toFixed(2)},${restante.toFixed(2)},${item.vencimento},${status}\n`;
+  });
+  
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'consignacoes.csv');
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  alert('Arquivo consignacoes.csv exportado com sucesso!');
+}
+
+function exportConsignacaoPDF() {
+  if (consignacoes.length === 0) {
+    alert('Não há dados para exportar!');
+    return;
+  }
+  
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  pdf.setFontSize(16);
+  pdf.text('Relatório de Empréstimos', 10, 10);
+  
+  pdf.setFontSize(10);
+  let y = 25;
+  
+  consignacoes.forEach((item, index) => {
+    if (y > 270) {
+      pdf.addPage();
+      y = 10;
+    }
+    
+    let status = 'Em Aberto';
+    if (item.pago >= item.total) {
+      status = 'Pago';
+    } else if (new Date(item.vencimento) < new Date()) {
+      status = 'Atrasado';
+    }
+    
+    const restante = item.total - item.pago;
+    
+    pdf.text(`${index + 1}. ${item.nome}`, 10, y);
+    y += 6;
+    pdf.text(`   Valor: R$ ${displayCurrency(item.valor)} | Juros: ${item.juros.toFixed(2)}% | Total: R$ ${displayCurrency(item.total)}`, 10, y);
+    y += 6;
+    pdf.text(`   Pago: R$ ${displayCurrency(item.pago)} | Restante: R$ ${displayCurrency(restante)} | Status: ${status}`, 10, y);
+    y += 6;
+    pdf.text(`   Vencimento: ${new Date(item.vencimento).toLocaleDateString('pt-BR')} | Parcelas: ${item.parcelas}`, 10, y);
+    y += 10;
+  });
+  
+  pdf.save('consignacoes.pdf');
+  alert('Arquivo consignacoes.pdf exportado com sucesso!');
 }
 
 // ==================== ANOTAÇÕES ====================
-async function saveAnotacao() {
+function saveAnotacao() {
   const id = document.getElementById('a_id').value;
   const item = {
     id: id ? parseInt(id) : Date.now(),
@@ -4194,23 +3754,98 @@ async function saveAnotacao() {
   resetAnotForm();
   renderAnotacoes();
   renderAnotacoesPrioritySummary();
-  
-  await syncToSheets('anotacoes');
 }
 
-async function deleteAnotacao(id) {
-  if (!confirm('Deseja realmente excluir esta anotação?')) return;
+function renderAnotacoes(filtered = null) {
+  const data = filtered || anotacoes;
+  const table = document.getElementById('anotacoesTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
   
-  anotacoes = anotacoes.filter(item => item.id !== id);
-  localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
-  renderAnotacoes();
-  renderAnotacoesPrioritySummary();
+  const sortedData = [...data].reverse();
   
-  await syncToSheets('anotacoes');
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    const prioColor = item.prioridade === 'Alta' ? '#e74c3c' : item.prioridade === 'Média' ? '#f39c12' : '#95a5a6';
+    
+    row.innerHTML = `
+      <td><strong>${item.titulo}</strong></td>
+      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${prioColor}; color: white;">${item.prioridade}</span></td>
+      <td>${item.notas || '-'}</td>
+      <td>
+        <button class="btn-edit" onclick="editAnotacao(${item.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteAnotacao(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+}
+
+function editAnotacao(id) {
+  const item = anotacoes.find(a => a.id === id);
+  document.getElementById('a_id').value = item.id;
+  document.getElementById('a_titulo').value = item.titulo;
+  document.getElementById('a_notas').value = item.notas || '';
+  document.getElementById('a_prioridade').value = item.prioridade;
+  
+  document.getElementById('anotFormTitle').textContent = "Editando Anotação";
+  document.getElementById('btnSaveAnot').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelAnot').style.display = "inline-block";
+  document.getElementById('formAnot').classList.add('editing');
+  
+  document.getElementById('formAnot').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function resetAnotForm() {
+  document.getElementById('a_id').value = "";
+  document.getElementById('a_titulo').value = "";
+  document.getElementById('a_notas').value = "";
+  document.getElementById('a_prioridade').selectedIndex = 0;
+  document.getElementById('anotFormTitle').textContent = "Nova Anotação";
+  document.getElementById('btnSaveAnot').textContent = "Adicionar Anotação";
+  document.getElementById('btnCancelAnot').style.display = "none";
+  document.getElementById('formAnot').classList.remove('editing');
+}
+
+function deleteAnotacao(id) {
+  if (confirm('Deseja realmente excluir esta anotação?')) {
+    anotacoes = anotacoes.filter(item => item.id !== id);
+    localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+    renderAnotacoes();
+    renderAnotacoesPrioritySummary();
+  }
+}
+
+function renderAnotacoesPrioritySummary() {
+  const summary = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+  
+  anotacoes.forEach(item => {
+    summary[item.prioridade]++;
+  });
+  
+  const container = document.getElementById('anotacoesPrioritySummary');
+  container.innerHTML = '';
+  
+  Object.keys(summary).forEach(prioridade => {
+    const card = document.createElement('div');
+    card.className = 'summary-card';
+    
+    if (prioridade === 'Alta') {
+      card.classList.add('danger');
+    } else if (prioridade === 'Média') {
+      card.classList.add('warning');
+    }
+    
+    card.innerHTML = `
+      <h4>Prioridade ${prioridade}</h4>
+      <p>${summary[prioridade]}</p>
+      <small style="opacity: 0.8; font-size: 12px;">anotações</small>
+    `;
+    container.appendChild(card);
+  });
 }
 
 // ==================== VENDAS ====================
-async function saveVenda() {
+function saveVenda() {
   const item = {
     id: Date.now(),
     cliente: document.getElementById('v_cliente').value,
@@ -4223,7 +3858,7 @@ async function saveVenda() {
   };
 
   if (!item.cliente || item.valor === 0) {
-    alert('Preencha Cliente e Valor!');
+    alert('Preencha os dados básicos da venda (Cliente e Valor).');
     return;
   }
 
@@ -4231,18 +3866,60 @@ async function saveVenda() {
   localStorage.setItem('vendas', JSON.stringify(vendas));
   renderVendas();
   limparFormVendas();
-  
-  await syncToSheets('vendas');
 }
 
-async function deleteVenda(id) {
-  if(!confirm("Excluir esta venda?")) return;
+function renderVendas() {
+  const tbody = document.querySelector('#vendasTable tbody');
+  tbody.innerHTML = '';
   
-  vendas = vendas.filter(v => v.id !== id);
+  let bruto = 0;
+  let lucroTotal = 0;
+
+  vendas.forEach(item => {
+    if (item.oculto) return;
+
+    const lucro = item.valor - item.custo;
+    bruto += item.valor;
+    lucroTotal += lucro;
+
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>${new Date(item.data).toLocaleDateString('pt-BR')}</td>
+      <td>${item.cliente}</td>
+      <td>R$ ${displayCurrency(item.valor)}</td>
+      <td style="color: ${lucro >= 0 ? 'green' : 'red'}">R$ ${displayCurrency(lucro)}</td>
+      <td>
+        <button class="btn-secondary" onclick="toggleOcultarVenda(${item.id})">Ocultar</button>
+        <button class="btn-delete" onclick="deleteVenda(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+
+  document.getElementById('totalVendasBruto').textContent = 'R$ ' + displayCurrency(bruto);
+  document.getElementById('totalLucroVendas').textContent = 'R$ ' + displayCurrency(lucroTotal);
+}
+
+function toggleOcultarVenda(id) {
+  const index = vendas.findIndex(v => v.id === id);
+  vendas[index].oculto = true;
   localStorage.setItem('vendas', JSON.stringify(vendas));
   renderVendas();
-  
-  await syncToSheets('vendas');
+}
+
+function deleteVenda(id) {
+  if(confirm("Excluir permanentemente esta venda?")) {
+    vendas = vendas.filter(v => v.id !== id);
+    localStorage.setItem('vendas', JSON.stringify(vendas));
+    renderVendas();
+  }
+}
+
+function limparFormVendas() {
+  document.getElementById('v_cliente').value = '';
+  document.getElementById('v_tipo').selectedIndex = 0;
+  document.getElementById('v_custo').value = '';
+  document.getElementById('v_valor').value = '';
+  document.getElementById('v_descricao').value = '';
 }
 
 // ==================== DASHBOARD MELHORADO ====================
@@ -4329,287 +4006,6 @@ function renderDashboard() {
   document.getElementById('numInvestimentos').textContent = investimentos.length;
   document.getElementById('numEmprestimos').textContent = consignacoes.length;
   document.getElementById('numAnotacoes').textContent = anotacoes.length;
-}
-
-// ==================== PROJEÇÃO DE INVESTIMENTOS ====================
-let projectionChart = null;
-
-function calcularProjecao() {
-  const modalidade = document.getElementById('proj_modalidade').value;
-  const periodo = document.getElementById('proj_periodo').value;
-  const anos = parseInt(document.getElementById('proj_anos').value);
-  const reinvestir = document.getElementById('proj_reinvestir').value === 'sim';
-  
-  // Validações
-  if (anos < 2 || anos > 30) {
-    alert('Por favor, escolha um período entre 2 e 30 anos!');
-    return;
-  }
-  
-  // Filtrar investimentos
-  let investimentosFiltrados = investimentos;
-  if (modalidade) {
-    investimentosFiltrados = investimentos.filter(inv => inv.modalidade === modalidade);
-  }
-  
-  if (investimentosFiltrados.length === 0) {
-    alert('Não há investimentos cadastrados para esta modalidade!');
-    return;
-  }
-  
-  // Calcular investimento inicial
-  const capitalInicial = investimentosFiltrados.reduce((sum, inv) => sum + inv.valor, 0);
-  
-  // Calcular proventos por período
-  let proventosPorPeriodo = 0;
-  investimentosFiltrados.forEach(inv => {
-    // Converter provento para o período selecionado
-    let proventoConvertido = inv.provento;
-    
-    // Assumir que o provento cadastrado é mensal
-    switch(periodo) {
-      case 'Mensal':
-        proventoConvertido = inv.provento;
-        break;
-      case 'Bimestral':
-        proventoConvertido = inv.provento * 2;
-        break;
-      case 'Trimestral':
-        proventoConvertido = inv.provento * 3;
-        break;
-      case 'Semestral':
-        proventoConvertido = inv.provento * 6;
-        break;
-      case 'Anual':
-        proventoConvertido = inv.provento * 12;
-        break;
-    }
-    
-    proventosPorPeriodo += proventoConvertido;
-  });
-  
-  // Calcular número de períodos por ano
-  let periodosPorAno = 1;
-  switch(periodo) {
-    case 'Mensal': periodosPorAno = 12; break;
-    case 'Bimestral': periodosPorAno = 6; break;
-    case 'Trimestral': periodosPorAno = 4; break;
-    case 'Semestral': periodosPorAno = 2; break;
-    case 'Anual': periodosPorAno = 1; break;
-  }
-  
-  // Calcular projeção ano a ano
-  const evolucaoAnual = [];
-  let capitalAtual = capitalInicial;
-  let proventosAcumulados = 0;
-  
-  for (let ano = 1; ano <= anos; ano++) {
-    let proventosNoAno = 0;
-    
-    if (reinvestir) {
-      // Juros compostos - reinvestir proventos
-      for (let p = 0; p < periodosPorAno; p++) {
-        const proventoNoPeriodo = (capitalAtual / capitalInicial) * proventosPorPeriodo;
-        proventosNoAno += proventoNoPeriodo;
-        capitalAtual += proventoNoPeriodo;
-      }
-    } else {
-      // Juros simples - não reinvestir
-      proventosNoAno = proventosPorPeriodo * periodosPorAno;
-    }
-    
-    proventosAcumulados += proventosNoAno;
-    
-    evolucaoAnual.push({
-      ano: ano,
-      proventosNoAno: proventosNoAno,
-      proventosAcumulados: proventosAcumulados,
-      valorTotal: capitalInicial + proventosAcumulados
-    });
-  }
-  
-  // Calcular valores finais
-  const valorFinal = reinvestir ? capitalAtual : (capitalInicial + proventosAcumulados);
-  const ganhoTotal = valorFinal - capitalInicial;
-  const rentabilidade = ((ganhoTotal / capitalInicial) * 100).toFixed(2);
-  
-  // Exibir resultados
-  document.getElementById('proj_anos_result').textContent = anos;
-  document.getElementById('proj_total_final').textContent = 'R$ ' + displayCurrency(valorFinal);
-  document.getElementById('proj_investimento_inicial').textContent = 'R$ ' + displayCurrency(capitalInicial);
-  document.getElementById('proj_total_proventos').textContent = 'R$ ' + displayCurrency(proventosAcumulados);
-  document.getElementById('proj_rentabilidade').textContent = rentabilidade + '%';
-  
-  document.getElementById('breakdown_capital').textContent = 'R$ ' + displayCurrency(capitalInicial);
-  document.getElementById('breakdown_proventos').textContent = 'R$ ' + displayCurrency(proventosAcumulados);
-  document.getElementById('breakdown_ganho').textContent = 'R$ ' + displayCurrency(ganhoTotal);
-  document.getElementById('breakdown_final').textContent = 'R$ ' + displayCurrency(valorFinal);
-  
-  // Renderizar tabela
-  renderProjectionTable(evolucaoAnual);
-  
-  // Renderizar gráfico
-  renderProjectionChart(evolucaoAnual, capitalInicial);
-  
-  // Mostrar resultados
-  document.getElementById('projectionResults').style.display = 'block';
-  
-  // Scroll suave para resultados
-  document.getElementById('projectionResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function renderProjectionTable(evolucaoAnual) {
-  const tbody = document.querySelector('#projectionTable tbody');
-  tbody.innerHTML = '';
-  
-  evolucaoAnual.forEach(ano => {
-    const row = tbody.insertRow();
-    row.innerHTML = `
-      <td><strong>Ano ${ano.ano}</strong></td>
-      <td>R$ ${displayCurrency(ano.proventosNoAno)}</td>
-      <td>R$ ${displayCurrency(ano.proventosAcumulados)}</td>
-      <td><strong>R$ ${displayCurrency(ano.valorTotal)}</strong></td>
-    `;
-  });
-}
-
-function renderProjectionChart(evolucaoAnual, capitalInicial) {
-  const ctx = document.getElementById('projectionChart');
-  
-  if (projectionChart) {
-    projectionChart.destroy();
-  }
-  
-  const labels = ['Início', ...evolucaoAnual.map(a => `Ano ${a.ano}`)];
-  const valores = [capitalInicial, ...evolucaoAnual.map(a => a.valorTotal)];
-  
-  projectionChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Evolução do Patrimônio',
-        data: valores,
-        borderColor: 'rgba(102, 126, 234, 1)',
-        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 5,
-        pointHoverRadius: 8,
-        pointBackgroundColor: 'rgba(102, 126, 234, 1)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Projeção de Crescimento do Patrimônio',
-          font: {
-            size: 18,
-            weight: 'bold'
-          }
-        },
-        legend: {
-          display: true,
-          position: 'top'
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return 'Valor: R$ ' + displayCurrency(context.parsed.y);
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: false,
-          ticks: {
-            callback: function(value) {
-              return 'R$ ' + displayCurrency(value);
-            }
-          },
-          title: {
-            display: true,
-            text: 'Valor (R$)'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Período'
-          }
-        }
-      }
-    }
-  });
-}
-
-function limparProjecao() {
-  document.getElementById('proj_modalidade').value = '';
-  document.getElementById('proj_periodo').value = 'Mensal';
-  document.getElementById('proj_anos').value = '5';
-  document.getElementById('proj_reinvestir').value = 'sim';
-  document.getElementById('projectionResults').style.display = 'none';
-  
-  if (projectionChart) {
-    projectionChart.destroy();
-    projectionChart = null;
-  }
-}
-
-function renderAnotacoesPrioritySummary() {
-  const summary = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
-  
-  anotacoes.forEach(item => {
-    summary[item.prioridade]++;
-  });
-  
-  const container = document.getElementById('anotacoesPrioritySummary');
-  container.innerHTML = '';
-  
-  Object.keys(summary).forEach(prioridade => {
-    const card = document.createElement('div');
-    card.className = 'summary-card';
-    if (prioridade === 'Alta') card.classList.add('danger');
-    if (prioridade === 'Média') card.classList.add('warning');
-    if (prioridade === 'Baixa') card.classList.add('highlight');
-    
-    card.innerHTML = `
-      <h4>${prioridade}</h4>
-      <p>${summary[prioridade]}</p>
-      <small>anotações</small>
-    `;
-    container.appendChild(card);
-  });
-}
-
-function renderConsignacaoSummary() {
-  let totalEmp = 0;
-  let totalRec = 0;
-  let totalAb = 0;
-  let totalAtr = 0;
-  
-  consignacoes.forEach(item => {
-    totalEmp += item.total;
-    totalRec += item.pago;
-    if (item.pago < item.total) {
-      totalAb += (item.total - item.pago);
-      if (new Date(item.vencimento) < new Date()) {
-        totalAtr++;
-      }
-    }
-  });
-  
-  document.getElementById('totalEmprestado').textContent = 'R$ ' + displayCurrency(totalEmp);
-  document.getElementById('totalRecebido').textContent = 'R$ ' + displayCurrency(totalRec);
-  document.getElementById('totalAberto').textContent = 'R$ ' + displayCurrency(totalAb);
-  document.getElementById('totalAtrasado').textContent = totalAtr;
 }
 // ==================== MODO ESCURO/CLARO ====================
 function toggleTheme() {
