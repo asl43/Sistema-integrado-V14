@@ -1251,6 +1251,168 @@ body.dark-mode .budget-values {
   font-size: 12px;
   font-weight: 700;
 }
+
+/* ==================== PROJEÇÃO DE ATIVOS ==================== */
+.projection-controls {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 2px solid #667eea;
+}
+
+.projection-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.projection-btn {
+  padding: 12px;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.projection-btn:hover {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.projection-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.projection-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.projection-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-left: 4px solid #667eea;
+}
+
+.projection-card h4 {
+  color: #667eea;
+  margin-bottom: 15px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.projection-card .current-value {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.projection-card .projected-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #28a745;
+  margin: 10px 0;
+}
+
+.projection-card .gain {
+  font-size: 14px;
+  color: #28a745;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.projection-card .details {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 13px;
+  color: #666;
+}
+
+.projection-card .details div {
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.projection-summary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.projection-summary h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.projection-summary .total-projected {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 20px 0;
+}
+
+.projection-summary .total-gain {
+  font-size: 24px;
+  opacity: 0.9;
+}
+
+body.dark-mode .projection-card {
+  background: #1a1a2e;
+}
+
+body.dark-mode .projection-card h4 {
+  color: #667eea;
+}
+
+body.dark-mode .projection-card .current-value,
+body.dark-mode .projection-card .details {
+  color: #b0b0b0;
+}
+
+body.dark-mode .projection-controls {
+  background: #1a1a2e;
+  border-color: #667eea;
+}
+
+body.dark-mode .projection-btn {
+  background: #0f3460;
+  color: #e0e0e0;
+  border-color: #533483;
+}
+
+body.dark-mode .projection-btn:hover {
+  background: #1f2d4d;
+}
+
+.projection-chart {
+  margin-top: 30px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .projection-chart {
+  background: #1a1a2e;
+}
 </style>
 </head>
 
@@ -1363,6 +1525,12 @@ body.dark-mode .budget-values {
   <div class="icon">💰</div>
   <h3>Orçamento por Categoria</h3>
   <p>Controle seus limites de gastos</p>
+</div>
+<!-- ADICIONE ESTE CARD APÓS O CARD DE ORÇAMENTO -->
+<div class="main-card" onclick="openModule('projecao')">
+  <div class="icon">📊</div>
+  <h3>Projeção de Ativos</h3>
+  <p>Simule o crescimento dos seus investimentos</p>
 </div>
   </div>
 </div>
@@ -2462,6 +2630,76 @@ body.dark-mode .budget-values {
   </div>
 </div>
 
+<!-- ==================== MÓDULO PROJEÇÃO DE ATIVOS ==================== -->
+<div class="module-container" id="moduleProjecao">
+  <div class="module-content">
+    <div class="module-header">
+      <h2>📊 Projeção de Crescimento de Ativos</h2>
+      <button class="btn-close" onclick="closeModule('projecao')">&times;</button>
+    </div>
+    <div class="module-body">
+      
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <span>Simule o crescimento dos seus investimentos com base em rentabilidades históricas médias</span>
+      </div>
+      
+      <!-- CONTROLES DE PROJEÇÃO -->
+      <div class="projection-controls">
+        <h3 style="color: #667eea; margin-bottom: 15px;">Período de Projeção</h3>
+        
+        <!-- SELEÇÃO DE PERÍODO -->
+        <div class="projection-selector" id="projectionPeriodSelector">
+          <!-- Meses -->
+          <button class="projection-btn" onclick="selectProjectionPeriod(1, 'meses')">1 Mês</button>
+          <button class="projection-btn" onclick="selectProjectionPeriod(3, 'meses')">3 Meses</button>
+          <button class="projection-btn" onclick="selectProjectionPeriod(6, 'meses')">6 Meses</button>
+          <button class="projection-btn active" onclick="selectProjectionPeriod(12, 'meses')">12 Meses</button>
+          
+          <!-- Anos -->
+          <button class="projection-btn" onclick="selectProjectionPeriod(1, 'anos')">1 Ano</button>
+          <button class="projection-btn" onclick="selectProjectionPeriod(2, 'anos')">2 Anos</button>
+          <button class="projection-btn" onclick="selectProjectionPeriod(5, 'anos')">5 Anos</button>
+          <button class="projection-btn" onclick="selectProjectionPeriod(10, 'anos')">10 Anos</button>
+          <button class="projection-btn" onclick="selectProjectionPeriod(20, 'anos')">20 Anos</button>
+          <button class="projection-btn" onclick="selectProjectionPeriod(30, 'anos')">30 Anos</button>
+        </div>
+        
+        <!-- PERÍODO PERSONALIZADO -->
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+          <h4 style="color: #333; margin-bottom: 10px;">Período Personalizado</h4>
+          <div class="form-grid">
+            <div class="form-group-inline">
+              <label for="customPeriod">Quantidade</label>
+              <input type="number" id="customPeriod" min="1" placeholder="Ex: 15">
+            </div>
+            <div class="form-group-inline">
+              <label for="customUnit">Unidade</label>
+              <select id="customUnit">
+                <option value="meses">Meses</option>
+                <option value="anos">Anos</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="applyCustomProjection()" style="margin-top: 10px;">Calcular Projeção</button>
+        </div>
+      </div>
+      
+      <!-- RESULTADOS -->
+      <div id="projectionResultsContainer"></div>
+      
+      <!-- GRÁFICO DE PROJEÇÃO -->
+      <div class="projection-chart" id="projectionChartContainer" style="display: none;">
+        <h3 style="color: #667eea; margin-bottom: 20px;">Evolução Projetada</h3>
+        <div class="chart-container">
+          <canvas id="projectionChart"></canvas>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
 <script>
 // ==================== CONFIGURAÇÃO ====================
 let SHEETS_URL = localStorage.getItem('sheetsUrl') || '';
@@ -2811,19 +3049,20 @@ function closeModule(module) {
   const moduleName = module.toLowerCase().replace(/[^a-z]/g, '');
   
   // Lista de IDs de módulos válidos
-  const moduleIds = {
-    'configuracao': 'moduleConfiguracao',
-    'financeiro': 'moduleFinanceiro',
-    'investimento': 'moduleInvestimento',
-    'consignacao': 'moduleConsignacao',
-    'anotacoes': 'moduleAnotacoes',
-    'vendas': 'moduleVendas',
-    'dashboard': 'moduleDashboard',
-    'comparacao': 'moduleComparacao',
-    'categorias': 'moduleCategorias',
-    'metas': 'moduleMetas',
-    'orcamento': 'moduleOrcamento'
-  };
+ const moduleIds = {
+  'configuracao': 'moduleConfiguracao',
+  'financeiro': 'moduleFinanceiro',
+  'investimento': 'moduleInvestimento',
+  'consignacao': 'moduleConsignacao',
+  'anotacoes': 'moduleAnotacoes',
+  'vendas': 'moduleVendas',
+  'dashboard': 'moduleDashboard',
+  'comparacao': 'moduleComparacao',
+  'categorias': 'moduleCategorias',
+  'metas': 'moduleMetas',
+  'orcamento': 'moduleOrcamento',
+  'projecao': 'moduleProjecao'  // ← ADICIONE ESTA LINHA
+};
   
   // Obter o ID correto do módulo
   const moduleId = moduleIds[moduleName];
@@ -3079,6 +3318,16 @@ function openModule(module) {
     const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
     document.getElementById('orc_mes').value = mesAtual;
   }
+  // ADICIONE DENTRO DA FUNÇÃO openModule, após os outros módulos:
+
+if (module === 'projecao') {
+  if (investimentos.length === 0) {
+    alert('⚠️ Você ainda não tem investimentos cadastrados!\n\nCadastre alguns investimentos primeiro para ver as projeções.');
+    closeModule('projecao');
+    return;
+  }
+  calculateProjections();
+}
 }
 
 // (Aqui você deve incluir todo o resto do JavaScript original do sistema)
@@ -4958,6 +5207,249 @@ function deleteOrcamento(id) {
     localStorage.setItem('orcamentos', JSON.stringify(orcamentos));
     renderOrcamentos();
   }
+}
+
+// ==================== PROJEÇÃO DE ATIVOS ====================
+
+// Rentabilidades anuais médias por modalidade (%)
+const rentabilidadesPorModalidade = {
+  'Ações': 12.5,           // Ibovespa histórico
+  'FIIs': 9.0,             // FIIs histórico
+  'Renda Fixa': 10.5,      // CDI médio
+  'CDB': 10.0,             // CDI
+  'Tesouro Direto': 10.5,  // IPCA + Taxa
+  'Criptomoedas': 50.0,    // Muito volátil - use com cautela
+  'Fundos': 8.5,           // Fundos conservadores
+  'Outros': 8.0            // Conservador
+};
+
+let currentProjectionPeriod = 12;
+let currentProjectionUnit = 'meses';
+let projectionChartInstance = null;
+
+function selectProjectionPeriod(period, unit) {
+  currentProjectionPeriod = period;
+  currentProjectionUnit = unit;
+  
+  // Atualizar botões ativos
+  document.querySelectorAll('.projection-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Calcular projeção
+  calculateProjections();
+}
+
+function applyCustomProjection() {
+  const customPeriod = parseInt(document.getElementById('customPeriod').value);
+  const customUnit = document.getElementById('customUnit').value;
+  
+  if (!customPeriod || customPeriod < 1) {
+    alert('Digite um período válido!');
+    return;
+  }
+  
+  currentProjectionPeriod = customPeriod;
+  currentProjectionUnit = customUnit;
+  
+  // Remover seleção dos botões
+  document.querySelectorAll('.projection-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  calculateProjections();
+}
+
+function calculateProjections() {
+  const container = document.getElementById('projectionResultsContainer');
+  container.innerHTML = '<h3 style="color: #333; margin: 20px 0;">Projeções por Modalidade</h3>';
+  
+  // Calcular período em meses
+  const meses = currentProjectionUnit === 'anos' 
+    ? currentProjectionPeriod * 12 
+    : currentProjectionPeriod;
+  
+  // Agrupar investimentos por modalidade
+  const investimentosPorModalidade = {};
+  
+  investimentos.forEach(inv => {
+    if (!investimentosPorModalidade[inv.modalidade]) {
+      investimentosPorModalidade[inv.modalidade] = {
+        total: 0,
+        itens: []
+      };
+    }
+    investimentosPorModalidade[inv.modalidade].total += inv.valor;
+    investimentosPorModalidade[inv.modalidade].itens.push(inv);
+  });
+  
+  // Container de cards
+  const resultsDiv = document.createElement('div');
+  resultsDiv.className = 'projection-results';
+  
+  let totalAtual = 0;
+  let totalProjetado = 0;
+  const chartData = {
+    labels: [],
+    atual: [],
+    projetado: []
+  };
+  
+  // Criar card para cada modalidade
+  Object.keys(investimentosPorModalidade).sort().forEach(modalidade => {
+    const data = investimentosPorModalidade[modalidade];
+    const rentabilidadeAnual = rentabilidadesPorModalidade[modalidade] || 8.0;
+    
+    // Cálculo com juros compostos
+    const rentabilidadeMensal = Math.pow(1 + rentabilidadeAnual / 100, 1/12) - 1;
+    const valorProjetado = data.total * Math.pow(1 + rentabilidadeMensal, meses);
+    const ganho = valorProjetado - data.total;
+    const percentualGanho = ((ganho / data.total) * 100);
+    
+    totalAtual += data.total;
+    totalProjetado += valorProjetado;
+    
+    // Dados para gráfico
+    chartData.labels.push(modalidade);
+    chartData.atual.push(data.total);
+    chartData.projetado.push(valorProjetado);
+    
+    const card = document.createElement('div');
+    card.className = 'projection-card';
+    card.innerHTML = `
+      <h4>📊 ${modalidade}</h4>
+      
+      <div class="current-value">
+        Valor Atual: <strong>R$ ${displayCurrency(data.total)}</strong>
+      </div>
+      
+      <div class="projected-value">
+        R$ ${displayCurrency(valorProjetado)}
+      </div>
+      
+      <div class="gain">
+        <span>↗️</span>
+        <span>+R$ ${displayCurrency(ganho)} (+${percentualGanho.toFixed(2)}%)</span>
+      </div>
+      
+      <div class="details">
+        <div>
+          <span>Rentabilidade Anual:</span>
+          <strong>${rentabilidadeAnual.toFixed(2)}% a.a.</strong>
+        </div>
+        <div>
+          <span>Período:</span>
+          <strong>${currentProjectionPeriod} ${currentProjectionUnit}</strong>
+        </div>
+        <div>
+          <span>Ativos:</span>
+          <strong>${data.itens.length}</strong>
+        </div>
+      </div>
+    `;
+    
+    resultsDiv.appendChild(card);
+  });
+  
+  container.appendChild(resultsDiv);
+  
+  // Card de resumo total
+  const totalGanho = totalProjetado - totalAtual;
+  const percentualTotal = ((totalGanho / totalAtual) * 100);
+  
+  const summaryDiv = document.createElement('div');
+  summaryDiv.className = 'projection-summary';
+  summaryDiv.innerHTML = `
+    <h3>💰 Resumo Total da Projeção</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+      <div>
+        <div style="opacity: 0.8; font-size: 14px;">Investido Hoje</div>
+        <div style="font-size: 32px; font-weight: 700;">R$ ${displayCurrency(totalAtual)}</div>
+      </div>
+      <div>
+        <div style="opacity: 0.8; font-size: 14px;">Projeção em ${currentProjectionPeriod} ${currentProjectionUnit}</div>
+        <div class="total-projected">R$ ${displayCurrency(totalProjetado)}</div>
+      </div>
+    </div>
+    <div class="total-gain">
+      <div style="opacity: 0.8; font-size: 16px; margin-bottom: 10px;">Ganho Projetado</div>
+      <div>+R$ ${displayCurrency(totalGanho)} (+${percentualTotal.toFixed(2)}%)</div>
+    </div>
+  `;
+  
+  container.appendChild(summaryDiv);
+  
+  // Mostrar e renderizar gráfico
+  if (Object.keys(investimentosPorModalidade).length > 0) {
+    document.getElementById('projectionChartContainer').style.display = 'block';
+    renderProjectionChart(chartData);
+  }
+}
+
+function renderProjectionChart(data) {
+  const ctx = document.getElementById('projectionChart');
+  
+  if (projectionChartInstance) {
+    projectionChartInstance.destroy();
+  }
+  
+  projectionChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: 'Valor Atual',
+          data: data.atual,
+          backgroundColor: 'rgba(102, 126, 234, 0.8)',
+          borderColor: 'rgba(102, 126, 234, 1)',
+          borderWidth: 2
+        },
+        {
+          label: `Projeção (${currentProjectionPeriod} ${currentProjectionUnit})`,
+          data: data.projetado,
+          backgroundColor: 'rgba(40, 167, 69, 0.8)',
+          borderColor: 'rgba(40, 167, 69, 1)',
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Comparação: Valor Atual vs Projeção Futura',
+          font: {
+            size: 16
+          }
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': R$ ' + displayCurrency(context.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return 'R$ ' + displayCurrency(value);
+            }
+          }
+        }
+      }
+    }
+  });
 }
 </script>
 <!-- BOTÃO DE ALTERNÂNCIA DE TEMA -->
