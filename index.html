@@ -1440,14 +1440,19 @@ body.dark-mode .projection-chart {
 <!-- TELA PRINCIPAL -->
 <div class="main-container" id="mainScreen">
   <div class="header">
-    <div class="header-content">
+  <div class="header-content">
+    <div>
       <h1>💰 Sistema Financeiro Pessoal</h1>
-      <div class="user-info">
-        <div class="user-name" id="userName"></div>
-        <button class="btn-sair" onclick="fazerLogout()">Sair</button>
-      </div>
+      <a href="#" id="sheetLink" target="_blank" style="color: white; font-size: 12px; opacity: 0.8; text-decoration: none; display: none;">
+        📊 Abrir Planilha no Google Sheets
+      </a>
+    </div>
+    <div class="user-info">
+      <div class="user-name" id="userName"></div>
+      <button class="btn-sair" onclick="fazerLogout()">Sair</button>
     </div>
   </div>
+</div>
   
   <!-- BOTÃO DE SINCRONIZAÇÃO GERAL -->
 <div style="max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;">
@@ -1545,14 +1550,18 @@ body.dark-mode .projection-chart {
     <div class="module-body">
       
       <div class="config-section">
-        <h3>🔗 URL do Google Apps Script</h3>
-        <p style="margin-bottom: 10px;">Cole aqui a URL do seu Google Apps Script para habilitar a sincronização com o Google Sheets.</p>
-        <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/SEU_ID/exec">
-        <button class="btn-primary" onclick="salvarSheetsUrl()">Salvar URL</button>
-        <small>
-          <strong>Status atual:</strong> <span id="urlStatus">Não configurado</span>
-        </small>
-      </div>
+  <h3>🔗 URL do Google Apps Script</h3>
+  <p style="margin-bottom: 10px;">Cole aqui a URL do seu Google Apps Script para habilitar a sincronização com o Google Sheets.</p>
+  <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/SEU_ID/exec">
+  
+  <p style="margin: 15px 0 10px 0; font-weight: 600;">Link da Planilha do Google Sheets:</p>
+  <input type="text" id="spreadsheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/SEU_ID_DA_PLANILHA/edit">
+  
+  <button class="btn-primary" onclick="salvarSheetsUrl()">Salvar Configurações</button>
+  <small>
+    <strong>Status atual:</strong> <span id="urlStatus">Não configurado</span>
+  </small>
+</div>
       
       <div class="alert alert-info">
         <span>ℹ️</span>
@@ -2702,13 +2711,17 @@ body.dark-mode .projection-chart {
 
 <script>
 // ==================== CONFIGURAÇÃO ====================
+// ==================== CONFIGURAÇÃO ====================
 let SHEETS_URL = localStorage.getItem('sheetsUrl') || '';
+let SPREADSHEET_URL = localStorage.getItem('spreadsheetUrl') || '';
+let AUTO_SYNC_ENABLED = true; // Sincronização automática habilitada
 
 function salvarSheetsUrl() {
   const url = document.getElementById('sheetsUrlInput').value.trim();
+  const spreadsheetUrl = document.getElementById('spreadsheetUrlInput').value.trim();
   
   if (!url) {
-    alert('Por favor, insira uma URL válida!');
+    alert('Por favor, insira a URL do Apps Script!');
     return;
   }
   
@@ -2719,19 +2732,34 @@ function salvarSheetsUrl() {
   
   SHEETS_URL = url;
   localStorage.setItem('sheetsUrl', url);
+  
+  if (spreadsheetUrl) {
+    if (!spreadsheetUrl.includes('docs.google.com/spreadsheets')) {
+      alert('⚠️ URL da planilha inválida! Deve ser um link do Google Sheets.');
+      return;
+    }
+    SPREADSHEET_URL = spreadsheetUrl;
+    localStorage.setItem('spreadsheetUrl', spreadsheetUrl);
+  }
+  
   atualizarStatusUrl();
-  alert('✅ URL salva com sucesso! A sincronização já está ativa.');
+  atualizarLinkPlanilha();
+  alert('✅ Configurações salvas com sucesso! A sincronização automática está ativa.');
 }
 
 function atualizarStatusUrl() {
   const statusEl = document.getElementById('urlStatus');
   const inputEl = document.getElementById('sheetsUrlInput');
+  const spreadsheetInput = document.getElementById('spreadsheetUrlInput');
   
   if (SHEETS_URL) {
     statusEl.textContent = '✅ Configurado e ativo';
     statusEl.style.color = '#28a745';
     statusEl.style.fontWeight = 'bold';
     inputEl.value = SHEETS_URL;
+    if (SPREADSHEET_URL) {
+      spreadsheetInput.value = SPREADSHEET_URL;
+    }
   } else {
     statusEl.textContent = '❌ Não configurado';
     statusEl.style.color = '#e74c3c';
@@ -2739,6 +2767,17 @@ function atualizarStatusUrl() {
   }
 }
 
+function atualizarLinkPlanilha() {
+  const linkEl = document.getElementById('sheetLink');
+  
+  if (SPREADSHEET_URL) {
+    linkEl.href = SPREADSHEET_URL;
+    linkEl.style.display = 'block';
+    linkEl.textContent = '📊 Abrir Planilha no Google Sheets';
+  } else {
+    linkEl.style.display = 'none';
+  }
+}
 // ==================== DADOS ====================
 let usuario = JSON.parse(localStorage.getItem('usuario')) || null;
 let financeiro = JSON.parse(localStorage.getItem('financeiro')) || [];
@@ -2756,6 +2795,55 @@ let comparisonChart = null;
 // CATEGORIAS PADRÃO DO SISTEMA
 const categoriasDefault = ['Salário', 'Alimentação', 'Transporte', 'Moradia', 'Saúde', 'Educação', 'Lazer', 'Investimentos', 'Outros'];
 
+// ==================== SINCRONIZAÇÃO AUTOMÁTICA ====================
+// SINCRONIZAÇÃO AUTOMÁTICA - Envia para Sheets após salvar
+async function syncToSheetsAuto(tipo, data) {
+  if (!SHEETS_URL || !AUTO_SYNC_ENABLED) return;
+  
+  try {
+    let sheetName;
+    
+    switch(tipo) {
+      case 'financeiro':
+        sheetName = 'Financeiro';
+        break;
+      case 'investimentos':
+        sheetName = 'Investimentos';
+        break;
+      case 'consignacoes':
+        sheetName = 'Consignacao';
+        break;
+      case 'anotacoes':
+        sheetName = 'Anotacoes';
+        break;
+      case 'vendas':
+        sheetName = 'Vendas';
+        break;
+      default:
+        return;
+    }
+    
+    const response = await fetch(SHEETS_URL + '?action=write', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      body: JSON.stringify({
+        sheet: sheetName,
+        data: data
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      console.log('✅ Sincronizado automaticamente:', tipo);
+    }
+    
+  } catch (error) {
+    console.error('⚠️ Erro na sincronização automática:', error);
+  }
+}
 // ==================== FUNÇÕES DE SINCRONIZAÇÃO ====================
 function showSyncStatus(message, type = 'syncing') {
   const status = document.getElementById('syncStatus');
@@ -2993,6 +3081,9 @@ window.onload = function() {
   // Carregar tema primeiro
   loadThemePreference();
   
+  // Carregar URLs salvas
+  SPREADSHEET_URL = localStorage.getItem('spreadsheetUrl') || '';
+  
   // Configurar URL automaticamente
   if (!SHEETS_URL) {
     SHEETS_URL = 'https://script.google.com/macros/s/AKfycbys-sSZ-GMiS4_yEe_lM2T0nVXRypnxT0HX3dc0cAYkks2Pd1hG5XalOiTHDHi1Q3Invg/exec';
@@ -3001,6 +3092,7 @@ window.onload = function() {
   
   if (usuario) {
     mostrarTelaPrincipal();
+    atualizarLinkPlanilha();
     autoLoadAllData();
   }
   
@@ -3257,6 +3349,8 @@ function mostrarTelaPrincipal() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('mainScreen').classList.add('active');
   document.getElementById('userName').textContent = `Olá, ${usuario.nome}!`;
+  atualizarLinkPlanilha();
+  autoLoadAllData();
 }
 
 function fazerLogout() {
@@ -3360,6 +3454,7 @@ function saveFinanceiro() {
   }
   
   localStorage.setItem('financeiro', JSON.stringify(financeiro));
+  syncToSheetsAuto('financeiro', financeiro);
   resetFinForm();
   renderFinanceiro();
   renderFinanceiroCategorySummary();
@@ -3446,6 +3541,7 @@ function deleteFinanceiro(id) {
   if (confirm('Deseja realmente excluir esta transação?')) {
     financeiro = financeiro.filter(item => item.id !== id);
     localStorage.setItem('financeiro', JSON.stringify(financeiro));
+    syncToSheetsAuto('financeiro', financeiro);
     renderFinanceiro();
     renderFinanceiroCategorySummary();
   }
@@ -3552,6 +3648,7 @@ function saveInvestimento() {
   }
   
   localStorage.setItem('investimentos', JSON.stringify(investimentos));
+  syncToSheetsAuto('investimentos', investimentos);
   resetInvForm();
   renderInvestimentos();
   renderInvestimentoModalitySummary();
@@ -3628,6 +3725,7 @@ function deleteInvestimento(id) {
   if (confirm('Deseja realmente excluir este investimento?')) {
     investimentos = investimentos.filter(item => item.id !== id);
     localStorage.setItem('investimentos', JSON.stringify(investimentos));
+    syncToSheetsAuto('investimentos', investimentos);
     renderInvestimentos();
     renderInvestimentoModalitySummary();
   }
@@ -3706,6 +3804,7 @@ function saveConsignacao() {
   }
   
   localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+  syncToSheetsAuto('consignacoes', consignacoes);
   resetConsForm();
   renderConsignacoes();
   renderConsignacaoSummary();
@@ -3763,6 +3862,7 @@ function pagarParcela(id) {
   }
   
   localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+  syncToSheetsAuto('consignacoes', consignacoes);
   renderConsignacoes();
   renderConsignacaoSummary();
   renderConsignacaoChart();
@@ -3804,6 +3904,7 @@ function deleteConsignacao(id) {
   if (confirm('Deseja realmente excluir este empréstimo?')) {
     consignacoes = consignacoes.filter(item => item.id !== id);
     localStorage.setItem('consignacoes', JSON.stringify(consignacoes));
+    syncToSheetsAuto('consignacoes', consignacoes);
     renderConsignacoes();
     renderConsignacaoSummary();
     renderConsignacaoChart();
@@ -3994,6 +4095,7 @@ function saveAnotacao() {
   }
   
   localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+  syncToSheetsAuto('anotacoes', anotacoes);
   resetAnotForm();
   renderAnotacoes();
   renderAnotacoesPrioritySummary();
@@ -4053,6 +4155,7 @@ function deleteAnotacao(id) {
   if (confirm('Deseja realmente excluir esta anotação?')) {
     anotacoes = anotacoes.filter(item => item.id !== id);
     localStorage.setItem('anotacoes', JSON.stringify(anotacoes));
+    syncToSheetsAuto('anotacoes', anotacoes);
     renderAnotacoes();
     renderAnotacoesPrioritySummary();
   }
@@ -4107,6 +4210,7 @@ function saveVenda() {
 
   vendas.push(item);
   localStorage.setItem('vendas', JSON.stringify(vendas));
+  syncToSheetsAuto('vendas', vendas);
   renderVendas();
   limparFormVendas();
 }
@@ -4146,6 +4250,7 @@ function toggleOcultarVenda(id) {
   const index = vendas.findIndex(v => v.id === id);
   vendas[index].oculto = true;
   localStorage.setItem('vendas', JSON.stringify(vendas));
+  syncToSheetsAuto('vendas', vendas);
   renderVendas();
 }
 
@@ -4153,6 +4258,7 @@ function deleteVenda(id) {
   if(confirm("Excluir permanentemente esta venda?")) {
     vendas = vendas.filter(v => v.id !== id);
     localStorage.setItem('vendas', JSON.stringify(vendas));
+    syncToSheetsAuto('vendas', vendas);
     renderVendas();
   }
 }
