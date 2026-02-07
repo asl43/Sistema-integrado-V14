@@ -1413,6 +1413,70 @@ body.dark-mode .projection-btn:hover {
 body.dark-mode .projection-chart {
   background: #1a1a2e;
 }
+
+/* Toggle de visualização de período */
+.period-toggle {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #667eea;
+}
+
+.period-toggle-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.period-toggle-btn {
+  padding: 10px 20px;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.period-toggle-btn:hover {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.period-toggle-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.period-info {
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+}
+
+body.dark-mode .period-toggle {
+  background: #1a1a2e;
+  border-color: #667eea;
+}
+
+body.dark-mode .period-toggle-btn {
+  background: #0f3460;
+  color: #e0e0e0;
+  border-color: #533483;
+}
+
+body.dark-mode .period-toggle-btn:hover {
+  background: #1f2d4d;
+}
+
+body.dark-mode .period-info {
+  color: #b0b0b0;
+}
 </style>
 </head>
 
@@ -1597,6 +1661,20 @@ body.dark-mode .projection-chart {
       <button class="btn-close" onclick="closeModule('financeiro')">&times;</button>
     </div>
     <div class="module-body">
+      <!-- TOGGLE DE PERÍODO -->
+<div class="period-toggle">
+  <div class="period-info">
+    📅 Visualização: <span id="currentPeriodDisplay">Mês Atual</span>
+  </div>
+  <div class="period-toggle-buttons">
+    <button class="period-toggle-btn active" onclick="setPeriodView('current')">
+      📊 Mês Atual
+    </button>
+    <button class="period-toggle-btn" onclick="setPeriodView('all')">
+      📅 Todos os Meses
+    </button>
+  </div>
+</div>
       
       <!-- RESUMO POR CATEGORIA -->
       <div class="summary-section">
@@ -1683,10 +1761,6 @@ body.dark-mode .projection-chart {
 <div class="filter-section">
   <h3>🔍 Filtros Avançados</h3>
   <!-- ALERTA DE FILTRO ATIVO -->
-  <div style="background: #d1ecf1; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-    <span style="color: #0c5460; font-weight: 600;">📅 Mostrando apenas: <span id="filtroAtivo">Mês atual</span></span>
-    <button class="btn-secondary" onclick="mostrarTodosPeriodos()" style="padding: 6px 12px; font-size: 12px;">📆 Ver Todos os Meses</button>
-  </div>
   
   <!-- FILTROS RÁPIDOS -->
   <div style="margin-bottom: 15px;">
@@ -2296,6 +2370,15 @@ body.dark-mode .projection-chart {
       <button class="btn-close" onclick="closeModule('dashboard')">&times;</button>
     </div>
     <div class="module-body">
+      <!-- TOGGLE DE PERÍODO NO DASHBOARD -->
+<div class="period-toggle">
+  <div class="period-info">
+    📅 Dados do Dashboard: <span id="dashPeriodDisplay">Conforme módulo Financeiro</span>
+  </div>
+  <div style="font-size: 12px; color: #999; margin-top: 5px;">
+    💡 A visualização do Dashboard segue a configuração do módulo Financeiro
+  </div>
+</div>
       
       <div class="alert alert-info">
         <span>ℹ️</span>
@@ -2877,6 +2960,274 @@ let comparisonChart = null;
 // ==================== SISTEMA DE FECHAMENTO MENSAL ====================
 let fechamentosMensais = JSON.parse(localStorage.getItem('fechamentosMensais')) || [];
 let mesSelecionado = null;
+// ==================== CONTROLE DE VISUALIZAÇÃO DE PERÍODO ====================
+let currentPeriodView = 'current'; // 'current' ou 'all'
+
+function setPeriodView(view) {
+  currentPeriodView = view;
+  
+  // Atualizar botões ativos
+  document.querySelectorAll('.period-toggle-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Atualizar display
+  const displayText = view === 'current' ? 'Mês Atual' : 'Todos os Meses';
+  document.getElementById('currentPeriodDisplay').textContent = displayText;
+  
+  // Renderizar com a nova visualização
+  renderFinanceiro();
+  renderFinanceiroCategorySummary();
+}
+
+// FUNÇÃO renderFinanceiro ATUALIZADA
+function renderFinanceiro(filtered = null) {
+  let data = filtered || financeiro;
+  
+  // APLICAR FILTRO DE PERÍODO apenas se não houver filtro customizado
+  if (!filtered && currentPeriodView === 'current') {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+    
+    data = financeiro.filter(item => {
+      const itemDate = new Date(item.data);
+      return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
+    });
+  }
+  
+  const table = document.getElementById('financeiroTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  const sortedData = [...data].sort((a, b) => new Date(b.data) - new Date(a.data));
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    const dataFormatada = new Date(item.data).toLocaleString('pt-BR');
+    
+    const valorTotal = calculateRecurringValue(item.valor, item.data, item.recorrente);
+    const occurrences = calculateRecurrenceOccurrences(item.data, item.recorrente);
+    
+    let recorrenciaInfo = item.recorrente;
+    if (item.recorrente !== 'Não' && occurrences > 1) {
+      recorrenciaInfo += ` (${occurrences}x = R$ ${displayCurrency(valorTotal)})`;
+    }
+    
+    let badgeColor = '#d1ecf1';
+    let textColor = '#0c5460';
+    
+    if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
+      badgeColor = '#d4edda';
+      textColor = '#155724';
+    } else if (item.tipo === 'Pago' || item.tipo === 'Pagar') {
+      badgeColor = '#f8d7da';
+      textColor = '#721c24';
+    }
+    
+    row.innerHTML = `
+      <td>${dataFormatada}</td>
+      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${badgeColor}; color: ${textColor};">${item.tipo}</span></td>
+      <td>${item.descricao}</td>
+      <td>${item.categoria}</td>
+      <td><strong>R$ ${displayCurrency(item.valor)}</strong></td>
+      <td>${recorrenciaInfo}</td>
+      <td>
+        <button class="btn-edit" onclick="editFinanceiro(${item.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteFinanceiro(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+  
+  // Mostrar mensagem se não houver dados
+  if (sortedData.length === 0) {
+    const row = tbody.insertRow(-1);
+    const mensagem = currentPeriodView === 'current' 
+      ? 'Nenhuma transação neste mês' 
+      : 'Nenhuma transação cadastrada';
+    row.innerHTML = `<td colspan="7" style="text-align: center; padding: 20px; color: #999;">${mensagem}</td>`;
+  }
+}
+
+// FUNÇÃO renderFinanceiroCategorySummary ATUALIZADA
+function renderFinanceiroCategorySummary() {
+  const summary = {};
+  
+  let dataToSummarize = financeiro;
+  
+  // APLICAR FILTRO DE PERÍODO
+  if (currentPeriodView === 'current') {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+    
+    dataToSummarize = financeiro.filter(item => {
+      const itemDate = new Date(item.data);
+      return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
+    });
+  }
+  
+  dataToSummarize.forEach(item => {
+    if (!summary[item.categoria]) {
+      summary[item.categoria] = { total: 0, count: 0, occurrences: 0 };
+    }
+    
+    const valorRecorrente = calculateRecurringValue(item.valor, item.data, item.recorrente);
+    const occurrences = calculateRecurrenceOccurrences(item.data, item.recorrente);
+    
+    if (item.tipo === 'Pagar' || item.tipo === 'Pago') {
+      summary[item.categoria].total -= valorRecorrente;
+    } else {
+      summary[item.categoria].total += valorRecorrente;
+    }
+    summary[item.categoria].count++;
+    summary[item.categoria].occurrences += occurrences;
+  });
+  
+  const container = document.getElementById('financeiroCategorySummary');
+  container.innerHTML = '';
+  
+  // Atualizar título
+  const hoje = new Date();
+  const mesNome = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][hoje.getMonth()];
+  const tituloAnterior = container.parentElement.querySelector('h3');
+  if (tituloAnterior) {
+    if (currentPeriodView === 'current') {
+      tituloAnterior.textContent = `Resumo por Categoria - ${mesNome}/${hoje.getFullYear()}`;
+    } else {
+      tituloAnterior.textContent = `Resumo por Categoria - Todos os Períodos`;
+    }
+  }
+  
+  if (Object.keys(summary).length === 0) {
+    const mensagem = currentPeriodView === 'current' 
+      ? 'Nenhuma transação neste mês' 
+      : 'Nenhuma transação cadastrada';
+    container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">${mensagem}</p>`;
+    return;
+  }
+  
+  Object.keys(summary).sort().forEach(categoria => {
+    const card = document.createElement('div');
+    card.className = 'summary-card';
+    if (summary[categoria].total < 0) {
+      card.classList.add('danger');
+    } else if (summary[categoria].total > 0) {
+      card.classList.add('highlight');
+    } else {
+      card.classList.add('warning');
+    }
+    
+    card.innerHTML = `
+      <h4>${categoria}</h4>
+      <p>R$ ${displayCurrency(Math.abs(summary[categoria].total))}</p>
+      <small style="opacity: 0.8; font-size: 12px;">${summary[categoria].count} transações</small>
+      <div class="recurrence-info">${summary[categoria].occurrences} ocorrências calculadas</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+// FUNÇÃO renderDashboard ATUALIZADA
+function renderDashboard() {
+  let dataToAnalyze = financeiro;
+  
+  // APLICAR FILTRO DE PERÍODO (usar a mesma visualização do módulo financeiro)
+  if (currentPeriodView === 'current') {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+    
+    dataToAnalyze = financeiro.filter(item => {
+      const itemDate = new Date(item.data);
+      return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
+    });
+  }
+  
+  // Calcular valores DETALHADOS por tipo
+  let receitasRecebidas = 0;
+  let receitasAReceber = 0;
+  let despesasPagas = 0;
+  let despesasAPagar = 0;
+  
+  let totalRec = 0;
+  let totalDesp = 0;
+  
+  dataToAnalyze.forEach(item => {
+    const valorRecorrente = calculateRecurringValue(item.valor, item.data, item.recorrente);
+    
+    // RECEITAS
+    if (item.tipo === 'Recebido') {
+      receitasRecebidas += valorRecorrente;
+      totalRec += valorRecorrente;
+    } else if (item.tipo === 'A Receber') {
+      receitasAReceber += valorRecorrente;
+      totalRec += valorRecorrente;
+    }
+    
+    // DESPESAS
+    else if (item.tipo === 'Pago') {
+      despesasPagas += valorRecorrente;
+      totalDesp += valorRecorrente;
+    } else if (item.tipo === 'Pagar') {
+      despesasAPagar += valorRecorrente;
+      totalDesp += valorRecorrente;
+    }
+  });
+  
+  // SALDO LÍQUIDO = Total Receitas - Total Despesas
+  const saldoLiquido = totalRec - totalDesp;
+  const saldo = totalRec - totalDesp;
+  
+  // Investimentos (sempre todos)
+  let totalInvest = 0;
+  let totalProv = 0;
+  
+  investimentos.forEach(item => {
+    totalInvest += item.valor;
+    const proventoRecorrente = calculateRecurringValue(item.provento, item.data, item.recorrente);
+    totalProv += proventoRecorrente;
+  });
+  
+  // Empréstimos (sempre todos)
+  let totalEmprestimos = 0;
+  consignacoes.forEach(item => {
+    totalEmprestimos += (item.total - item.pago);
+  });
+  
+  const patrimonio = saldo + totalInvest + totalEmprestimos;
+  
+  // ATUALIZAR NOVOS CARDS
+  document.getElementById('dashReceitasRecebidas').textContent = 'R$ ' + displayCurrency(receitasRecebidas);
+  document.getElementById('dashReceitasAReceber').textContent = 'R$ ' + displayCurrency(receitasAReceber);
+  document.getElementById('dashDespesasPagas').textContent = 'R$ ' + displayCurrency(despesasPagas);
+  document.getElementById('dashDespesasAPagar').textContent = 'R$ ' + displayCurrency(despesasAPagar);
+  
+  // Colorir o saldo líquido
+  const saldoLiquidoEl = document.getElementById('dashSaldoLiquido');
+  saldoLiquidoEl.textContent = 'R$ ' + displayCurrency(Math.abs(saldoLiquido));
+  if (saldoLiquido >= 0) {
+    saldoLiquidoEl.style.color = '#28a745';
+  } else {
+    saldoLiquidoEl.style.color = '#e74c3c';
+    saldoLiquidoEl.textContent = '- R$ ' + displayCurrency(Math.abs(saldoLiquido));
+  }
+  
+  // ATUALIZAR CARDS ORIGINAIS
+  document.getElementById('dashSaldo').textContent = 'R$ ' + displayCurrency(saldo);
+  document.getElementById('dashInvest').textContent = 'R$ ' + displayCurrency(totalInvest);
+  document.getElementById('dashProv').textContent = 'R$ ' + displayCurrency(totalProv);
+  document.getElementById('dashEmprestimos').textContent = 'R$ ' + displayCurrency(totalEmprestimos);
+  document.getElementById('dashPatrimonio').textContent = 'R$ ' + displayCurrency(patrimonio);
+  
+  document.getElementById('totalReceitas').textContent = 'R$ ' + displayCurrency(totalRec);
+  document.getElementById('totalDespesas').textContent = 'R$ ' + displayCurrency(totalDesp);
+  document.getElementById('numTransacoes').textContent = dataToAnalyze.length;
+  document.getElementById('numInvestimentos').textContent = investimentos.length;
+  document.getElementById('numEmprestimos').textContent = consignacoes.length;
+  document.getElementById('numAnotacoes').textContent = anotacoes.length;
+}
 
 // Função para obter o mês/ano atual no formato YYYY-MM
 function getMesAtual() {
@@ -3637,70 +3988,6 @@ function saveFinanceiro() {
   renderFinanceiroCategorySummary();
 }
 
-function renderFinanceiro(filtered = null) {
-  let data = filtered || financeiro;
-  
-  // FILTRAR APENAS MÊS ATUAL se não houver filtro aplicado
-  if (!filtered) {
-    const hoje = new Date();
-    const mesAtual = hoje.getMonth();
-    const anoAtual = hoje.getFullYear();
-    
-    data = financeiro.filter(item => {
-      const itemDate = new Date(item.data);
-      return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
-    });
-  }
-  
-  const table = document.getElementById('financeiroTable');
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
-  
-  const sortedData = [...data].sort((a, b) => new Date(b.data) - new Date(a.data));
-  
-  sortedData.forEach(item => {
-    const row = tbody.insertRow(-1);
-    const dataFormatada = new Date(item.data).toLocaleString('pt-BR');
-    
-    const valorTotal = calculateRecurringValue(item.valor, item.data, item.recorrente);
-    const occurrences = calculateRecurrenceOccurrences(item.data, item.recorrente);
-    
-    let recorrenciaInfo = item.recorrente;
-    if (item.recorrente !== 'Não' && occurrences > 1) {
-      recorrenciaInfo += ` (${occurrences}x = R$ ${displayCurrency(valorTotal)})`;
-    }
-    
-    let badgeColor = '#d1ecf1';
-    let textColor = '#0c5460';
-    
-    if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
-      badgeColor = '#d4edda';
-      textColor = '#155724';
-    } else if (item.tipo === 'Pago' || item.tipo === 'Pagar') {
-      badgeColor = '#f8d7da';
-      textColor = '#721c24';
-    }
-    
-    row.innerHTML = `
-      <td>${dataFormatada}</td>
-      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${badgeColor}; color: ${textColor};">${item.tipo}</span></td>
-      <td>${item.descricao}</td>
-      <td>${item.categoria}</td>
-      <td><strong>R$ ${displayCurrency(item.valor)}</strong></td>
-      <td>${recorrenciaInfo}</td>
-      <td>
-        <button class="btn-edit" onclick="editFinanceiro(${item.id})">Editar</button>
-        <button class="btn-delete" onclick="deleteFinanceiro(${item.id})">Excluir</button>
-      </td>
-    `;
-  });
-  
-  // Mostrar mensagem se não houver dados
-  if (sortedData.length === 0) {
-    const row = tbody.insertRow(-1);
-    row.innerHTML = `<td colspan="7" style="text-align: center; padding: 20px; color: #999;">Nenhuma transação neste mês</td>`;
-  }
-}
 
 function editFinanceiro(id) {
   const item = financeiro.find(f => f.id === id);
@@ -3743,71 +4030,7 @@ function deleteFinanceiro(id) {
   }
 }
 
-function renderFinanceiroCategorySummary() {
-  const summary = {};
-  
-  // FILTRAR APENAS MÊS ATUAL
-  const hoje = new Date();
-  const mesAtual = hoje.getMonth();
-  const anoAtual = hoje.getFullYear();
-  
-  const financeiroMesAtual = financeiro.filter(item => {
-    const itemDate = new Date(item.data);
-    return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
-  });
-  
-  financeiroMesAtual.forEach(item => {
-    if (!summary[item.categoria]) {
-      summary[item.categoria] = { total: 0, count: 0, occurrences: 0 };
-    }
-    
-    const valorRecorrente = calculateRecurringValue(item.valor, item.data, item.recorrente);
-    const occurrences = calculateRecurrenceOccurrences(item.data, item.recorrente);
-    
-    if (item.tipo === 'Pagar' || item.tipo === 'Pago') {
-      summary[item.categoria].total -= valorRecorrente;
-    } else {
-      summary[item.categoria].total += valorRecorrente;
-    }
-    summary[item.categoria].count++;
-    summary[item.categoria].occurrences += occurrences;
-  });
-  
-  const container = document.getElementById('financeiroCategorySummary');
-  container.innerHTML = '';
-  
-  // Adicionar título com indicação de mês
-  const mesNome = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][mesAtual];
-  const tituloAnterior = container.parentElement.querySelector('h3');
-  if (tituloAnterior) {
-    tituloAnterior.textContent = `Resumo por Categoria - ${mesNome}/${anoAtual}`;
-  }
-  
-  if (Object.keys(summary).length === 0) {
-    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">Nenhuma transação neste mês</p>';
-    return;
-  }
-  
-  Object.keys(summary).sort().forEach(categoria => {
-    const card = document.createElement('div');
-    card.className = 'summary-card';
-    if (summary[categoria].total < 0) {
-      card.classList.add('danger');
-    } else if (summary[categoria].total > 0) {
-      card.classList.add('highlight');
-    } else {
-      card.classList.add('warning');
-    }
-    
-    card.innerHTML = `
-      <h4>${categoria}</h4>
-      <p>R$ ${displayCurrency(Math.abs(summary[categoria].total))}</p>
-      <small style="opacity: 0.8; font-size: 12px;">${summary[categoria].count} transações</small>
-      <div class="recurrence-info">${summary[categoria].occurrences} ocorrências calculadas</div>
-    `;
-    container.appendChild(card);
-  });
-}
+
 
 function applyFinanceiroFilters() {
   const dataInicio = document.getElementById('filterFinDataInicio').value;
@@ -4747,55 +4970,7 @@ function mostrarTodos(tipo) {
   alert('Mostrando todas as transações');
 }
 
-function mostrarTodosPeriodos() {
-  // Renderizar TODOS os registros sem filtro de mês
-  const table = document.getElementById('financeiroTable');
-  const tbody = table.querySelector('tbody');
-  tbody.innerHTML = '';
-  
-  const sortedData = [...financeiro].sort((a, b) => new Date(b.data) - new Date(a.data));
-  
-  sortedData.forEach(item => {
-    const row = tbody.insertRow(-1);
-    const dataFormatada = new Date(item.data).toLocaleString('pt-BR');
-    
-    const valorTotal = calculateRecurringValue(item.valor, item.data, item.recorrente);
-    const occurrences = calculateRecurrenceOccurrences(item.data, item.recorrente);
-    
-    let recorrenciaInfo = item.recorrente;
-    if (item.recorrente !== 'Não' && occurrences > 1) {
-      recorrenciaInfo += ` (${occurrences}x = R$ ${displayCurrency(valorTotal)})`;
-    }
-    
-    let badgeColor = '#d1ecf1';
-    let textColor = '#0c5460';
-    
-    if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
-      badgeColor = '#d4edda';
-      textColor = '#155724';
-    } else if (item.tipo === 'Pago' || item.tipo === 'Pagar') {
-      badgeColor = '#f8d7da';
-      textColor = '#721c24';
-    }
-    
-    row.innerHTML = `
-      <td>${dataFormatada}</td>
-      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${badgeColor}; color: ${textColor};">${item.tipo}</span></td>
-      <td>${item.descricao}</td>
-      <td>${item.categoria}</td>
-      <td><strong>R$ ${displayCurrency(item.valor)}</strong></td>
-      <td>${recorrenciaInfo}</td>
-      <td>
-        <button class="btn-edit" onclick="editFinanceiro(${item.id})">Editar</button>
-        <button class="btn-delete" onclick="deleteFinanceiro(${item.id})">Excluir</button>
-      </td>
-    `;
-  });
-  
-  document.getElementById('searchFinanceiro').value = '';
-  document.getElementById('filtroAtivo').textContent = 'Todos os meses';
-  alert(`Mostrando todas as ${sortedData.length} transações`);
-}
+
 
 function buscarFinanceiro() {
   const termo = document.getElementById('searchFinanceiro').value.toLowerCase();
