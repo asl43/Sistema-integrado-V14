@@ -1537,6 +1537,12 @@ body.dark-mode .projection-chart {
   <h3>Projeção de Ativos</h3>
   <p>Simule o crescimento dos seus investimentos</p>
 </div>
+  <!-- CARD DE FECHAMENTO MENSAL -->
+    <div class="main-card" onclick="openModule('fechamento')">
+      <div class="icon">📅</div>
+      <h3>Fechamento Mensal</h3>
+      <p>Visualize e feche seus meses</p>
+    </div>
   </div>
 </div>
 
@@ -1676,6 +1682,11 @@ body.dark-mode .projection-chart {
      <!-- FILTROS MELHORADOS -->
 <div class="filter-section">
   <h3>🔍 Filtros Avançados</h3>
+  <!-- ALERTA DE FILTRO ATIVO -->
+  <div style="background: #d1ecf1; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+    <span style="color: #0c5460; font-weight: 600;">📅 Mostrando apenas: <span id="filtroAtivo">Mês atual</span></span>
+    <button class="btn-secondary" onclick="mostrarTodosPeriodos()" style="padding: 6px 12px; font-size: 12px;">📆 Ver Todos os Meses</button>
+  </div>
   
   <!-- FILTROS RÁPIDOS -->
   <div style="margin-bottom: 15px;">
@@ -2709,6 +2720,78 @@ body.dark-mode .projection-chart {
   </div>
 </div>
 
+<!-- ==================== MÓDULO FECHAMENTO MENSAL ==================== -->
+<div class="module-container" id="moduleFechamento">
+  <div class="module-content">
+    <div class="module-header">
+      <h2>📅 Fechamento Mensal</h2>
+      <button class="btn-close" onclick="closeModule('fechamento')">&times;</button>
+    </div>
+    <div class="module-body">
+      
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <span>Visualize e feche a contabilidade de cada mês. Após o fechamento, os dados ficam salvos como histórico.</span>
+      </div>
+      
+      <!-- SELETOR DE MÊS -->
+      <div class="form-card">
+        <h3>Selecione o Mês</h3>
+        <div class="form-grid">
+          <div class="form-group-inline">
+            <label for="fechamento_mes">Mês/Ano *</label>
+            <input type="month" id="fechamento_mes" required>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button class="btn-primary" onclick="visualizarMes()">📊 Visualizar Mês</button>
+          <button class="btn-success" onclick="fecharMesAtual()">✓ Fechar Este Mês</button>
+        </div>
+      </div>
+      
+      <!-- DADOS DO MÊS SELECIONADO -->
+      <div id="dadosMesSelecionado" style="display: none;">
+        <h3 style="margin: 30px 0 20px 0; color: #333;">Dados do Mês</h3>
+        
+        <div class="summary-grid">
+          <div class="summary-card highlight">
+            <h4>💰 Receitas</h4>
+            <p id="fech_receitas">R$ 0,00</p>
+          </div>
+          <div class="summary-card danger">
+            <h4>💸 Despesas</h4>
+            <p id="fech_despesas">R$ 0,00</p>
+          </div>
+          <div class="summary-card">
+            <h4>📊 Saldo</h4>
+            <p id="fech_saldo">R$ 0,00</p>
+          </div>
+          <div class="summary-card warning">
+            <h4>📝 Transações</h4>
+            <p id="fech_num_trans">0</p>
+          </div>
+        </div>
+        
+        <!-- TABELA DE TRANSAÇÕES DO MÊS -->
+        <div class="data-table" style="margin-top: 20px;">
+          <h3>Transações do Mês</h3>
+          <table id="tabelaTransacoesMes">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      
+      
+
 <script>
 // ==================== CONFIGURAÇÃO ====================
 // ==================== CONFIGURAÇÃO ====================
@@ -2791,6 +2874,93 @@ let categorias = JSON.parse(localStorage.getItem('categorias')) || [];
 let metas = JSON.parse(localStorage.getItem('metas')) || [];
 let orcamentos = JSON.parse(localStorage.getItem('orcamentos')) || [];
 let comparisonChart = null;
+// ==================== SISTEMA DE FECHAMENTO MENSAL ====================
+let fechamentosMensais = JSON.parse(localStorage.getItem('fechamentosMensais')) || [];
+let mesSelecionado = null;
+
+// Função para obter o mês/ano atual no formato YYYY-MM
+function getMesAtual() {
+  const hoje = new Date();
+  return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// Função para calcular totais de um mês específico
+function calcularTotaisMes(mesAno) {
+  const [ano, mes] = mesAno.split('-');
+  let receitas = 0;
+  let despesas = 0;
+  let transacoes = [];
+  
+  financeiro.forEach(item => {
+    const itemDate = new Date(item.data);
+    if (itemDate.getFullYear() === parseInt(ano) && itemDate.getMonth() + 1 === parseInt(mes)) {
+      const valorRecorrente = calculateRecurringValue(item.valor, item.data, item.recorrente);
+      
+      transacoes.push({
+        ...item,
+        valorCalculado: valorRecorrente
+      });
+      
+      if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
+        receitas += valorRecorrente;
+      } else {
+        despesas += valorRecorrente;
+      }
+    }
+  });
+  
+  return {
+    mesAno,
+    receitas,
+    despesas,
+    saldo: receitas - despesas,
+    transacoes
+  };
+}
+
+// Função para fechar o mês
+function fecharMes(mesAno) {
+  const jaFechado = fechamentosMensais.find(f => f.mesAno === mesAno);
+  
+  if (jaFechado) {
+    if (!confirm(`O mês ${mesAno} já foi fechado. Deseja refazer o fechamento?`)) {
+      return;
+    }
+    // Remover fechamento anterior
+    fechamentosMensais = fechamentosMensais.filter(f => f.mesAno !== mesAno);
+  }
+  
+  const totais = calcularTotaisMes(mesAno);
+  
+  const fechamento = {
+    id: Date.now(),
+    mesAno: mesAno,
+    dataFechamento: new Date().toISOString(),
+    receitas: totais.receitas,
+    despesas: totais.despesas,
+    saldo: totais.saldo,
+    numTransacoes: totais.transacoes.length,
+    transacoes: totais.transacoes
+  };
+  
+  fechamentosMensais.push(fechamento);
+  localStorage.setItem('fechamentosMensais', JSON.stringify(fechamentosMensais));
+  
+  return fechamento;
+}
+
+// Função para obter meses disponíveis
+function getMesesDisponiveis() {
+  const meses = new Set();
+  
+  financeiro.forEach(item => {
+    const data = new Date(item.data);
+    const mesAno = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}`;
+    meses.add(mesAno);
+  });
+  
+  return Array.from(meses).sort().reverse();
+}
 
 // CATEGORIAS PADRÃO DO SISTEMA
 const categoriasDefault = ['Salário', 'Alimentação', 'Transporte', 'Moradia', 'Saúde', 'Educação', 'Lazer', 'Investimentos', 'Outros'];
@@ -3153,7 +3323,8 @@ function closeModule(module) {
   'categorias': 'moduleCategorias',
   'metas': 'moduleMetas',
   'orcamento': 'moduleOrcamento',
-  'projecao': 'moduleProjecao'  // ← ADICIONE ESTA LINHA
+  'projecao': 'moduleProjecao', // ← ADICIONE ESTA LINHA
+  'fechamento': 'moduleFechamento'
 };
   
   // Obter o ID correto do módulo
@@ -3422,6 +3593,12 @@ if (module === 'projecao') {
   }
   calculateProjections();
 }
+if (module === 'fechamento') {
+  const hoje = new Date();
+  const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+  document.getElementById('fechamento_mes').value = mesAtual;
+  renderHistoricoFechamentos();
+}
 }
 
 // (Aqui você deve incluir todo o resto do JavaScript original do sistema)
@@ -3461,7 +3638,20 @@ function saveFinanceiro() {
 }
 
 function renderFinanceiro(filtered = null) {
-  const data = filtered || financeiro;
+  let data = filtered || financeiro;
+  
+  // FILTRAR APENAS MÊS ATUAL se não houver filtro aplicado
+  if (!filtered) {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+    
+    data = financeiro.filter(item => {
+      const itemDate = new Date(item.data);
+      return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
+    });
+  }
+  
   const table = document.getElementById('financeiroTable');
   const tbody = table.querySelector('tbody');
   tbody.innerHTML = '';
@@ -3504,6 +3694,12 @@ function renderFinanceiro(filtered = null) {
       </td>
     `;
   });
+  
+  // Mostrar mensagem se não houver dados
+  if (sortedData.length === 0) {
+    const row = tbody.insertRow(-1);
+    row.innerHTML = `<td colspan="7" style="text-align: center; padding: 20px; color: #999;">Nenhuma transação neste mês</td>`;
+  }
 }
 
 function editFinanceiro(id) {
@@ -3550,7 +3746,17 @@ function deleteFinanceiro(id) {
 function renderFinanceiroCategorySummary() {
   const summary = {};
   
-  financeiro.forEach(item => {
+  // FILTRAR APENAS MÊS ATUAL
+  const hoje = new Date();
+  const mesAtual = hoje.getMonth();
+  const anoAtual = hoje.getFullYear();
+  
+  const financeiroMesAtual = financeiro.filter(item => {
+    const itemDate = new Date(item.data);
+    return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
+  });
+  
+  financeiroMesAtual.forEach(item => {
     if (!summary[item.categoria]) {
       summary[item.categoria] = { total: 0, count: 0, occurrences: 0 };
     }
@@ -3569,6 +3775,18 @@ function renderFinanceiroCategorySummary() {
   
   const container = document.getElementById('financeiroCategorySummary');
   container.innerHTML = '';
+  
+  // Adicionar título com indicação de mês
+  const mesNome = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][mesAtual];
+  const tituloAnterior = container.parentElement.querySelector('h3');
+  if (tituloAnterior) {
+    tituloAnterior.textContent = `Resumo por Categoria - ${mesNome}/${anoAtual}`;
+  }
+  
+  if (Object.keys(summary).length === 0) {
+    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 20px;">Nenhuma transação neste mês</p>';
+    return;
+  }
   
   Object.keys(summary).sort().forEach(categoria => {
     const card = document.createElement('div');
@@ -4519,6 +4737,7 @@ function filtrarMes(tipo) {
   });
   
   renderFinanceiro(filtered);
+  document.getElementById('filtroAtivo').textContent = 'Mês atual';
   alert(`Mostrando ${filtered.length} transação(ões) deste mês`);
 }
 
@@ -4526,6 +4745,56 @@ function mostrarTodos(tipo) {
   renderFinanceiro();
   document.getElementById('searchFinanceiro').value = '';
   alert('Mostrando todas as transações');
+}
+
+function mostrarTodosPeriodos() {
+  // Renderizar TODOS os registros sem filtro de mês
+  const table = document.getElementById('financeiroTable');
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  
+  const sortedData = [...financeiro].sort((a, b) => new Date(b.data) - new Date(a.data));
+  
+  sortedData.forEach(item => {
+    const row = tbody.insertRow(-1);
+    const dataFormatada = new Date(item.data).toLocaleString('pt-BR');
+    
+    const valorTotal = calculateRecurringValue(item.valor, item.data, item.recorrente);
+    const occurrences = calculateRecurrenceOccurrences(item.data, item.recorrente);
+    
+    let recorrenciaInfo = item.recorrente;
+    if (item.recorrente !== 'Não' && occurrences > 1) {
+      recorrenciaInfo += ` (${occurrences}x = R$ ${displayCurrency(valorTotal)})`;
+    }
+    
+    let badgeColor = '#d1ecf1';
+    let textColor = '#0c5460';
+    
+    if (item.tipo === 'Recebido' || item.tipo === 'A Receber') {
+      badgeColor = '#d4edda';
+      textColor = '#155724';
+    } else if (item.tipo === 'Pago' || item.tipo === 'Pagar') {
+      badgeColor = '#f8d7da';
+      textColor = '#721c24';
+    }
+    
+    row.innerHTML = `
+      <td>${dataFormatada}</td>
+      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${badgeColor}; color: ${textColor};">${item.tipo}</span></td>
+      <td>${item.descricao}</td>
+      <td>${item.categoria}</td>
+      <td><strong>R$ ${displayCurrency(item.valor)}</strong></td>
+      <td>${recorrenciaInfo}</td>
+      <td>
+        <button class="btn-edit" onclick="editFinanceiro(${item.id})">Editar</button>
+        <button class="btn-delete" onclick="deleteFinanceiro(${item.id})">Excluir</button>
+      </td>
+    `;
+  });
+  
+  document.getElementById('searchFinanceiro').value = '';
+  document.getElementById('filtroAtivo').textContent = 'Todos os meses';
+  alert(`Mostrando todas as ${sortedData.length} transações`);
 }
 
 function buscarFinanceiro() {
@@ -5556,6 +5825,187 @@ function renderProjectionChart(data) {
       }
     }
   });
+}
+
+// ==================== FUNÇÕES DE FECHAMENTO MENSAL ====================
+function visualizarMes() {
+  const mesAno = document.getElementById('fechamento_mes').value;
+  
+  if (!mesAno) {
+    alert('Selecione um mês!');
+    return;
+  }
+  
+  mesSelecionado = mesAno;
+  const totais = calcularTotaisMes(mesAno);
+  
+  // Atualizar cards
+  document.getElementById('fech_receitas').textContent = 'R$ ' + displayCurrency(totais.receitas);
+  document.getElementById('fech_despesas').textContent = 'R$ ' + displayCurrency(totais.despesas);
+  
+  const saldoEl = document.getElementById('fech_saldo');
+  saldoEl.textContent = 'R$ ' + displayCurrency(Math.abs(totais.saldo));
+  saldoEl.style.color = totais.saldo >= 0 ? '#28a745' : '#e74c3c';
+  
+  document.getElementById('fech_num_trans').textContent = totais.transacoes.length;
+  
+  // Renderizar tabela
+  const tbody = document.querySelector('#tabelaTransacoesMes tbody');
+  tbody.innerHTML = '';
+  
+  totais.transacoes.forEach(item => {
+    const row = tbody.insertRow();
+    const dataFormatada = new Date(item.data).toLocaleDateString('pt-BR');
+    
+    let badgeColor = item.tipo.includes('Receb') ? '#d4edda' : '#f8d7da';
+    let textColor = item.tipo.includes('Receb') ? '#155724' : '#721c24';
+    
+    row.innerHTML = `
+      <td>${dataFormatada}</td>
+      <td><span style="padding: 4px 8px; border-radius: 4px; background: ${badgeColor}; color: ${textColor};">${item.tipo}</span></td>
+      <td>${item.descricao}</td>
+      <td>${item.categoria}</td>
+      <td><strong>R$ ${displayCurrency(item.valorCalculado)}</strong></td>
+    `;
+  });
+  
+  // Mostrar seção
+  document.getElementById('dadosMesSelecionado').style.display = 'block';
+}
+
+function fecharMesAtual() {
+  const mesAno = document.getElementById('fechamento_mes').value;
+  
+  if (!mesAno) {
+    alert('Selecione um mês primeiro!');
+    return;
+  }
+  
+  if (!confirm(`Deseja fechar o mês ${mesAno}?\n\nIsso irá salvar todos os dados deste mês como histórico.`)) {
+    return;
+  }
+  
+  const fechamento = fecharMes(mesAno);
+  
+  alert(`✅ Mês ${mesAno} fechado com sucesso!\n\nReceitas: R$ ${displayCurrency(fechamento.receitas)}\nDespesas: R$ ${displayCurrency(fechamento.despesas)}\nSaldo: R$ ${displayCurrency(fechamento.saldo)}`);
+  
+  renderHistoricoFechamentos();
+}
+
+function renderHistoricoFechamentos() {
+  const container = document.getElementById('historicoFechamentos');
+  container.innerHTML = '';
+  
+  if (fechamentosMensais.length === 0) {
+    container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Nenhum mês foi fechado ainda</p>';
+    return;
+  }
+  
+  const fechamentosOrdenados = [...fechamentosMensais].sort((a, b) => b.mesAno.localeCompare(a.mesAno));
+  
+  fechamentosOrdenados.forEach(fech => {
+    const card = document.createElement('div');
+    card.className = 'budget-card';
+    card.style.marginBottom = '15px';
+    
+    const dataFech = new Date(fech.dataFechamento).toLocaleString('pt-BR');
+    
+    card.innerHTML = `
+      <div class="budget-header">
+        <span class="budget-category">📅 ${fech.mesAno}</span>
+        <span class="budget-status ${fech.saldo >= 0 ? 'ok' : 'danger'}">
+          ${fech.saldo >= 0 ? 'Superávit' : 'Déficit'}
+        </span>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0;">
+        <div>
+          <small style="color: #666;">Receitas</small>
+          <div style="font-weight: 700; color: #28a745;">R$ ${displayCurrency(fech.receitas)}</div>
+        </div>
+        <div>
+          <small style="color: #666;">Despesas</small>
+          <div style="font-weight: 700; color: #e74c3c;">R$ ${displayCurrency(fech.despesas)}</div>
+        </div>
+        <div>
+          <small style="color: #666;">Saldo</small>
+          <div style="font-weight: 700; color: ${fech.saldo >= 0 ? '#28a745' : '#e74c3c'};">
+            R$ ${displayCurrency(Math.abs(fech.saldo))}
+          </div>
+        </div>
+      </div>
+      
+      <div style="font-size: 12px; color: #999; margin-top: 10px;">
+        Fechado em: ${dataFech} | ${fech.numTransacoes} transações
+      </div>
+      
+      <div class="action-buttons" style="margin-top: 10px;">
+        <button class="btn-primary" onclick="visualizarFechamento('${fech.mesAno}')">Ver Detalhes</button>
+        <button class="btn-export" onclick="exportarFechamentoPDF('${fech.mesAno}')">Exportar PDF</button>
+        <button class="btn-delete" onclick="deleteFechamento('${fech.mesAno}')">Excluir</button>
+      </div>
+    `;
+    
+    container.appendChild(card);
+  });
+}
+
+function visualizarFechamento(mesAno) {
+  document.getElementById('fechamento_mes').value = mesAno;
+  visualizarMes();
+  document.getElementById('dadosMesSelecionado').scrollIntoView({behavior: 'smooth'});
+}
+
+function deleteFechamento(mesAno) {
+  if (confirm(`Deseja realmente excluir o fechamento de ${mesAno}?\n\nOs dados das transações NÃO serão excluídos, apenas o registro de fechamento.`)) {
+    fechamentosMensais = fechamentosMensais.filter(f => f.mesAno !== mesAno);
+    localStorage.setItem('fechamentosMensais', JSON.stringify(fechamentosMensais));
+    renderHistoricoFechamentos();
+    alert('Fechamento excluído!');
+  }
+}
+
+function exportarFechamentoPDF(mesAno) {
+  const fech = fechamentosMensais.find(f => f.mesAno === mesAno);
+  
+  if (!fech) {
+    alert('Fechamento não encontrado!');
+    return;
+  }
+  
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  
+  pdf.setFontSize(18);
+  pdf.text(`Fechamento Mensal - ${mesAno}`, 10, 15);
+  
+  pdf.setFontSize(12);
+  pdf.text(`Fechado em: ${new Date(fech.dataFechamento).toLocaleString('pt-BR')}`, 10, 25);
+  
+  pdf.setFontSize(14);
+  pdf.text(`Receitas: R$ ${displayCurrency(fech.receitas)}`, 10, 40);
+  pdf.text(`Despesas: R$ ${displayCurrency(fech.despesas)}`, 10, 50);
+  pdf.text(`Saldo: R$ ${displayCurrency(fech.saldo)}`, 10, 60);
+  pdf.text(`Transações: ${fech.numTransacoes}`, 10, 70);
+  
+  pdf.setFontSize(12);
+  pdf.text('Detalhamento de Transações:', 10, 85);
+  
+  let y = 95;
+  fech.transacoes.forEach((trans, index) => {
+    if (y > 270) {
+      pdf.addPage();
+      y = 10;
+    }
+    
+    pdf.text(`${index + 1}. ${trans.descricao} - ${trans.tipo}`, 10, y);
+    y += 6;
+    pdf.text(`   R$ ${displayCurrency(trans.valorCalculado)} - ${trans.categoria}`, 10, y);
+    y += 10;
+  });
+  
+  pdf.save(`fechamento-${mesAno}.pdf`);
+  alert('PDF exportado com sucesso!');
 }
 </script>
 <!-- BOTÃO DE ALTERNÂNCIA DE TEMA -->
