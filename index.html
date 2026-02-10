@@ -1517,18 +1517,7 @@ body.dark-mode .period-info {
     </div>
   </div>
 </div>
-  
-  <!-- BOTÃO DE SINCRONIZAÇÃO GERAL -->
-<div style="max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;">
-  <button onclick="syncAllToSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);">
-    🔄 Sincronizar TODOS os Dados com Google Sheets
-  </button>
-  
-  <button onclick="loadAllFromSheets()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); margin-top: 10px;">
-    📥 Carregar TODOS os Dados do Google Sheets
-  </button>
-</div>
-  
+
   <div class="cards-container">
     <div class="main-card" onclick="openModule('financeiro')">
       <div class="icon">💸</div>
@@ -2369,120 +2358,137 @@ body.dark-mode .period-info {
       <h2>📊 Dashboard Financeiro</h2>
       <button class="btn-close" onclick="closeModule('dashboard')">&times;</button>
     </div>
-    <div class="module-body">
-      <!-- TOGGLE DE PERÍODO NO DASHBOARD -->
-<div class="period-toggle">
-  <div class="period-info">
-    📅 Dados do Dashboard: <span id="dashPeriodDisplay">Conforme módulo Financeiro</span>
+   <div class="module-body">
+  <!-- TOGGLE DE PERÍODO NO DASHBOARD -->
+  <div class="period-toggle">
+    <div class="period-info">
+      📅 Visualização: <span id="dashCurrentPeriodDisplay">Todos os Meses</span>
+    </div>
+    <div class="period-toggle-buttons">
+      <button class="period-toggle-btn active" id="dashPeriodAll" onclick="setDashboardPeriod('all')">
+        📊 Todos os Meses
+      </button>
+      <button class="period-toggle-btn" id="dashPeriodCurrent" onclick="setDashboardPeriod('current')">
+        📅 Mês Atual
+      </button>
+      <button class="period-toggle-btn" id="dashPeriodCustom" onclick="setDashboardPeriod('custom')">
+        🔍 Mês Específico
+      </button>
+    </div>
   </div>
-  <div style="font-size: 12px; color: #999; margin-top: 5px;">
-    💡 A visualização do Dashboard segue a configuração do módulo Financeiro
-  </div>
-</div>
-      
-      <div class="alert alert-info">
-        <span>ℹ️</span>
-        <span>Visão consolidada de todas as suas finanças, investimentos e empréstimos (com cálculo de recorrências)</span>
-      </div>
-      
-      <div class="dashboard-grid">
-  <!-- NOVOS CARDS DETALHADOS -->
-  <div class="dashboard-card receita-recebida">
-    <h3>💰 Receitas Recebidas</h3>
-    <p id="dashReceitasRecebidas">R$ 0,00</p>
-    <small>Valores já recebidos</small>
-  </div>
-  
-  <div class="dashboard-card receita-receber">
-    <h3>📥 Receitas a Receber</h3>
-    <p id="dashReceitasAReceber">R$ 0,00</p>
-    <small>Valores pendentes</small>
-  </div>
-  
-  <div class="dashboard-card despesa-paga">
-    <h3>💸 Despesas Pagas</h3>
-    <p id="dashDespesasPagas">R$ 0,00</p>
-    <small>Valores já pagos</small>
-  </div>
-  
-  <div class="dashboard-card despesa-pagar">
-    <h3>📤 Despesas a Pagar</h3>
-    <p id="dashDespesasAPagar">R$ 0,00</p>
-    <small>Valores pendentes</small>
-  </div>
-  
-  <div class="dashboard-card saldo-liquido">
-    <h3>💵 Saldo Líquido Real</h3>
-    <p id="dashSaldoLiquido" style="font-size: 32px;">R$ 0,00</p>
-    <small>Total Receitas - Total Despesas</small>
-  </div>
-  
-  <!-- CARDS ORIGINAIS -->
-  <div class="dashboard-card">
-    <h3>Saldo Total</h3>
-    <p id="dashSaldo">R$ 0,00</p>
-    <small>Receitas - Despesas</small>
-  </div>
-  
-  <div class="dashboard-card">
-    <h3>Total Investido</h3>
-    <p id="dashInvest">R$ 0,00</p>
-    <small>Carteira de investimentos</small>
-  </div>
-  
-  <div class="dashboard-card">
-    <h3>Proventos Acumulados</h3>
-    <p id="dashProv">R$ 0,00</p>
-    <small>Renda passiva com recorrências</small>
-  </div>
-  
-  <div class="dashboard-card">
-    <h3>Empréstimos Ativos</h3>
-    <p id="dashEmprestimos">R$ 0,00</p>
-    <small>Valores em aberto</small>
-  </div>
-  
-  <div class="dashboard-card">
-    <h3>Patrimônio Total</h3>
-    <p id="dashPatrimonio">R$ 0,00</p>
-    <small>Saldo + Investimentos + Empréstimos</small>
-  </div>
-</div>
-      
-      <div class="data-table" style="margin-top: 30px;">
-        <h3>Estatísticas Gerais</h3>
-        <table>
-          <tr>
-            <th style="cursor: default;">Métrica</th>
-            <th style="cursor: default;">Valor</th>
-          </tr>
-          <tr>
-            <td><strong>Total de Receitas (com recorrências)</strong></td>
-            <td id="totalReceitas"><strong>R$ 0,00</strong></td>
-          </tr>
-          <tr>
-            <td><strong>Total de Despesas (com recorrências)</strong></td>
-            <td id="totalDespesas"><strong>R$ 0,00</strong></td>
-          </tr>
-          <tr>
-            <td>Número de Transações</td>
-            <td id="numTransacoes">0</td>
-          </tr>
-          <tr>
-            <td>Número de Investimentos</td>
-            <td id="numInvestimentos">0</td>
-          </tr>
-          <tr>
-            <td>Número de Empréstimos</td>
-            <td id="numEmprestimos">0</td>
-          </tr>
-          <tr>
-            <td>Número de Anotações</td>
-            <td id="numAnotacoes">0</td>
-          </tr>
-        </table>
+
+  <!-- SELETOR DE MÊS ESPECÍFICO (OCULTO POR PADRÃO) -->
+  <div id="dashCustomMonthSelector" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #667eea;">
+    <div class="form-grid">
+      <div class="form-group-inline">
+        <label for="dashCustomMonth">Selecione o Mês:</label>
+        <input type="month" id="dashCustomMonth" style="padding: 10px;">
       </div>
     </div>
+    <button class="btn-primary" onclick="applyDashboardCustomMonth()" style="margin-top: 10px;">Aplicar</button>
+  </div>
+  
+  <div class="alert alert-info">
+    <span>ℹ️</span>
+    <span>Visão consolidada de todas as suas finanças, investimentos e empréstimos (com cálculo de recorrências)</span>
+  </div>
+  
+  <div class="dashboard-grid">
+    <!-- NOVOS CARDS DETALHADOS -->
+    <div class="dashboard-card receita-recebida">
+      <h3>💰 Receitas Recebidas</h3>
+      <p id="dashReceitasRecebidas">R$ 0,00</p>
+      <small>Valores já recebidos</small>
+    </div>
+    
+    <div class="dashboard-card receita-receber">
+      <h3>📥 Receitas a Receber</h3>
+      <p id="dashReceitasAReceber">R$ 0,00</p>
+      <small>Valores pendentes</small>
+    </div>
+    
+    <div class="dashboard-card despesa-paga">
+      <h3>💸 Despesas Pagas</h3>
+      <p id="dashDespesasPagas">R$ 0,00</p>
+      <small>Valores já pagos</small>
+    </div>
+    
+    <div class="dashboard-card despesa-pagar">
+      <h3>📤 Despesas a Pagar</h3>
+      <p id="dashDespesasAPagar">R$ 0,00</p>
+      <small>Valores pendentes</small>
+    </div>
+    
+    <div class="dashboard-card saldo-liquido">
+      <h3>💵 Saldo Líquido Real</h3>
+      <p id="dashSaldoLiquido" style="font-size: 32px;">R$ 0,00</p>
+      <small>Total Receitas - Total Despesas</small>
+    </div>
+    
+    <!-- CARDS ORIGINAIS -->
+    <div class="dashboard-card">
+      <h3>Saldo Total</h3>
+      <p id="dashSaldo">R$ 0,00</p>
+      <small>Receitas - Despesas</small>
+    </div>
+    
+    <div class="dashboard-card">
+      <h3>Total Investido</h3>
+      <p id="dashInvest">R$ 0,00</p>
+      <small>Carteira de investimentos</small>
+    </div>
+    
+    <div class="dashboard-card">
+      <h3>Proventos Acumulados</h3>
+      <p id="dashProv">R$ 0,00</p>
+      <small>Renda passiva com recorrências</small>
+    </div>
+    
+    <div class="dashboard-card">
+      <h3>Empréstimos Ativos</h3>
+      <p id="dashEmprestimos">R$ 0,00</p>
+      <small>Valores em aberto</small>
+    </div>
+    
+    <div class="dashboard-card">
+      <h3>Patrimônio Total</h3>
+      <p id="dashPatrimonio">R$ 0,00</p>
+      <small>Saldo + Investimentos + Empréstimos</small>
+    </div>
+  </div>
+  
+  <div class="data-table" style="margin-top: 30px;">
+    <h3>Estatísticas Gerais</h3>
+    <table>
+      <tr>
+        <th style="cursor: default;">Métrica</th>
+        <th style="cursor: default;">Valor</th>
+      </tr>
+      <tr>
+        <td><strong>Total de Receitas (com recorrências)</strong></td>
+        <td id="totalReceitas"><strong>R$ 0,00</strong></td>
+      </tr>
+      <tr>
+        <td><strong>Total de Despesas (com recorrências)</strong></td>
+        <td id="totalDespesas"><strong>R$ 0,00</strong></td>
+      </tr>
+      <tr>
+        <td>Número de Transações</td>
+        <td id="numTransacoes">0</td>
+      </tr>
+      <tr>
+        <td>Número de Investimentos</td>
+        <td id="numInvestimentos">0</td>
+      </tr>
+      <tr>
+        <td>Número de Empréstimos</td>
+        <td id="numEmprestimos">0</td>
+      </tr>
+      <tr>
+        <td>Número de Anotações</td>
+        <td id="numAnotacoes">0</td>
+      </tr>
+    </table>
   </div>
 </div>
 
@@ -4713,7 +4719,79 @@ function limparFormVendas() {
 }
 
 // ==================== DASHBOARD MELHORADO ====================
+// ==================== CONTROLE DE PERÍODO DO DASHBOARD ====================
+let dashboardPeriodView = 'all'; // 'all', 'current', ou 'custom'
+let dashboardCustomMonth = null;
+
+function setDashboardPeriod(view) {
+  dashboardPeriodView = view;
+  
+  // Atualizar botões ativos
+  document.querySelectorAll('.period-toggle-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  if (view === 'all') {
+    document.getElementById('dashPeriodAll').classList.add('active');
+    document.getElementById('dashCustomMonthSelector').style.display = 'none';
+    document.getElementById('dashCurrentPeriodDisplay').textContent = 'Todos os Meses';
+  } else if (view === 'current') {
+    document.getElementById('dashPeriodCurrent').classList.add('active');
+    document.getElementById('dashCustomMonthSelector').style.display = 'none';
+    const hoje = new Date();
+    const mesNome = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][hoje.getMonth()];
+    document.getElementById('dashCurrentPeriodDisplay').textContent = `${mesNome}/${hoje.getFullYear()}`;
+  } else if (view === 'custom') {
+    document.getElementById('dashPeriodCustom').classList.add('active');
+    document.getElementById('dashCustomMonthSelector').style.display = 'block';
+    const hoje = new Date();
+    const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    document.getElementById('dashCustomMonth').value = mesAtual;
+    return; // Não renderizar ainda, esperar o usuário selecionar
+  }
+  
+  renderDashboard();
+}
+
+function applyDashboardCustomMonth() {
+  const mesAno = document.getElementById('dashCustomMonth').value;
+  
+  if (!mesAno) {
+    alert('Selecione um mês!');
+    return;
+  }
+  
+  dashboardCustomMonth = mesAno;
+  const [ano, mes] = mesAno.split('-');
+  const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  document.getElementById('dashCurrentPeriodDisplay').textContent = `${meses[parseInt(mes) - 1]}/${ano}`;
+  
+  renderDashboard();
+}
+
+// ==================== DASHBOARD MELHORADO COM FILTRO DE PERÍODO ====================
 function renderDashboard() {
+  let dataToAnalyze = financeiro;
+  
+  // APLICAR FILTRO DE PERÍODO
+  if (dashboardPeriodView === 'current') {
+    const hoje = new Date();
+    const mesAtual = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
+    
+    dataToAnalyze = financeiro.filter(item => {
+      const itemDate = new Date(item.data);
+      return itemDate.getMonth() === mesAtual && itemDate.getFullYear() === anoAtual;
+    });
+  } else if (dashboardPeriodView === 'custom' && dashboardCustomMonth) {
+    const [ano, mes] = dashboardCustomMonth.split('-');
+    
+    dataToAnalyze = financeiro.filter(item => {
+      const itemDate = new Date(item.data);
+      return itemDate.getFullYear() === parseInt(ano) && itemDate.getMonth() + 1 === parseInt(mes);
+    });
+  }
+  
   // Calcular valores DETALHADOS por tipo
   let receitasRecebidas = 0;
   let receitasAReceber = 0;
@@ -4723,7 +4801,7 @@ function renderDashboard() {
   let totalRec = 0;
   let totalDesp = 0;
   
-  financeiro.forEach(item => {
+  dataToAnalyze.forEach(item => {
     const valorRecorrente = calculateRecurringValue(item.valor, item.data, item.recorrente);
     
     // RECEITAS
@@ -4749,7 +4827,7 @@ function renderDashboard() {
   const saldoLiquido = totalRec - totalDesp;
   const saldo = totalRec - totalDesp;
   
-  // Investimentos
+  // Investimentos (sempre todos)
   let totalInvest = 0;
   let totalProv = 0;
   
@@ -4759,7 +4837,7 @@ function renderDashboard() {
     totalProv += proventoRecorrente;
   });
   
-  // Empréstimos
+  // Empréstimos (sempre todos)
   let totalEmprestimos = 0;
   consignacoes.forEach(item => {
     totalEmprestimos += (item.total - item.pago);
@@ -4792,7 +4870,7 @@ function renderDashboard() {
   
   document.getElementById('totalReceitas').textContent = 'R$ ' + displayCurrency(totalRec);
   document.getElementById('totalDespesas').textContent = 'R$ ' + displayCurrency(totalDesp);
-  document.getElementById('numTransacoes').textContent = financeiro.length;
+  document.getElementById('numTransacoes').textContent = dataToAnalyze.length;
   document.getElementById('numInvestimentos').textContent = investimentos.length;
   document.getElementById('numEmprestimos').textContent = consignacoes.length;
   document.getElementById('numAnotacoes').textContent = anotacoes.length;
