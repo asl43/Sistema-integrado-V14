@@ -1842,14 +1842,27 @@ body.dark-mode .period-info {
     </div>
     <div class="module-body">
       
-      <div class="summary-section">
-        <h3>Resumo por Modalidade (Com Recorrências Calculadas)</h3>
-        <div class="summary-grid" id="investimentoModalitySummary"></div>
-      </div>
-      
-      <div class="form-card" id="formInvest">
-        <h3 id="invFormTitle">Novo Investimento</h3>
-        <input type="hidden" id="i_id">
+     <div class="summary-section">
+  <h3>Resumo de Investimentos</h3>
+  <div class="summary-grid" id="investimentoModalitySummary">
+    <!-- Cards de modalidade serão inseridos aqui pelo JavaScript -->
+  </div>
+  
+  <!-- NOVOS CARDS DE PROVENTOS -->
+  <div class="summary-grid" style="margin-top: 20px;">
+    <div class="summary-card highlight">
+      <h4>💰 Proventos Totais</h4>
+      <p id="proventosTotais">R$ 0,00</p>
+      <small style="opacity: 0.8; font-size: 12px;">Desde o início</small>
+    </div>
+    
+    <div class="summary-card">
+      <h4>📅 Proventos Mensais</h4>
+      <p id="proventosMensais">R$ 0,00</p>
+      <small style="opacity: 0.8; font-size: 12px;">Média mensal</small>
+    </div>
+  </div>
+</div>
         
 <!-- FILTROS INVESTIMENTOS -->
 <div class="filter-section">
@@ -2810,6 +2823,7 @@ body.dark-mode .period-info {
 </div>
 
 <!-- ==================== MÓDULO FECHAMENTO MENSAL ==================== -->
+<!-- ==================== MÓDULO FECHAMENTO MENSAL ==================== -->
 <div class="module-container" id="moduleFechamento">
   <div class="module-content">
     <div class="module-header">
@@ -2879,8 +2893,15 @@ body.dark-mode .period-info {
         </div>
       </div>
       
+      <!-- HISTÓRICO DE FECHAMENTOS -->
+      <div class="data-table" style="margin-top: 30px;">
+        <h3>📚 Histórico de Fechamentos</h3>
+        <div id="historicoFechamentos"></div>
+      </div>
       
-
+    </div>
+  </div>
+</div>
 <script>
 // ==================== CONFIGURAÇÃO ====================
 // ==================== CONFIGURAÇÃO ====================
@@ -3662,27 +3683,30 @@ window.onload = function() {
   });
 };
 
-// ==================== FECHAR MÓDULOS (CORRIGIDO) ====================
+// ==================== FECHAR MÓDULOS (CORRIGIDO E OTIMIZADO) ====================
 function closeModule(module) {
-  // Normalizar o nome do módulo
-  const moduleName = module.toLowerCase().replace(/[^a-z]/g, '');
+  // Normalizar o nome do módulo (remover espaços, acentos, caracteres especiais)
+  const moduleName = module.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/[^a-z]/g, ''); // Remove tudo que não for letra
   
   // Lista de IDs de módulos válidos
- const moduleIds = {
-  'configuracao': 'moduleConfiguracao',
-  'financeiro': 'moduleFinanceiro',
-  'investimento': 'moduleInvestimento',
-  'consignacao': 'moduleConsignacao',
-  'anotacoes': 'moduleAnotacoes',
-  'vendas': 'moduleVendas',
-  'dashboard': 'moduleDashboard',
-  'comparacao': 'moduleComparacao',
-  'categorias': 'moduleCategorias',
-  'metas': 'moduleMetas',
-  'orcamento': 'moduleOrcamento',
-  'projecao': 'moduleProjecao', // ← ADICIONE ESTA LINHA
-  'fechamento': 'moduleFechamento'
-};
+  const moduleIds = {
+    'configuracao': 'moduleConfiguracao',
+    'financeiro': 'moduleFinanceiro',
+    'investimento': 'moduleInvestimento',
+    'consignacao': 'moduleConsignacao',
+    'anotacoes': 'moduleAnotacoes',
+    'vendas': 'moduleVendas',
+    'dashboard': 'moduleDashboard',
+    'comparacao': 'moduleComparacao',
+    'categorias': 'moduleCategorias',
+    'metas': 'moduleMetas',
+    'orcamento': 'moduleOrcamento',
+    'projecao': 'moduleProjecao',
+    'fechamento': 'moduleFechamento'
+  };
   
   // Obter o ID correto do módulo
   const moduleId = moduleIds[moduleName];
@@ -3698,6 +3722,8 @@ function closeModule(module) {
       if (moduleName === 'consignacao') resetConsForm();
       if (moduleName === 'anotacoes') resetAnotForm();
       if (moduleName === 'vendas') limparFormVendas();
+      if (moduleName === 'categorias') resetCatForm();
+      if (moduleName === 'metas') resetMetaForm();
       
       console.log('✅ Módulo fechado:', moduleName);
     } else {
@@ -3707,7 +3733,6 @@ function closeModule(module) {
     console.error('❌ Módulo não reconhecido:', moduleName);
   }
 }
-
 // ==================== CARREGAMENTO AUTOMÁTICO ====================
 async function autoLoadAllData() {
   if (!SHEETS_URL) return;
@@ -3888,79 +3913,126 @@ function fazerLogout() {
   }
 }
 
-// ==================== MÓDULOS ====================
+// ==================== ABRIR MÓDULOS (OTIMIZADO) ====================
 function openModule(module) {
-  document.getElementById('module' + module.charAt(0).toUpperCase() + module.slice(1)).classList.add('active');
+  // Normalizar nome do módulo
+  const moduleName = module.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z]/g, '');
   
-  if (module === 'financeiro') {
-    renderFinanceiro();
-    renderFinanceiroCategorySummary();
-  }
-  if (module === 'investimento') {
-    renderInvestimentos();
-    renderInvestimentoModalitySummary();
-  }
-  if (module === 'consignacao') {
-    renderConsignacoes();
-    renderConsignacaoSummary();
-    renderConsignacaoChart();
-  }
-  if (module === 'anotacoes') {
-    renderAnotacoes();
-    renderAnotacoesPrioritySummary();
-  }
-  if (module === 'vendas') {
-    renderVendas();
-  }
-  if (module === 'dashboard') {
-    renderDashboard();
-  }
-  if (module === 'configuracao') {
-    atualizarStatusUrl();
-  }
+  // Mapear nomes para IDs
+  const moduleMap = {
+    'configuracao': 'Configuracao',
+    'financeiro': 'Financeiro',
+    'investimento': 'Investimento',
+    'consignacao': 'Consignacao',
+    'anotacoes': 'Anotacoes',
+    'vendas': 'Vendas',
+    'dashboard': 'Dashboard',
+    'comparacao': 'Comparacao',
+    'categorias': 'Categorias',
+    'metas': 'Metas',
+    'orcamento': 'Orcamento',
+    'projecao': 'Projecao',
+    'fechamento': 'Fechamento'
+  };
   
-  // NOVOS MÓDULOS
-  if (module === 'comparacao') {
-    const hoje = new Date();
-    const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-    const mesAnterior = `${hoje.getFullYear()}-${String(hoje.getMonth()).padStart(2, '0')}`;
-    document.getElementById('comp_periodo1').value = mesAnterior;
-    document.getElementById('comp_periodo2').value = mesAtual;
-  }
-  if (module === 'categorias') {
-    renderCategorias();
-  }
-  if (module === 'metas') {
-    renderMetas();
-  }
-  if (module === 'orcamento') {
-    updateCategorySelects();
-    renderOrcamentos();
-    const hoje = new Date();
-    const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-    document.getElementById('orc_mes').value = mesAtual;
-  }
-  // ADICIONE DENTRO DA FUNÇÃO openModule, após os outros módulos:
-
-if (module === 'projecao') {
-  if (investimentos.length === 0) {
-    alert('⚠️ Você ainda não tem investimentos cadastrados!\n\nCadastre alguns investimentos primeiro para ver as projeções.');
-    closeModule('projecao');
+  const moduleId = 'module' + moduleMap[moduleName];
+  const moduleElement = document.getElementById(moduleId);
+  
+  if (!moduleElement) {
+    console.error('❌ Módulo não encontrado:', moduleId);
+    alert('Erro ao abrir módulo. Verifique o console.');
     return;
   }
-  calculateProjections();
+  
+  // Abrir módulo
+  moduleElement.classList.add('active');
+  
+  // Executar funções específicas de cada módulo (SEM setTimeout - execução imediata)
+  switch(moduleName) {
+    case 'financeiro':
+      renderFinanceiro();
+      renderFinanceiroCategorySummary();
+      break;
+      
+    case 'investimento':
+      renderInvestimentos();
+      renderInvestimentoModalitySummary();
+      break;
+      
+    case 'consignacao':
+      renderConsignacoes();
+      renderConsignacaoSummary();
+      renderConsignacaoChart();
+      break;
+      
+    case 'anotacoes':
+      renderAnotacoes();
+      renderAnotacoesPrioritySummary();
+      break;
+      
+    case 'vendas':
+      renderVendas();
+      break;
+      
+    case 'dashboard':
+      renderDashboard();
+      break;
+      
+    case 'configuracao':
+      atualizarStatusUrl();
+      break;
+      
+    case 'comparacao':
+      const hoje = new Date();
+      const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+      let mesAnterior;
+      if (hoje.getMonth() === 0) {
+        mesAnterior = `${hoje.getFullYear() - 1}-12`;
+      } else {
+        mesAnterior = `${hoje.getFullYear()}-${String(hoje.getMonth()).padStart(2, '0')}`;
+      }
+      document.getElementById('comp_periodo1').value = mesAnterior;
+      document.getElementById('comp_periodo2').value = mesAtual;
+      break;
+      
+    case 'categorias':
+      renderCategorias();
+      break;
+      
+    case 'metas':
+      renderMetas();
+      break;
+      
+    case 'orcamento':
+      updateCategorySelects();
+      renderOrcamentos();
+      const hj = new Date();
+      const mesAtu = `${hj.getFullYear()}-${String(hj.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('orc_mes').value = mesAtu;
+      break;
+      
+    case 'projecao':
+      if (investimentos.length === 0) {
+        alert('⚠️ Você ainda não tem investimentos cadastrados!\n\nCadastre alguns investimentos primeiro para ver as projeções.');
+        closeModule('projecao');
+        return;
+      }
+      calculateProjections();
+      break;
+      
+    case 'fechamento':
+      const h = new Date();
+      const mA = `${h.getFullYear()}-${String(h.getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('fechamento_mes').value = mA;
+      renderHistoricoFechamentos();
+      break;
+  }
+  
+  console.log('✅ Módulo aberto:', moduleName);
 }
-if (module === 'fechamento') {
-  const hoje = new Date();
-  const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
-  document.getElementById('fechamento_mes').value = mesAtual;
-  renderHistoricoFechamentos();
-}
-}
-
-// (Aqui você deve incluir todo o resto do JavaScript original do sistema)
-// As funções de saveFinanceiro, renderFinanceiro, editFinanceiro, deleteFinanceiro, etc.
-// Por brevidade, não vou repetir todo o código, mas todas as funções originais devem estar aqui
 
 // ==================== FINANCEIRO ====================
 function saveFinanceiro() {
@@ -4180,11 +4252,22 @@ function deleteInvestimento(id) {
 
 function renderInvestimentoModalitySummary() {
   const summary = {};
+  let proventosTotais = 0;
+  let mesesComProventos = new Set();
   
+  // Agrupar por modalidade
   investimentos.forEach(item => {
     if (!summary[item.modalidade]) {
-      summary[item.modalidade] = { total: 0, count: 0, proventos: 0, occurrences: 0 };
+      summary[item.modalidade] = { 
+        total: 0, 
+        count: 0, 
+        proventos: 0, 
+        occurrences: 0,
+        proventosMensal: 0,
+        proventosAnual: 0
+      };
     }
+    
     summary[item.modalidade].total += item.valor;
     
     const proventoRecorrente = calculateRecurringValue(item.provento, item.data, item.recorrente);
@@ -4193,28 +4276,106 @@ function renderInvestimentoModalitySummary() {
     summary[item.modalidade].proventos += proventoRecorrente;
     summary[item.modalidade].count++;
     summary[item.modalidade].occurrences += occurrences;
+    
+    // CALCULAR RENDIMENTOS MENSAIS E ANUAIS
+    if (item.provento > 0) {
+      let rendimentoMensal = 0;
+      let rendimentoAnual = 0;
+      
+      switch(item.recorrente) {
+        case 'Diário':
+          rendimentoMensal = item.provento * 30;
+          rendimentoAnual = item.provento * 365;
+          break;
+        case 'Mensal':
+          rendimentoMensal = item.provento;
+          rendimentoAnual = item.provento * 12;
+          break;
+        case 'Bimestral':
+          rendimentoMensal = item.provento / 2;
+          rendimentoAnual = item.provento * 6;
+          break;
+        case 'Trimestral':
+          rendimentoMensal = item.provento / 3;
+          rendimentoAnual = item.provento * 4;
+          break;
+        case 'Semestral':
+          rendimentoMensal = item.provento / 6;
+          rendimentoAnual = item.provento * 2;
+          break;
+        case 'Anual':
+          rendimentoMensal = item.provento / 12;
+          rendimentoAnual = item.provento;
+          break;
+        default: // 'Não' - rendimento único
+          rendimentoMensal = 0;
+          rendimentoAnual = 0;
+      }
+      
+      summary[item.modalidade].proventosMensal += rendimentoMensal;
+      summary[item.modalidade].proventosAnual += rendimentoAnual;
+    }
+    
+    // Calcular proventos totais
+    proventosTotais += proventoRecorrente;
+    
+    // Contar meses únicos com proventos
+    if (item.provento > 0 && item.data) {
+      const dataInicio = new Date(item.data);
+      const hoje = new Date();
+      const mesesDiferenca = (hoje.getFullYear() - dataInicio.getFullYear()) * 12 + (hoje.getMonth() - dataInicio.getMonth());
+      
+      if (item.recorrente === 'Mensal') {
+        for (let i = 0; i <= mesesDiferenca; i++) {
+          mesesComProventos.add(i);
+        }
+      }
+    }
   });
   
   const container = document.getElementById('investimentoModalitySummary');
   container.innerHTML = '';
   
+  // CRIAR CARDS POR CATEGORIA
   Object.keys(summary).sort().forEach(modalidade => {
+    const data = summary[modalidade];
+    
     const card = document.createElement('div');
     card.className = 'summary-card';
     
     card.innerHTML = `
       <h4>${modalidade}</h4>
-      <p>R$ ${displayCurrency(summary[modalidade].total)}</p>
-      <small style="opacity: 0.8; font-size: 12px;">${summary[modalidade].count} ativos</small><br>
-      <small style="opacity: 0.8; font-size: 11px;">Proventos: R$ ${displayCurrency(summary[modalidade].proventos)}</small>
-      <div class="recurrence-info">${summary[modalidade].occurrences} ocorrências calculadas</div>
+      <p style="font-size: 28px; margin: 10px 0;">R$ ${displayCurrency(data.total)}</p>
+      <small style="opacity: 0.8; font-size: 12px; display: block; margin-bottom: 10px;">${data.count} ativos</small>
+      
+      <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; margin-top: 10px;">
+        <div style="margin: 5px 0;">
+          <small style="opacity: 0.8; font-size: 11px;">💰 Rendimento Mensal:</small>
+          <div style="font-weight: 700; font-size: 14px;">R$ ${displayCurrency(data.proventosMensal)}</div>
+        </div>
+        
+        <div style="margin: 5px 0;">
+          <small style="opacity: 0.8; font-size: 11px;">📈 Rendimento Anual:</small>
+          <div style="font-weight: 700; font-size: 14px;">R$ ${displayCurrency(data.proventosAnual)}</div>
+        </div>
+      </div>
+      
+      <div class="recurrence-info" style="margin-top: 10px;">
+        Proventos acumulados: R$ ${displayCurrency(data.proventos)}
+      </div>
     `;
+    
     container.appendChild(card);
   });
+  
+  // ATUALIZAR CARDS DE PROVENTOS TOTAIS
+  document.getElementById('proventosTotais').textContent = 'R$ ' + displayCurrency(proventosTotais);
+  
+  // Calcular média mensal de proventos
+  const proventosMensais = mesesComProventos.size > 0 ? proventosTotais / mesesComProventos.size : 0;
+  document.getElementById('proventosMensais').textContent = 'R$ ' + displayCurrency(proventosMensais);
 }
 
-// (Continue com as demais funções: Consignação, Anotações, Vendas, Dashboard, etc.)
-// Por brevidade, não vou repetir todo o código, mas você deve incluir todas as funções originais aqui
 // ==================== CONSIGNAÇÃO ====================
 function saveConsignacao() {
   const juros = parseFloat(document.getElementById('c_juros').value);
@@ -6147,6 +6308,13 @@ function fecharMesAtual() {
 
 function renderHistoricoFechamentos() {
   const container = document.getElementById('historicoFechamentos');
+  
+  // Verificar se o container existe
+  if (!container) {
+    console.warn('Container de histórico não encontrado');
+    return;
+  }
+  
   container.innerHTML = '';
   
   if (fechamentosMensais.length === 0) {
@@ -6154,6 +6322,8 @@ function renderHistoricoFechamentos() {
     return;
   }
   
+  // Criar um fragmento para melhor performance
+  const fragment = document.createDocumentFragment();
   const fechamentosOrdenados = [...fechamentosMensais].sort((a, b) => b.mesAno.localeCompare(a.mesAno));
   
   fechamentosOrdenados.forEach(fech => {
@@ -6199,8 +6369,10 @@ function renderHistoricoFechamentos() {
       </div>
     `;
     
-    container.appendChild(card);
+    fragment.appendChild(card);
   });
+  
+  container.appendChild(fragment);
 }
 
 function visualizarFechamento(mesAno) {
